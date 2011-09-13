@@ -81,6 +81,12 @@
 /* LayoutExample (Cat Finder)                                                */
 /*****************************************************************************/
 /* BEGIN-EXAMPLE: layout.overview.settings */
+
+.settings .v-verticallayout-leftcolumn {
+    background: #eee;
+    height: 100%
+}
+
 /* For the title bar and black border around the view */
 .v-verticallayout-settings {
     background: white;

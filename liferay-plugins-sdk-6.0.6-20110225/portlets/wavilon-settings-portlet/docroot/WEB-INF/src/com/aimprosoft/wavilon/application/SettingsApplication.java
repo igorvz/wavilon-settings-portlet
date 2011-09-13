@@ -1,6 +1,6 @@
 package com.aimprosoft.wavilon.application;
 
-import com.aimprosoft.wavilon.ui.SimplePage;
+import com.aimprosoft.wavilon.ui.SettingsPage;
 import com.liferay.portal.model.User;
 import com.liferay.portal.util.PortalUtil;
 import com.vaadin.ui.Window;
@@ -8,6 +8,8 @@ import org.apache.log4j.Logger;
 
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 public class SettingsApplication extends GenericPortletApplication {
 
@@ -19,17 +21,31 @@ public class SettingsApplication extends GenericPortletApplication {
         super.init();
 
         Window window = new Window();
-        window.addComponent(new SimplePage());
         setMainWindow(window);
     }
 
     @Override
-    //todo test code, probably remove it
     public void handleRenderRequest(RenderRequest renderRequest, RenderResponse renderResponse, Window window) {
         try {
+
+            //get liferay locale
+            Locale portalLocale = PortalUtil.getLocale(renderRequest);
+
+            //window locale will be used everywhere
+            window.setLocale(portalLocale);
+
+            ResourceBundle bundle = ResourceBundle.getBundle("language", window.getLocale());
+
+            if (window.getComponentIterator().hasNext()) {
+
+                window.removeComponent(window.getComponentIterator().next());
+            }
+
+            window.addComponent(new SettingsPage(bundle));
+
             long companyId = PortalUtil.getCompanyId(renderRequest);
             User liferayUser = PortalUtil.getUser(renderRequest);
-            if (liferayUser != null){
+            if (liferayUser != null) {
                 window.setCaption(liferayUser.getFullName());
             }
         } catch (Exception e) {

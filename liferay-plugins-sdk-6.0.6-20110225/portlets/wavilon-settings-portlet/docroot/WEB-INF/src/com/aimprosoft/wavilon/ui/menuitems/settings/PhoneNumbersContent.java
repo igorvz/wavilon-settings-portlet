@@ -10,6 +10,7 @@ import com.vaadin.ui.VerticalLayout;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ResourceBundle;
 
 public class PhoneNumbersContent extends HorizontalLayout {
     private IndexedContainer tableData;
@@ -21,10 +22,10 @@ public class PhoneNumbersContent extends HorizontalLayout {
     private VerticalLayout left = new VerticalLayout();
     private VerticalLayout right = new VerticalLayout();
 
-    public PhoneNumbersContent() {
-        tableFields = fillFields();
+    public PhoneNumbersContent(ResourceBundle bundle) {
+        tableFields = fillFields(bundle);
 
-        tableData = createTableData();
+        tableData = createTableData(bundle);
 
         initLayout();
         initAddressList();
@@ -32,10 +33,10 @@ public class PhoneNumbersContent extends HorizontalLayout {
     }
 
     //fill tables fields
-    private LinkedList<String> fillFields() {
+    private LinkedList<String> fillFields(ResourceBundle bundle) {
         LinkedList<String> tableFields = new LinkedList<String>();
 
-        tableFields.add("mobile");
+        tableFields.add(bundle.getString("wavilon.settings.services.phoneNumbers.mobile"));
 
         return tableFields;
     }
@@ -80,7 +81,7 @@ public class PhoneNumbersContent extends HorizontalLayout {
 
 
     //fill table
-    private IndexedContainer createTableData() {
+    private IndexedContainer createTableData(ResourceBundle bundle) {
         IndexedContainer ic = new IndexedContainer();
         List<String> numbers = getNumbers();
 
@@ -90,7 +91,7 @@ public class PhoneNumbersContent extends HorizontalLayout {
 
         for (String number : numbers) {
             Object object = ic.addItem();
-            ic.getContainerProperty(object, "mobile").setValue(number);
+            ic.getContainerProperty(object, bundle.getString("wavilon.settings.services.phoneNumbers.mobile")).setValue(number);
         }
 
         return ic;
