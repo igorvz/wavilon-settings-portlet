@@ -2,21 +2,21 @@ package com.aimprosoft.wavilon.service;
 
 import com.aimprosoft.wavilon.model.User;
 
+import java.io.IOException;
 import java.util.List;
 
-//todo will be implemented
+//todo move to spring
 public interface DatabaseService {
 
-    void addUser(User user);
+    void addUser(User user) throws IOException;
 
-    User getUser(Long id);
-    List<User> getAllUsers();
+    User getUser(String id) throws IOException;
 
-    void removeUser(User user);
-    void removeUser(Long id);
+    List<User> getAllUsers() throws IOException;
 
-    void updateUser(User user);
+    void removeUser(User user) throws IOException;
 
+    void removeUser(String id) throws IOException;
 
-
+    void updateUser(User user) throws IOException;
 }

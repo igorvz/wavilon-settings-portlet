@@ -25,7 +25,7 @@ public class SettingsApplication extends GenericPortletApplication {
     }
 
     @Override
-    public void handleRenderRequest(RenderRequest renderRequest, RenderResponse renderResponse, Window window) {
+    public void handleRenderRequest(RenderRequest renderRequest, RenderResponse renderResponse, final Window window) {
         try {
 
             //get liferay locale

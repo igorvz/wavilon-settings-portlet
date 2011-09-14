@@ -107,6 +107,9 @@ public class SettingsPage extends VerticalLayout {
         recordings.add(bundle.getString("wavilon.settings.recordings.anotherSubMenu"));
 
         treeBar.put(bundle.getString("wavilon.settings.recordings"), recordings);
+
+        //todo probably remove this, test user validation form
+        treeBar.put(bundle.getString("wavilon.settings.validation.form"), Collections.<String>emptyList());
     }
 
     //fill tree menu
