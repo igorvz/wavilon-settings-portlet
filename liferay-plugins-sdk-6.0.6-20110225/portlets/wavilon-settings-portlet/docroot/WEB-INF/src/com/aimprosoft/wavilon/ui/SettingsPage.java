@@ -2,6 +2,7 @@ package com.aimprosoft.wavilon.ui;
 
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 
 import java.util.*;
@@ -12,31 +13,35 @@ public class SettingsPage extends VerticalLayout {
     public SettingsPage(ResourceBundle bundle) {
         this.bundle = bundle;
         addStyleName("settings");
-        setSizeFull();
+        setSides(this);
 
-        HorizontalLayout mainContent = createMainContent();
-        addComponent(mainContent);
-        setExpandRatio(mainContent, 1);
 
-        VerticalLayout leftColumn =  new VerticalLayout();
+        HorizontalSplitPanel panel = new HorizontalSplitPanel();
+        setSides(panel);
+        panel.setSplitPosition(150, Sizeable.UNITS_PIXELS);
+        panel.setLocked(false);
+        addComponent(panel);
+
+
+        VerticalLayout leftColumn = new VerticalLayout();
         leftColumn.setStyleName("leftcolumn");
-        leftColumn.setHeight("100%");
-        leftColumn.setSizeUndefined();
-        mainContent.addComponent(leftColumn);
+        setSides(leftColumn);
+        panel.addComponent(leftColumn);
 
         Tree menu = new Tree();
-        menu.setSizeUndefined();
+        menu.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+        menu.setHeight(400, Sizeable.UNITS_PIXELS);
         leftColumn.addComponent(menu);
 
         VerticalLayout rightColumn = new VerticalLayout();
         rightColumn.setStyleName("rightcolumn");
-        rightColumn.setHeight("100%");
-        rightColumn.setSizeFull();
-        mainContent.addComponent(rightColumn);
+        setSides(rightColumn);
+        rightColumn.setSizeUndefined();
+        panel.addComponent(rightColumn);
 
         //items box
         VerticalLayout detailsBox = new VerticalLayout();
-        detailsBox.setSizeUndefined();
+        setSides(detailsBox);
 
         //display item title
         final Label item_title = new Label("item title");
@@ -45,29 +50,18 @@ public class SettingsPage extends VerticalLayout {
 
         //items content
         VerticalLayout detailsContent = new VerticalLayout();
-        detailsBox.setSizeFull();
+        setSides(detailsContent);
         detailsBox.addComponent(detailsContent);
 
 
         rightColumn.addComponent(detailsBox);
         rightColumn.setComponentAlignment(detailsBox, Alignment.MIDDLE_CENTER);
 
-//
-        mainContent.setExpandRatio(rightColumn, 1);
-        mainContent.setExpandRatio(leftColumn, 0);
-
         //fill tree menu
         fillTreeMenu(menu, item_title, detailsContent);
         menu.setImmediate(true);
 
-    }
-
-    //main working part (main content)
-    private HorizontalLayout createMainContent() {
-        HorizontalLayout mainContent = new HorizontalLayout();
-        mainContent.setSizeFull();
-        mainContent.setSpacing(true);
-        return mainContent;
+        setExpandRatio(panel, 0);
     }
 
     private void fillTreeBar(Map<String, List<String>> treeBar) {
@@ -119,13 +113,19 @@ public class SettingsPage extends VerticalLayout {
 
         for (String s : treeBar.keySet()) {
             menu.addItem(s);
+
             List<String> children = treeBar.get(s);
-            for (String child : children) {
-                Label label = new Label(child);
-                menu.addItem(label);
-                menu.setParent(label, s);
-                menu.setChildrenAllowed(label, false);
-                menu.expandItemsRecursively(s);
+
+            if (children.isEmpty()) {
+                menu.setChildrenAllowed(s, false);
+            } else {
+                for (String child : children) {
+                    Label label = new Label(child);
+                    menu.addItem(label);
+                    menu.setParent(label, s);
+                    menu.setChildrenAllowed(label, false);
+                    menu.expandItemsRecursively(s);
+                }
             }
         }
 
@@ -134,10 +134,15 @@ public class SettingsPage extends VerticalLayout {
                 if (event.getProperty() != null && event.getProperty().getValue() != null) {
                     item_title.setValue(event.getProperty());
                     detailsContent.removeAllComponents();
-                    detailsContent.addComponent(new TreeContent(event.getProperty().toString(), bundle));
+                    detailsContent.addComponent(new TreeContentSwitch(event.getProperty().toString(), bundle));
                 }
             }
         });
+    }
+
+    private void setSides(Component component) {
+        component.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+        component.setHeight(100, Sizeable.UNITS_PERCENTAGE);
     }
 
 }

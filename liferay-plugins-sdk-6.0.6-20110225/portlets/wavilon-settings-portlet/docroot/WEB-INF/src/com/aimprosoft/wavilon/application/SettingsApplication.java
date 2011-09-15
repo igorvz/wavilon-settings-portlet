@@ -1,5 +1,7 @@
 package com.aimprosoft.wavilon.application;
 
+import com.aimprosoft.wavilon.service.DatabaseService;
+import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.ui.SettingsPage;
 import com.liferay.portal.model.User;
 import com.liferay.portal.util.PortalUtil;
@@ -13,13 +15,14 @@ import java.util.ResourceBundle;
 
 public class SettingsApplication extends GenericPortletApplication {
 
+    private DatabaseService databaseService = ObjectFactory.getBean(DatabaseService.class);
+
     private Logger _logger = Logger.getLogger(getClass());
 
     @Override
     public void init() {
         //initialize listeners
         super.init();
-
         Window window = new Window();
         setMainWindow(window);
     }

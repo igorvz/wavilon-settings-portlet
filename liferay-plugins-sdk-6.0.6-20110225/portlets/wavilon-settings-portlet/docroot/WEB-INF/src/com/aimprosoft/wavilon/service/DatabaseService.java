@@ -5,7 +5,7 @@ import com.aimprosoft.wavilon.model.User;
 import java.io.IOException;
 import java.util.List;
 
-//todo move to spring
+//todo will be implemented
 public interface DatabaseService {
 
     void addUser(User user) throws IOException;

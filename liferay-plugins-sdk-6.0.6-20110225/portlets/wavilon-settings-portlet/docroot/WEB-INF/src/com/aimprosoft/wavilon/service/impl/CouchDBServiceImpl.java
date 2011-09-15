@@ -2,7 +2,6 @@ package com.aimprosoft.wavilon.service.impl;
 
 import com.aimprosoft.wavilon.model.User;
 import com.aimprosoft.wavilon.service.DatabaseService;
-import com.aimprosoft.wavilon.util.DBUtil;
 import com.aimprosoft.wavilon.util.MappingUtil;
 import com.fourspaces.couchdb.Database;
 import com.fourspaces.couchdb.Document;
@@ -13,18 +12,20 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class CouchDBServiceImpl implements DatabaseService {
-    private Database database = DBUtil.getDatabase();
 
+    private Database database;
 
     public void addUser(User user) throws IOException {
         Document document = MappingUtil.toDocument(user);
         database.saveDocument(document);
     }
 
+
     public User getUser(String id) throws IOException {
         Document document = database.getDocument(id);
         return MappingUtil.toUser(document);
     }
+
 
     public List<User> getAllUsers() throws IOException {
         ViewResults viewResults = database.getAllDocuments();
@@ -42,7 +43,8 @@ public class CouchDBServiceImpl implements DatabaseService {
     }
 
     public void removeUser(User user) throws IOException {
-        Document document = database.getDocument(user.getId());
+        String documentId = String.valueOf(user.getLiferay_user_id());
+        Document document = database.getDocument(documentId);
         database.deleteDocument(document);
     }
 
@@ -54,5 +56,9 @@ public class CouchDBServiceImpl implements DatabaseService {
     public void updateUser(User user) throws IOException {
         Document document = MappingUtil.toDocument(user);
         database.saveDocument(document);
+    }
+
+    public void setDatabase(Database database) {
+        this.database = database;
     }
 }

@@ -2,44 +2,27 @@ package com.aimprosoft.wavilon.model;
 
 //todo entity for CouchDB
 public class User extends BaseModel {
-
-    private String name;
-    private String surname;
-    private String phoneNumber;
+    private Long liferay_organization_id;
+    private Long liferay_portal_id;
     private String revision;
 
-    public User(String name, String surname, String phoneNumber) {
-        this.name = name;
-        this.surname = surname;
-        this.phoneNumber = phoneNumber;
-    }
-
     public User() {
-
     }
 
-    public String getName() {
-        return name;
+    public Long getLiferay_organization_id() {
+        return liferay_organization_id;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setLiferay_organization_id(Long liferay_organization_id) {
+        this.liferay_organization_id = liferay_organization_id;
     }
 
-    public String getSurname() {
-        return surname;
+    public Long getLiferay_portal_id() {
+        return liferay_portal_id;
     }
 
-    public void setSurname(String surname) {
-        this.surname = surname;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+    public void setLiferay_portal_id(Long liferay_portal_id) {
+        this.liferay_portal_id = liferay_portal_id;
     }
 
     public String getRevision() {

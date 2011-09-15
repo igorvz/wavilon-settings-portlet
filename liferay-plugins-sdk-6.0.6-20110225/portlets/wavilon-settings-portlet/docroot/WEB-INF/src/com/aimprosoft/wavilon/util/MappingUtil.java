@@ -2,29 +2,19 @@ package com.aimprosoft.wavilon.util;
 
 import com.aimprosoft.wavilon.model.User;
 import com.fourspaces.couchdb.Document;
-
-import java.util.Calendar;
-import java.util.Random;
-
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 
 public class MappingUtil {
-    private static Calendar calendar = Calendar.getInstance();
-    public static Random random = new Random();
 
     public static Document toDocument(User user) {
         Document document = new Document();
 
-        document.put("name", user.getName());
-        document.put("surname", user.getSurname());
-        document.put("phoneNumber", user.getPhoneNumber());
+        document.setId(String.valueOf(user.getLiferay_user_id()));
+        document.put("liferay_organization_id", user.getLiferay_organization_id());
+        document.put("liferay_portal_id", user.getLiferay_portal_id());
 
-        //todo generate unique ID more correctly
-        String uniqueParam = String.valueOf(calendar.getTimeInMillis() * random.nextInt(999));
-
-        if (user.getId() == null) {
-            document.setId(uniqueParam);
-        }else {
-            document.setId(user.getId());
+        if (StringUtils.isNotBlank(user.getRevision())) {
             document.setRev(user.getRevision());
         }
 
@@ -32,21 +22,17 @@ public class MappingUtil {
     }
 
     public static User toUser(Document document) {
-
-        String id = document.getId();
+        Long liferay_user_id =  NumberUtils.toLong(document.getId());
         String revision = document.getRev();
-        String name = document.getString("name");
-        String surname = document.getString("surname");
-        String phoneNumber = document.getString("phoneNumber");
+        Long liferay_organization_id = NumberUtils.toLong(document.getString("liferay_organization_id"));
+        Long liferay_portal_id = NumberUtils.toLong(document.getString("liferay_portal_id"));
 
         User user = new User();
 
-        user.setId(id);
+        user.setLiferay_user_id(liferay_user_id);
         user.setRevision(revision);
-        user.setName(name);
-        user.setSurname(surname);
-        user.setPhoneNumber(phoneNumber);
-
+        user.setLiferay_organization_id(liferay_organization_id);
+        user.setLiferay_portal_id(liferay_portal_id);
 
         return user;
     }
