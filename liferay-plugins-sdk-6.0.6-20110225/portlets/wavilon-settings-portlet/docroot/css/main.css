@@ -1,0 +1,84 @@
+.v-label {
+    color: #000;
+    font-weight: bold;
+    padding: 7px 0 3px 10px;
+    text-shadow: 0 1px 0 #FFFFFF;
+}
+
+.v-view .leftcolumn .v-nativebutton {
+    background: none repeat scroll 0 0 transparent;
+    border: medium none;
+    line-height: 15px;
+    padding: 0 0 0 25px;
+    text-align: left;
+    text-shadow: none;
+}
+
+.v-view .leftcolumn .v-nativebutton-active {
+    background: url("../images/selected-bg.png") repeat-x scroll 0 0 transparent;
+    color: #FFFFFF;
+    font-weight: bold;
+    text-shadow: 0 1px 0 #384359;
+    border-radius: 0;
+}
+
+.v-view .leftcolumn {
+    background: none repeat scroll 0 0 #D1D7E2;
+}
+
+.v-table .v-selected, .black .v-table .v-selected {
+    background: none repeat scroll 0 0 #3D80DF !important;
+    color: #FFFFFF;
+    text-shadow: none !important;
+}
+
+.v-table-resizer {
+    background: url("../images/resizer-bg.png") repeat-y scroll 100% 50% transparent;
+    height: 36px;
+    width: 4px;
+}
+
+.v-table-header-wrap {
+    background: url("../images/table-header-bg.png") repeat-x scroll 0 0 transparent !important;
+    height: 16px !important;
+    position: relative !important;
+}
+
+.v-table-header {
+    height: 36px !important;
+}
+
+.v-table-row-odd {
+    background: none repeat scroll 0 0 #F1F5FA !important;
+}
+
+.v-table-caption-container {
+    color: #393A3C;
+    font-size: 15px;
+    margin-left: 4px;
+    padding: 1px 2px 9px 0 !important;
+    text-shadow: 0 1px 0 #FFFFFF;
+}
+
+.v-table-caption-container {
+    color: #000000;
+    font-size: 11px;
+    font-weight: bold;
+    padding-top: 1px;
+    text-shadow: 0 1px 0 #FFFFFF;
+    text-transform: capitalize;
+}
+
+.v-formlayout-captioncell,
+.v-formlayout-errorcell,
+.v-formlayout-contentcell {
+    padding-bottom: 3px !important;
+    padding-top: 0 !important;
+}
+
+.v-table-cell-wrapper {
+    line-height: 23px;
+    overflow: hidden;
+    padding: 3px 0 0;
+    white-space: nowrap;
+}

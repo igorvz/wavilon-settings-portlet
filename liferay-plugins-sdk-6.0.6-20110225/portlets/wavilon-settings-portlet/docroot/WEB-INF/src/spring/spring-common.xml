@@ -14,21 +14,25 @@
     <bean id="databaseSession" class="com.fourspaces.couchdb.Session">
         <constructor-arg index="0" value="${db.host}"/>
         <constructor-arg index="1" value="${db.port}"/>
-        <constructor-arg index="2" value="${db.username"/>
+        <constructor-arg index="2" value="${db.username}"/>
         <constructor-arg index="3" value="${db.password}"/>
     </bean>
 
     <bean id="databaseProvider" class="com.aimprosoft.wavilon.util.DBProvider">
-        <!--<constructor-arg value="${db.name}"/>-->
-        <constructor-arg value="wavilon"/>
+        <constructor-arg value="${db.name}"/>
         <property name="session" ref="databaseSession"/>
     </bean>
 
-    <bean id="couchDBServiceImpl" class="com.aimprosoft.wavilon.service.impl.CouchDBServiceImpl">
+    <bean id="queueCouchDBServiceImpl" class="com.aimprosoft.wavilon.service.impl.QueueCouchDBServiceImpl">
         <property name="database">
             <bean factory-bean="databaseProvider" factory-method="getDatabase"/>
         </property>
     </bean>
 
+        <bean id="agentCouchDBServiceImpl" class="com.aimprosoft.wavilon.service.impl.AgentCouchDBServiceImpl">
+        <property name="database">
+            <bean factory-bean="databaseProvider" factory-method="getDatabase"/>
+        </property>
+    </bean>
 
 </beans>

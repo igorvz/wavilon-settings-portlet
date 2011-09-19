@@ -1,10 +1,9 @@
 package com.aimprosoft.wavilon.application;
 
-import com.aimprosoft.wavilon.service.DatabaseService;
-import com.aimprosoft.wavilon.spring.ObjectFactory;
+import com.aimprosoft.wavilon.ui.ErrorPage;
 import com.aimprosoft.wavilon.ui.SettingsPage;
-import com.liferay.portal.model.User;
-import com.liferay.portal.util.PortalUtil;
+import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.portal.theme.ThemeDisplay;
 import com.vaadin.ui.Window;
 import org.apache.log4j.Logger;
 
@@ -15,7 +14,6 @@ import java.util.ResourceBundle;
 
 public class SettingsApplication extends GenericPortletApplication {
 
-    private DatabaseService databaseService = ObjectFactory.getBean(DatabaseService.class);
 
     private Logger _logger = Logger.getLogger(getClass());
 
@@ -31,26 +29,26 @@ public class SettingsApplication extends GenericPortletApplication {
     public void handleRenderRequest(RenderRequest renderRequest, RenderResponse renderResponse, final Window window) {
         try {
 
-            //get liferay locale
-            Locale portalLocale = PortalUtil.getLocale(renderRequest);
+            ThemeDisplay themeDisplay = (ThemeDisplay) renderRequest.getAttribute(WebKeys.THEME_DISPLAY);
 
+
+            //get liferay locale
+            Locale portalLocale = themeDisplay.getLocale();
             //window locale will be used everywhere
             window.setLocale(portalLocale);
-
             ResourceBundle bundle = ResourceBundle.getBundle("language", window.getLocale());
 
             if (window.getComponentIterator().hasNext()) {
-
                 window.removeComponent(window.getComponentIterator().next());
             }
 
-            window.addComponent(new SettingsPage(bundle));
 
-            long companyId = PortalUtil.getCompanyId(renderRequest);
-            User liferayUser = PortalUtil.getUser(renderRequest);
-            if (liferayUser != null) {
-                window.setCaption(liferayUser.getFullName());
+            if (themeDisplay.isSignedIn()) {
+                window.addComponent(new SettingsPage(bundle));
+            } else {
+                window.addComponent(new ErrorPage());
             }
+
         } catch (Exception e) {
             _logger.error(e.getMessage());
         }

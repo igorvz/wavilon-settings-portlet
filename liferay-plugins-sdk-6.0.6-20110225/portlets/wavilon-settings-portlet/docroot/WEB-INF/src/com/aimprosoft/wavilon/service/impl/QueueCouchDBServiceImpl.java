@@ -1,7 +1,7 @@
 package com.aimprosoft.wavilon.service.impl;
 
-import com.aimprosoft.wavilon.model.User;
-import com.aimprosoft.wavilon.service.DatabaseService;
+import com.aimprosoft.wavilon.model.Queue;
+import com.aimprosoft.wavilon.service.QueueDatabaseService;
 import com.aimprosoft.wavilon.util.MappingUtil;
 import com.fourspaces.couchdb.Database;
 import com.fourspaces.couchdb.Document;
@@ -11,50 +11,48 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
-public class CouchDBServiceImpl implements DatabaseService {
+public class QueueCouchDBServiceImpl implements QueueDatabaseService {
 
     private Database database;
 
-    public void addUser(User user) throws IOException {
-        Document document = MappingUtil.toDocument(user);
+    public void addQueue(Queue queue) throws IOException {
+        Document document = MappingUtil.toDocument(queue);
         database.saveDocument(document);
     }
 
-
-    public User getUser(String id) throws IOException {
+    public Queue getQueue(String id) throws IOException {
         Document document = database.getDocument(id);
-        return MappingUtil.toUser(document);
+        return MappingUtil.toQueue(document);
     }
 
-
-    public List<User> getAllUsers() throws IOException {
+    public List<Queue> getAllQueues() throws IOException {
         ViewResults viewResults = database.getAllDocuments();
-        List<User> userList = new LinkedList<User>();
+        List<Queue> queueList = new LinkedList<Queue>();
 
         for (Document doc : viewResults.getResults()) {
             String documentId = doc.getId();
 
             Document document = database.getDocument(documentId);
 
-            userList.add(MappingUtil.toUser(document));
+            queueList.add(MappingUtil.toQueue(document));
         }
 
-        return userList;
+        return queueList;
     }
 
-    public void removeUser(User user) throws IOException {
-        String documentId = String.valueOf(user.getLiferay_user_id());
+    public void removeQueue(Queue queue) throws IOException {
+        String documentId = queue.getId();
         Document document = database.getDocument(documentId);
         database.deleteDocument(document);
     }
 
-    public void removeUser(String id) throws IOException {
+    public void removeQueue(String id) throws IOException {
         Document document = database.getDocument(id);
         database.deleteDocument(document);
     }
 
-    public void updateUser(User user) throws IOException {
-        Document document = MappingUtil.toDocument(user);
+    public void updateQueue(Queue queue) throws IOException {
+        Document document = MappingUtil.toDocument(queue);
         database.saveDocument(document);
     }
 

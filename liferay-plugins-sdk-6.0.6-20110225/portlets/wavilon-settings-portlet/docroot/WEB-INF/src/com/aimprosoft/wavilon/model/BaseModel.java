@@ -1,16 +1,52 @@
 package com.aimprosoft.wavilon.model;
 
 public abstract class BaseModel {
-    private Long liferay_user_id;
+    private String id;
+    private Long liferayUserId;
+    private Long liferayOrganizationId;
+    private String liferayPortalId;
+    private String revision;
 
     protected BaseModel() {
     }
 
-    public Long getLiferay_user_id() {
-        return liferay_user_id;
+    public String getId() {
+        return id;
     }
 
-    public void setLiferay_user_id(Long liferay_user_id) {
-        this.liferay_user_id = liferay_user_id;
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public Long getLiferayUserId() {
+        return liferayUserId;
+    }
+
+    public void setLiferayUserId(Long liferayUserId) {
+        this.liferayUserId = liferayUserId;
+    }
+
+    public Long getLiferayOrganizationId() {
+        return liferayOrganizationId;
+    }
+
+    public void setLiferayOrganizationId(Long liferayOrganizationId) {
+        this.liferayOrganizationId = liferayOrganizationId;
+    }
+
+    public String getLiferayPortalId() {
+        return liferayPortalId;
+    }
+
+    public void setLiferayPortalId(String liferayPortalId) {
+        this.liferayPortalId = liferayPortalId;
+    }
+
+    public String getRevision() {
+        return revision;
+    }
+
+    public void setRevision(String revision) {
+        this.revision = revision;
     }
 }

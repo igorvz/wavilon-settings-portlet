@@ -39,15 +39,19 @@ public class PhoneNumbersContent extends HorizontalLayout {
         return tableFields;
     }
 
-
     private void initLayout() {
         // add table
         phoneNumbers.setContainerDataSource(tableData);
         left.addComponent(phoneNumbers);
 
+
         //add lift and right parts
         addComponent(left);
         addComponent(right);
+    }
+
+    private void fillForm() {
+
     }
 
     private List<String> initAddressList(final ResourceBundle bundle) {
@@ -62,7 +66,7 @@ public class PhoneNumbersContent extends HorizontalLayout {
 
                 right.removeAllComponents();
 
-                TextField field = new TextField(bundle.getString("wavilon.settings.services.phoneNumbers.mobile"));
+                TextField field = new TextField();
                 field.setValue(id == null ? null : phoneNumbers.getItem(id));
                 field.setRequired(true);
                 field.setRequiredError(bundle.getString("wavilon.settings.services.error.phoneNumbers.mobile.empty"));
@@ -82,7 +86,6 @@ public class PhoneNumbersContent extends HorizontalLayout {
 
         return tableFields;
     }
-
 
     //fill table
     private IndexedContainer createTableData(ResourceBundle bundle) {
@@ -105,14 +108,13 @@ public class PhoneNumbersContent extends HorizontalLayout {
     private static List<String> getNumbers() {
         List<String> numbers = new LinkedList<String>();
 
-        numbers.add("+3804565458");
-        numbers.add("+3806512354");
-        numbers.add("+3801155114");
-        numbers.add("+3805465455");
-        numbers.add("+3805445556");
+        numbers.add("+3805045658");
+        numbers.add("+3809965354");
+        numbers.add("+3806611114");
+        numbers.add("+3809755455");
+        numbers.add("+3805054556");
 
         return numbers;
     }
-
 
 }
