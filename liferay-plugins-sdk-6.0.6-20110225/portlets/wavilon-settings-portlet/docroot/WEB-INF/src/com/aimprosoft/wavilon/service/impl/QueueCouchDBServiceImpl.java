@@ -2,8 +2,6 @@ package com.aimprosoft.wavilon.service.impl;
 
 import com.aimprosoft.wavilon.model.Queue;
 import com.aimprosoft.wavilon.service.QueueDatabaseService;
-import com.aimprosoft.wavilon.util.MappingUtil;
-import com.fourspaces.couchdb.Database;
 import com.fourspaces.couchdb.Document;
 import com.fourspaces.couchdb.ViewResults;
 
@@ -11,30 +9,25 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
-public class QueueCouchDBServiceImpl implements QueueDatabaseService {
-
-    private Database database;
+public class QueueCouchDBServiceImpl extends AbstractCouchDBService implements QueueDatabaseService {
 
     public void addQueue(Queue queue) throws IOException {
-        Document document = MappingUtil.toDocument(queue);
-        database.saveDocument(document);
+        updateQueue(queue);
     }
 
     public Queue getQueue(String id) throws IOException {
         Document document = database.getDocument(id);
-        return MappingUtil.toQueue(document);
+        return objectReader.readValue(document.toString());
     }
 
     public List<Queue> getAllQueues() throws IOException {
-        ViewResults viewResults = database.getAllDocuments();
+        ViewResults viewResults = database.adhoc(functions.getAllDocumentFunction());
         List<Queue> queueList = new LinkedList<Queue>();
 
         for (Document doc : viewResults.getResults()) {
-            String documentId = doc.getId();
+            Queue queue = getQueue(doc.getId());
 
-            Document document = database.getDocument(documentId);
-
-            queueList.add(MappingUtil.toQueue(document));
+            queueList.add(queue);
         }
 
         return queueList;
@@ -51,12 +44,10 @@ public class QueueCouchDBServiceImpl implements QueueDatabaseService {
         database.deleteDocument(document);
     }
 
+    @SuppressWarnings("unchecked")
     public void updateQueue(Queue queue) throws IOException {
-        Document document = MappingUtil.toDocument(queue);
+        Document document = serializeService.toDocument(queue);
         database.saveDocument(document);
     }
 
-    public void setDatabase(Database database) {
-        this.database = database;
-    }
 }

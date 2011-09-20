@@ -1,6 +1,6 @@
 package com.aimprosoft.wavilon.application;
 
-import com.aimprosoft.wavilon.ui.ErrorPage;
+import com.aimprosoft.wavilon.ui.PleaseSignInPage;
 import com.aimprosoft.wavilon.ui.SettingsPage;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.theme.ThemeDisplay;
@@ -21,12 +21,12 @@ public class SettingsApplication extends GenericPortletApplication {
     public void init() {
         //initialize listeners
         super.init();
-        Window window = new Window();
-        setMainWindow(window);
     }
 
     @Override
     public void handleRenderRequest(RenderRequest renderRequest, RenderResponse renderResponse, final Window window) {
+        super.handleRenderRequest(renderRequest, renderResponse, window);
+
         try {
 
             ThemeDisplay themeDisplay = (ThemeDisplay) renderRequest.getAttribute(WebKeys.THEME_DISPLAY);
@@ -42,11 +42,12 @@ public class SettingsApplication extends GenericPortletApplication {
                 window.removeComponent(window.getComponentIterator().next());
             }
 
-
+            window.addStyleName("wrapperLayouts");
+            window.getLayout().setMargin(false);
             if (themeDisplay.isSignedIn()) {
                 window.addComponent(new SettingsPage(bundle));
             } else {
-                window.addComponent(new ErrorPage());
+                window.addComponent(new PleaseSignInPage(bundle));
             }
 
         } catch (Exception e) {

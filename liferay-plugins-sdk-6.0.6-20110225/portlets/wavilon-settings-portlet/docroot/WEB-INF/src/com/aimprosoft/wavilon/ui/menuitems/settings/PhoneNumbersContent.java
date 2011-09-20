@@ -5,6 +5,7 @@ import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.data.validator.RegexpValidator;
 import com.vaadin.event.ShortcutAction.KeyCode;
+import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 
 import java.util.LinkedList;
@@ -44,6 +45,8 @@ public class PhoneNumbersContent extends HorizontalLayout {
         phoneNumbers.setContainerDataSource(tableData);
         left.addComponent(phoneNumbers);
 
+        phoneNumbers.setHeight(330, Sizeable.UNITS_PIXELS);
+        phoneNumbers.setStyleName("phoneNumbers");
 
         //add lift and right parts
         addComponent(left);

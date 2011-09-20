@@ -1,7 +1,7 @@
 package com.aimprosoft.wavilon.ui;
 
 import com.aimprosoft.wavilon.ui.menuitems.AgentsContent;
-import com.aimprosoft.wavilon.ui.menuitems.settings.ExtensionsForm;
+import com.aimprosoft.wavilon.ui.menuitems.ExtensionContent;
 import com.aimprosoft.wavilon.ui.menuitems.settings.PhoneNumbersContent;
 import com.aimprosoft.wavilon.ui.menuitems.settings.RecordingsForm;
 import com.vaadin.terminal.Sizeable;
@@ -25,11 +25,13 @@ public class SettingsPage extends VerticalLayout {
         HorizontalSplitPanel panel = new HorizontalSplitPanel();
 //        setSides(panel);
         panel.setSplitPosition(150, Sizeable.UNITS_PIXELS);
+        panel.setHeight(400, Sizeable.UNITS_PIXELS);
         panel.setLocked(false);
         addComponent(panel);
 
         leftColumn = new VerticalLayout();
         leftColumn.setStyleName("leftcolumn");
+        leftColumn.setHeight(400, Sizeable.UNITS_PIXELS);
 //        setSides(leftColumn);
         panel.addComponent(leftColumn);
 
@@ -39,9 +41,13 @@ public class SettingsPage extends VerticalLayout {
         panel.addComponent(rightColumn);
 
         VerticalLayout detailsBox = new VerticalLayout();
+        detailsBox.setStyleName("detailsBox");
+        detailsBox.setHeight(390, Sizeable.UNITS_PIXELS);
         setSides(detailsBox);
 
         detailsContent = new VerticalLayout();
+        detailsContent.setStyleName("detailsContent");
+        detailsContent.setHeight(390, Sizeable.UNITS_PIXELS);
 //        setSides(detailsContent);
         detailsBox.addComponent(detailsContent);
 
@@ -94,6 +100,7 @@ public class SettingsPage extends VerticalLayout {
 
             }
         });
+        queues.addStyleName("label");
 
         Button agents = new NativeButton(bundle.getString("wavilon.settings.agents"));
         agents.addListener(new Button.ClickListener() {
@@ -106,6 +113,7 @@ public class SettingsPage extends VerticalLayout {
                 detailsContent.addComponent(new AgentsContent(bundle));
             }
         });
+        agents.addStyleName("label");
 
         Label extension = new Label(bundle.getString("wavilon.settings.extensions"));
         Button sipExtension = new NativeButton(bundle.getString("wavilon.settings.extensions.sip"));
@@ -116,7 +124,7 @@ public class SettingsPage extends VerticalLayout {
                 assignActiveButton(button);
 
                 detailsContent.removeAllComponents();
-                detailsContent.addComponent(new ExtensionsForm(bundle));
+                detailsContent.addComponent(new ExtensionContent(bundle, bundle.getString("wavilon.settings.extensions.sip")));
             }
         });
 
@@ -128,7 +136,7 @@ public class SettingsPage extends VerticalLayout {
                 assignActiveButton(button);
 
                 detailsContent.removeAllComponents();
-                detailsContent.addComponent(new ExtensionsForm(bundle));
+                detailsContent.addComponent(new ExtensionContent(bundle, bundle.getString("wavilon.settings.extensions.gtalk")));
             }
         });
 
@@ -140,7 +148,7 @@ public class SettingsPage extends VerticalLayout {
                 assignActiveButton(button);
 
                 detailsContent.removeAllComponents();
-                detailsContent.addComponent(new ExtensionsForm(bundle));
+                detailsContent.addComponent(new ExtensionContent(bundle, bundle.getString("wavilon.settings.extensions.phoneNumbers")));
             }
         });
 

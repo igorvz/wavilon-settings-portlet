@@ -9,30 +9,18 @@
        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd"
        default-autowire="no">
 
+    <context:annotation-config />
+
     <context:property-placeholder location="classpath:/spring/*.properties"/>
 
-    <bean id="databaseSession" class="com.fourspaces.couchdb.Session">
-        <constructor-arg index="0" value="${db.host}"/>
-        <constructor-arg index="1" value="${db.port}"/>
-        <constructor-arg index="2" value="${db.username}"/>
-        <constructor-arg index="3" value="${db.password}"/>
-    </bean>
+    <bean name="objectMapper" class="org.codehaus.jackson.map.ObjectMapper"/>
 
-    <bean id="databaseProvider" class="com.aimprosoft.wavilon.util.DBProvider">
-        <constructor-arg value="${db.name}"/>
-        <property name="session" ref="databaseSession"/>
-    </bean>
-
-    <bean id="queueCouchDBServiceImpl" class="com.aimprosoft.wavilon.service.impl.QueueCouchDBServiceImpl">
-        <property name="database">
-            <bean factory-bean="databaseProvider" factory-method="getDatabase"/>
+    <bean name="serializeService" class="com.aimprosoft.wavilon.service.impl.JacksonSerializeService">
+        <property name="objectWriter">
+            <bean factory-bean="objectMapper" factory-method="writer"/>
         </property>
     </bean>
 
-        <bean id="agentCouchDBServiceImpl" class="com.aimprosoft.wavilon.service.impl.AgentCouchDBServiceImpl">
-        <property name="database">
-            <bean factory-bean="databaseProvider" factory-method="getDatabase"/>
-        </property>
-    </bean>
+    <bean name="functions" class="com.aimprosoft.wavilon.config.Functions"/>
 
 </beans>

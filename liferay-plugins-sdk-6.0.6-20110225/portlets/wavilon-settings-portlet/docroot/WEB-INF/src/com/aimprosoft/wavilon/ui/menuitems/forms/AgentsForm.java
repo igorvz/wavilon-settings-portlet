@@ -1,16 +1,21 @@
 package com.aimprosoft.wavilon.ui.menuitems.forms;
 
 
+import com.aimprosoft.wavilon.application.GenericPortletApplication;
 import com.aimprosoft.wavilon.model.Agent;
 import com.aimprosoft.wavilon.service.AgentDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
+import com.liferay.portal.util.PortalUtil;
 import com.vaadin.data.Item;
 import com.vaadin.ui.*;
+import org.apache.commons.collections.PredicateUtils;
 
+import javax.portlet.PortletRequest;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.UUID;
 
 public class AgentsForm extends VerticalLayout {
     private ResourceBundle bundle;
@@ -18,17 +23,22 @@ public class AgentsForm extends VerticalLayout {
     private static AgentDatabaseService service = ObjectFactory.getBean(AgentDatabaseService.class);
     private List<String> extensions = new LinkedList<String>();
     Agent agent = null;
-    public AgentsForm(final ResourceBundle bundle, Item item) {
+
+    public AgentsForm(final ResourceBundle bundle, Item item, final VerticalLayout right, Table table) {
         this.bundle = bundle;
         this.item = item;
 
-        String id = (String) item.getItemProperty("id").getValue();
 
+        if (item != null) {
+            String id = (String) item.getItemProperty("id").getValue();
+            try {
+                agent = service.getAgent(id);
+            } catch (IOException ignored) {
+            }
+        } else {
 
-
-        try {
-            agent = service.getAgent(id);
-        } catch (IOException ignored) {
+            agent = new Agent();
+            agent.setFirstName("");
         }
 
         final Form form = new Form();
@@ -44,9 +54,6 @@ public class AgentsForm extends VerticalLayout {
         ComboBox contentExtension = new ComboBox();
         for (String extension : extensions) {
             contentExtension.addItem(extension);
-            if (extension.equals("Ojgice 101")) {
-                contentExtension.setEnabled(true);
-            }
         }
         form.addField("contentExtension", contentExtension);
 
@@ -55,11 +62,22 @@ public class AgentsForm extends VerticalLayout {
                 try {
                     form.commit();
 
-                    String firstName= (String) form.getField("firstName").getValue();
+                    if (agent.getId() == null){
+                        PortletRequest request = ((GenericPortletApplication)getApplication()).getPortletRequest();
+                        agent.setLiferayUserId(PortalUtil.getUserId(request));
+                        agent.setLiferayOrganizationId(PortalUtil.getScopeGroupId(request));
+                        agent.setLiferayPortalId(PortalUtil.getCompany(request).getWebId());
+                    }
+
+                    String firstName = (String) form.getField("firstName").getValue();
+                    agent.setId(UUID.randomUUID().toString());
                     agent.setFirstName(firstName);
                     service.addAgent(agent);
-                     getWindow().showNotification("Well done");
-                } catch (Exception ignored) {}
+                    getWindow().showNotification("Well done");
+                    right.removeAllComponents();
+
+                } catch (Exception ignored) {
+                }
             }
         });
         addComponent(form);

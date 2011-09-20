@@ -2,8 +2,6 @@ package com.aimprosoft.wavilon.service.impl;
 
 import com.aimprosoft.wavilon.model.Agent;
 import com.aimprosoft.wavilon.service.AgentDatabaseService;
-import com.aimprosoft.wavilon.util.MappingUtil;
-import com.fourspaces.couchdb.Database;
 import com.fourspaces.couchdb.Document;
 import com.fourspaces.couchdb.ViewResults;
 
@@ -11,32 +9,26 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
-public class AgentCouchDBServiceImpl implements AgentDatabaseService {
-
-    private Database database;
+public class AgentCouchDBServiceImpl extends AbstractCouchDBService implements AgentDatabaseService {
 
     public void addAgent(Agent agent) throws IOException {
-        Document document = MappingUtil.toDocument(agent);
-        database.saveDocument(document);
+        updateAgent(agent);
     }
-
 
     public Agent getAgent(String id) throws IOException {
         Document document = database.getDocument(id);
-        return MappingUtil.toAgent(document);
+        return objectReader.readValue(document.toString());
     }
 
-
     public List<Agent> getAllAgents() throws IOException {
-        ViewResults viewResults = database.getAllDocuments();
+        ViewResults viewResults = database.adhoc(functions.getAllDocumentFunction());
+
         List<Agent> agentList = new LinkedList<Agent>();
 
         for (Document doc : viewResults.getResults()) {
-            String documentId = doc.getId();
+            Agent agent = getAgent(doc.getId());
 
-            Document document = database.getDocument(documentId);
-
-            agentList.add(MappingUtil.toAgent(document));
+            agentList.add(agent);
         }
 
         return agentList;
@@ -53,12 +45,10 @@ public class AgentCouchDBServiceImpl implements AgentDatabaseService {
         database.deleteDocument(document);
     }
 
+    @SuppressWarnings("unchecked")
     public void updateAgent(Agent agent) throws IOException {
-        Document document = MappingUtil.toDocument(agent);
+        Document document = serializeService.toDocument(agent);
         database.saveDocument(document);
     }
 
-    public void setDatabase(Database database) {
-        this.database = database;
-    }
 }

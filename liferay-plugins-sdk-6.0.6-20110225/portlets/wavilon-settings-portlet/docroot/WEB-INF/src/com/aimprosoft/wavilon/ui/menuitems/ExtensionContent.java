@@ -1,23 +1,26 @@
 package com.aimprosoft.wavilon.ui.menuitems;
 
-import com.aimprosoft.wavilon.model.Agent;
-import com.aimprosoft.wavilon.service.AgentDatabaseService;
+import com.aimprosoft.wavilon.model.Extension;
+import com.aimprosoft.wavilon.service.ExtensionDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
-import com.aimprosoft.wavilon.ui.menuitems.forms.AgentsForm;
+import com.aimprosoft.wavilon.ui.menuitems.forms.ExtensionForm;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.terminal.Sizeable;
-import com.vaadin.ui.*;
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Table;
+import com.vaadin.ui.VerticalLayout;
 
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-public class AgentsContent extends VerticalLayout {
+public class ExtensionContent extends VerticalLayout {
     private ResourceBundle bundle;
-    private static AgentDatabaseService agentsService = ObjectFactory.getBean(AgentDatabaseService.class);
+    private static ExtensionDatabaseService extensionService = ObjectFactory.getBean(ExtensionDatabaseService.class);
     private List<String> hiddenFields;
     private HorizontalLayout main = new HorizontalLayout();
     private VerticalLayout left = new VerticalLayout();
@@ -28,22 +31,23 @@ public class AgentsContent extends VerticalLayout {
     private IndexedContainer tableData;
 
     private HorizontalLayout bottomLeftCorner = new HorizontalLayout();
-    private Button contactRemovalButton;
 
-    public AgentsContent(ResourceBundle bundle) {
+    public ExtensionContent(ResourceBundle bundle, String menuName) {
         this.bundle = bundle;
         tableFields = fillFields();
         hiddenFields = fillHiddenFields();
         tableData = createTableData();
 
         initLayout();
-        initTableAddRemoveButtons();
-        initAddressList();
+        initAddressList(menuName);
+
+        main.setExpandRatio(left, 1);
+        main.setExpandRatio(right, 3);
+        main.setSizeUndefined();
     }
 
     private void initLayout() {
-        main.setHeight(400, Sizeable.UNITS_PIXELS);
-        main.setSizeUndefined();
+        main.setSizeFull();
         addComponent(main);
         main.addComponent(left);
         main.addComponent(right);
@@ -58,9 +62,11 @@ public class AgentsContent extends VerticalLayout {
         left.setComponentAlignment(bottomLeftCorner, Alignment.BOTTOM_LEFT);
     }
 
-    private List<String> initAddressList() {
+    private List<String> initAddressList(final String menuName) {
+        Object[] col = {tableFields.get(0)};
+
         table.setContainerDataSource(tableData);
-        table.setVisibleColumns(tableFields.toArray());
+        table.setVisibleColumns(col);
         table.setSelectable(true);
         table.setImmediate(true);
 
@@ -68,100 +74,74 @@ public class AgentsContent extends VerticalLayout {
             public void valueChange(Property.ValueChangeEvent event) {
                 Object id = table.getValue();
 
-                contactRemovalButton.setVisible(id != null);
-
                 if (id != null) {
-                    viewRightColumnContent(table.getItem(id));
+                    viewRightColumnContent(table.getItem(id), menuName);
                 }
-
             }
         });
 
         return tableFields;
     }
 
-    private void initTableAddRemoveButtons() {
-        // New item button
-        bottomLeftCorner.addComponent(new Button("+",
-                new Button.ClickListener() {
-                    public void buttonClick(Button.ClickEvent event) {
-                        viewRightColumnContent(null);
-                    }
-                }));
-
-        // Remove item button
-        contactRemovalButton = new Button("-", new Button.ClickListener() {
-            public void buttonClick(Button.ClickEvent event) {
-                Object id = table.getValue();
-
-                String agentID = (String) table.getItem(id).getItemProperty("id").getValue();
-
-
-                try {
-                    agentsService.removeAgent(agentID);
-                } catch (IOException ignored) {
-                }
-
-                table.removeItem(table.getValue());
-                table.select(null);
-                right.removeAllComponents();
-
-            }
-        });
-        contactRemovalButton.setVisible(false);
-        bottomLeftCorner.addComponent(contactRemovalButton);
-    }
-
     private LinkedList<String> fillFields() {
         LinkedList<String> tableFields = new LinkedList<String>();
 
-        tableFields.add(bundle.getString("wavilon.agent.name"));
+        tableFields.add("firstName");
+        tableFields.add("email");
+        tableFields.add("url");
+        tableFields.add("phoneNumber");
+        tableFields.add("extensionNumber");
 
         return tableFields;
     }
 
     private IndexedContainer createTableData() {
         IndexedContainer ic = new IndexedContainer();
-
-        List<Agent> agents = getAgents();
+        List<Extension> extensions = getExtension();
 
         for (String field : hiddenFields) {
             ic.addContainerProperty(field, String.class, "");
         }
 
-        if (!agents.isEmpty()) {
-            for (Agent agent : agents) {
+        if (!extensions.isEmpty()) {
+
+            for (Extension extension : extensions) {
                 Object object = ic.addItem();
-                ic.getContainerProperty(object, bundle.getString("wavilon.agent.name")).setValue(agent.getFirstName());
-                ic.getContainerProperty(object, "id").setValue(agent.getId());
+                ic.getContainerProperty(object, "firstName").setValue(extension.getFirstName());
+                ic.getContainerProperty(object, "email").setValue(extension.getEmail());
+                ic.getContainerProperty(object, "url").setValue(extension.getUrl());
+                ic.getContainerProperty(object, "phoneNumber").setValue(extension.getPhoneNumber());
+                ic.getContainerProperty(object, "extensionNumber").setValue(extension.getExtensionNumber());
+                ic.getContainerProperty(object, "id").setValue(extension.getId());
             }
-        } else {
-            Object object = ic.addItem();
-            ic.getContainerProperty(object, bundle.getString("wavilon.agent.name")).setValue("Empty data");
         }
         return ic;
     }
 
-    private static List<Agent> getAgents() {
+    private static List<Extension> getExtension() {
         try {
-            return agentsService.getAllAgents();
+            return extensionService.getAllExtension();
         } catch (IOException e) {
             return null;
         }
     }
 
-    private void viewRightColumnContent(Object id) {
+    private void viewRightColumnContent(Object id, String menuName) {
         Item item = id == null ? null : (Item) id;
 
         right.removeAllComponents();
-        right.addComponent(new AgentsForm(bundle, item, right, table));
+        right.addComponent(new ExtensionForm(bundle, item, right, table, menuName));
     }
 
     private List<String> fillHiddenFields() {
         LinkedList<String> tableFields = new LinkedList<String>();
 
-        tableFields.add(bundle.getString("wavilon.agent.name"));
         tableFields.add("id");
+        tableFields.add("firstName");
+        tableFields.add("email");
+        tableFields.add("url");
+        tableFields.add("phoneNumber");
+        tableFields.add("extensionNumber");
 
         return tableFields;
     }

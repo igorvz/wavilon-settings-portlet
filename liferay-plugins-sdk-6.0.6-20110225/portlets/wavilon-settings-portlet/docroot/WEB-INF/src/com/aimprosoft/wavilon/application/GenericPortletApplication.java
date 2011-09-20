@@ -8,6 +8,8 @@ import javax.portlet.*;
 
 public abstract class GenericPortletApplication extends Application implements PortletApplicationContext2.PortletListener {
 
+    private PortletRequest portletRequest;
+
     @Override
     public void init() {
         if (getContext() instanceof PortletApplicationContext2) {
@@ -17,18 +19,32 @@ public abstract class GenericPortletApplication extends Application implements P
             // render requests.
             ctx.addPortletListener(this, this);
         }
+
+        Window window = new Window();
+        setMainWindow(window);
     }
 
     public void handleRenderRequest(RenderRequest renderRequest, RenderResponse renderResponse, Window window) {
+        setPortletRequest(renderRequest);
     }
 
     public void handleActionRequest(ActionRequest actionRequest, ActionResponse actionResponse, Window window) {
+        setPortletRequest(actionRequest);
     }
 
     public void handleEventRequest(EventRequest eventRequest, EventResponse eventResponse, Window window) {
+        setPortletRequest(eventRequest);
     }
 
     public void handleResourceRequest(ResourceRequest resourceRequest, ResourceResponse resourceResponse, Window window) {
+        setPortletRequest(resourceRequest);
     }
 
+    public PortletRequest getPortletRequest() {
+        return portletRequest;
+    }
+
+    public void setPortletRequest(PortletRequest portletRequest) {
+        this.portletRequest = portletRequest;
+    }
 }

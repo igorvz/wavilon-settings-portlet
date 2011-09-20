@@ -1,17 +1,33 @@
 package com.aimprosoft.wavilon.model;
 
-public class ContactModel {
-    private String name;
+import org.codehaus.jackson.annotate.JsonProperty;
+
+public class Extension extends BaseModel{
+    @JsonProperty("firstName")
+    private String firstName;
+
+    @JsonProperty("email")
     private String email;
+
+    @JsonProperty("url")
     private String url;
+
+    @JsonProperty("phoneNumber")
     private String phoneNumber;
 
-    public String getName() {
-        return name;
+    @JsonProperty("extensionNumber")
+    private int extensionNumber;
+
+    public Extension(){
+
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
     public String getEmail() {
@@ -45,8 +61,4 @@ public class ContactModel {
     public void setExtensionNumber(int extensionNumber) {
         this.extensionNumber = extensionNumber;
     }
-
-    private int extensionNumber;
-
-
 }

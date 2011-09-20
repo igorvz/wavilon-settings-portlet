@@ -3,6 +3,7 @@ package com.aimprosoft.wavilon.ui.menuitems.settings;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.event.ShortcutAction;
+import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 
 import java.util.LinkedList;
@@ -14,7 +15,7 @@ public class RecordingsForm extends HorizontalLayout {
     private IndexedContainer tableData;
     private List<String> tableFields;
 
-    private Table recordingsList = new Table();
+    private Table table = new Table();
 
     private VerticalLayout left = new VerticalLayout();
     private VerticalLayout right = new VerticalLayout();
@@ -39,24 +40,28 @@ public class RecordingsForm extends HorizontalLayout {
 
     private void initLayout() {
         // add table
-        recordingsList.setContainerDataSource(tableData);
-        left.addComponent(recordingsList);
+        table.setContainerDataSource(tableData);
+        left.addComponent(table);
+
+        table.setHeight(330, Sizeable.UNITS_PIXELS);
+        table.setStyleName("recordingsList");
 
         addComponent(left);
         addComponent(right);
     }
 
     private List<String> initAddressList(final ResourceBundle bundle) {
-        recordingsList.setContainerDataSource(tableData);
-        recordingsList.setVisibleColumns(tableFields.toArray());
-        recordingsList.setSelectable(true);
-        recordingsList.setImmediate(true);
+        table.setContainerDataSource(tableData);
+        table.setVisibleColumns(tableFields.toArray());
+        table.setSelectable(true);
+        table.setImmediate(true);
+        table.setHeight(300, Sizeable.UNITS_PIXELS);
 
-        recordingsList.addListener(new Property.ValueChangeListener() {
+        table.addListener(new Property.ValueChangeListener() {
             public void valueChange(Property.ValueChangeEvent event) {
-                Object id = recordingsList.getValue();
+                Object id = table.getValue();
 
-                addRightPartForm(id, right, recordingsList);
+                addRightPartForm(id, right, table);
             }
         });
 
@@ -66,7 +71,7 @@ public class RecordingsForm extends HorizontalLayout {
         plus.addListener(new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
 
-                addRightPartForm(null, right, recordingsList);
+                addRightPartForm(null, right, table);
             }
         });
 

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--suppress SpringBeanNameConventionInspection, AutowiredDependenciesInspection -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-3.0.xsd"
+       default-autowire="no">
+
+    <bean id="databaseSession" class="com.fourspaces.couchdb.Session">
+        <constructor-arg index="0" value="${db.host}"/>
+        <constructor-arg index="1" value="${db.port}"/>
+        <constructor-arg index="2" value="${db.username}"/>
+        <constructor-arg index="3" value="${db.password}"/>
+    </bean>
+
+    <bean name="database" factory-bean="databaseSession" factory-method="getDatabase">
+        <constructor-arg value="${db.name}"/>
+    </bean>
+
+    <bean id="abstractCouchDBService" class="com.aimprosoft.wavilon.service.impl.AbstractCouchDBService" abstract="true">
+        <property name="database" ref="database"/>
+        <property name="functions" ref="functions"/>
+        <property name="serializeService" ref="serializeService"/>
+    </bean>
+
+    <bean id="queueCouchDBServiceImpl" class="com.aimprosoft.wavilon.service.impl.QueueCouchDBServiceImpl" parent="abstractCouchDBService">
+        <property name="objectReader">
+            <bean class="org.codehaus.jackson.map.ObjectReader" factory-bean="objectMapper" factory-method="reader">
+                <constructor-arg index="0" value="com.aimprosoft.wavilon.model.Queue"/>
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="agentCouchDBServiceImpl" class="com.aimprosoft.wavilon.service.impl.AgentCouchDBServiceImpl" parent="abstractCouchDBService">
+        <property name="objectReader">
+            <bean class="org.codehaus.jackson.map.ObjectReader" factory-bean="objectMapper" factory-method="reader">
+                <constructor-arg index="0" value="com.aimprosoft.wavilon.model.Agent"/>
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="extensionCouchDBServiceImpl" class="com.aimprosoft.wavilon.service.impl.ExtensionCouchDBServiceImpl" parent="abstractCouchDBService">
+        <property name="objectReader">
+            <bean class="org.codehaus.jackson.map.ObjectReader" factory-bean="objectMapper" factory-method="reader">
+                <constructor-arg index="0" value="com.aimprosoft.wavilon.model.Extension"/>
+            </bean>
+        </property>
+    </bean>
+    
+</beans>
