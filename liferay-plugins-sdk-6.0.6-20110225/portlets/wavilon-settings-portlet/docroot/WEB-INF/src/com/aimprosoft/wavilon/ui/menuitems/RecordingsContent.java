@@ -1,9 +1,9 @@
 package com.aimprosoft.wavilon.ui.menuitems;
 
-import com.aimprosoft.wavilon.model.Agent;
-import com.aimprosoft.wavilon.service.AgentDatabaseService;
+import com.aimprosoft.wavilon.model.Recording;
+import com.aimprosoft.wavilon.service.RecordingDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
-import com.aimprosoft.wavilon.ui.menuitems.forms.AgentsForm;
+import com.aimprosoft.wavilon.ui.menuitems.forms.RecordingsForm;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.IndexedContainer;
@@ -15,9 +15,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-public class AgentsContent extends VerticalLayout {
+public class RecordingsContent extends VerticalLayout {
     private ResourceBundle bundle;
-    private static AgentDatabaseService agentsService = ObjectFactory.getBean(AgentDatabaseService.class);
+    private static RecordingDatabaseService service = ObjectFactory.getBean(RecordingDatabaseService.class);
     private List<String> hiddenFields;
     private HorizontalLayout main = new HorizontalLayout();
     private VerticalLayout left = new VerticalLayout();
@@ -30,7 +30,7 @@ public class AgentsContent extends VerticalLayout {
     private HorizontalLayout bottomLeftCorner = new HorizontalLayout();
     private Button contactRemovalButton;
 
-    public AgentsContent(ResourceBundle bundle) {
+    public RecordingsContent(ResourceBundle bundle) {
         this.bundle = bundle;
         tableFields = fillFields();
         hiddenFields = fillHiddenFields();
@@ -94,11 +94,11 @@ public class AgentsContent extends VerticalLayout {
             public void buttonClick(Button.ClickEvent event) {
                 Object id = table.getValue();
 
-                String agentID = (String) table.getItem(id).getItemProperty("id").getValue();
+                String recordingID = (String) table.getItem(id).getItemProperty("id").getValue();
 
 
                 try {
-                    agentsService.removeAgent(agentID);
+                    service.removeRecording(recordingID);
                 } catch (IOException ignored) {
                 }
 
@@ -115,7 +115,7 @@ public class AgentsContent extends VerticalLayout {
     private LinkedList<String> fillFields() {
         LinkedList<String> tableFields = new LinkedList<String>();
 
-        tableFields.add(bundle.getString("wavilon.agent.name"));
+        tableFields.add("name");
 
         return tableFields;
     }
@@ -123,25 +123,28 @@ public class AgentsContent extends VerticalLayout {
     private IndexedContainer createTableData() {
         IndexedContainer ic = new IndexedContainer();
 
-        List<Agent> agents = getAgents();
+        List<Recording> recordings = getRecordings();
 
         for (String field : hiddenFields) {
             ic.addContainerProperty(field, String.class, "");
         }
 
-        if (!agents.isEmpty()) {
-            for (Agent agent : agents) {
+        if (! recordings.isEmpty()) {
+            for (Recording recording : recordings) {
                 Object object = ic.addItem();
-                ic.getContainerProperty(object, bundle.getString("wavilon.agent.name")).setValue(agent.getFirstName());
-                ic.getContainerProperty(object, "id").setValue(agent.getId());
+                ic.getContainerProperty(object, "name").setValue(recording.getFirstName());
+                ic.getContainerProperty(object, "id").setValue(recording.getId());
             }
+        } else {
+            Object object = ic.addItem();
+            ic.getContainerProperty(object, "name").setValue("Empty data");
         }
         return ic;
     }
 
-    private static List<Agent> getAgents() {
+    private static List<Recording> getRecordings() {
         try {
-            return agentsService.getAllAgents();
+            return service.getAllRecordings();
         } catch (IOException e) {
             return null;
         }
@@ -151,13 +154,13 @@ public class AgentsContent extends VerticalLayout {
         Item item = id == null ? null : (Item) id;
 
         right.removeAllComponents();
-        right.addComponent(new AgentsForm(bundle, item, right, table, tableData));
+        right.addComponent(new RecordingsForm(bundle, item, right, table));
     }
 
     private List<String> fillHiddenFields() {
         LinkedList<String> tableFields = new LinkedList<String>();
 
-        tableFields.add(bundle.getString("wavilon.agent.name"));
+        tableFields.add("name");
         tableFields.add("id");
 
         return tableFields;

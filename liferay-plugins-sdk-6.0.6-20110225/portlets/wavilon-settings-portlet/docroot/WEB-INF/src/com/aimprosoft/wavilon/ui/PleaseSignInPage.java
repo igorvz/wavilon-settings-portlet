@@ -9,6 +9,7 @@ public class PleaseSignInPage extends VerticalLayout{
     private ResourceBundle bundle;
 
     public PleaseSignInPage(ResourceBundle bundle) {
+
         this.bundle = bundle;
 
         this.addStyleName("singInPanel");

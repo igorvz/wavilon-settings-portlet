@@ -2,12 +2,8 @@ package com.aimprosoft.wavilon.service.impl;
 
 import com.aimprosoft.wavilon.model.Extension;
 import com.aimprosoft.wavilon.service.ExtensionDatabaseService;
-import com.aimprosoft.wavilon.service.SerializeService;
-import com.fourspaces.couchdb.Database;
 import com.fourspaces.couchdb.Document;
 import com.fourspaces.couchdb.ViewResults;
-import org.codehaus.jackson.map.ObjectReader;
-import org.springframework.beans.factory.annotation.Required;
 
 import java.io.IOException;
 import java.util.LinkedList;

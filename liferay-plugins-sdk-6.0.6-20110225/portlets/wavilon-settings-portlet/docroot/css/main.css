@@ -2,7 +2,7 @@
     font-family:  Verdana, Arial, sans-serif;
 }
 
-.v-label {
+.leftcolumn .v-label {
     color: #000;
     font-weight: bold;
     padding: 5px 0 3px 10px;
@@ -120,15 +120,35 @@
     margin: 0;
 }
 
-.settings{
+.settingsPanel{
     height: 400px !important;
 }
 
-.settings > div {
+.settingsPanel > div {
     margin: 0 !important;
 }
 
 .leftcolumn div{
     height: auto !important;
     float: none !important;
+}
+
+/*----------------------Form Design--------------------------*/
+.formRegion .headerForm{
+    border-bottom: 1px solid #000000;
+    display: block;
+    font-weight: bold;
+    line-height: 23px;
+    width: 380px;
+}
+
+.formRegion .headerForm fieldset *{
+    vertical-align: middle;
+}
+
+.formRegion .v-caption-labelField{
+
+}
+.formRegion .v-form-labelField{
+    margin: 5px 0;
 }

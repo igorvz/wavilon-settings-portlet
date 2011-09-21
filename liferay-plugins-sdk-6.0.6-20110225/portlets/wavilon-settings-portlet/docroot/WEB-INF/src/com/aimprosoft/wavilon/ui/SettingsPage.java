@@ -2,8 +2,9 @@ package com.aimprosoft.wavilon.ui;
 
 import com.aimprosoft.wavilon.ui.menuitems.AgentsContent;
 import com.aimprosoft.wavilon.ui.menuitems.ExtensionContent;
+import com.aimprosoft.wavilon.ui.menuitems.QueuesContent;
+import com.aimprosoft.wavilon.ui.menuitems.RecordingsContent;
 import com.aimprosoft.wavilon.ui.menuitems.settings.PhoneNumbersContent;
-import com.aimprosoft.wavilon.ui.menuitems.settings.RecordingsForm;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 
@@ -19,7 +20,7 @@ public class SettingsPage extends VerticalLayout {
     public SettingsPage(final ResourceBundle bundle) {
         this.bundle = bundle;
 
-        addStyleName("settings");
+        addStyleName("settingsPanel");
         setSides(this);
 
         HorizontalSplitPanel panel = new HorizontalSplitPanel();
@@ -38,6 +39,7 @@ public class SettingsPage extends VerticalLayout {
         rightColumn = new VerticalLayout();
         rightColumn.setStyleName("rightcolumn");
         rightColumn.setHeight("100%");
+        rightColumn.setMargin(true);
         panel.addComponent(rightColumn);
 
         VerticalLayout detailsBox = new VerticalLayout();
@@ -98,6 +100,8 @@ public class SettingsPage extends VerticalLayout {
 
                 assignActiveButton(button);
 
+                detailsContent.removeAllComponents();
+                detailsContent.addComponent(new QueuesContent(bundle));
             }
         });
         queues.addStyleName("label");
@@ -160,7 +164,7 @@ public class SettingsPage extends VerticalLayout {
                 assignActiveButton(button);
 
                 detailsContent.removeAllComponents();
-                detailsContent.addComponent(new RecordingsForm(bundle));
+                detailsContent.addComponent(new RecordingsContent(bundle));
             }
         });
 

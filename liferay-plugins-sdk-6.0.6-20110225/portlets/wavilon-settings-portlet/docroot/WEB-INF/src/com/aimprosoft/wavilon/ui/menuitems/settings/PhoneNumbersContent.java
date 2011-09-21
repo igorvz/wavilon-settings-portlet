@@ -69,21 +69,35 @@ public class PhoneNumbersContent extends HorizontalLayout {
 
                 right.removeAllComponents();
 
-                TextField field = new TextField();
+                Label headerForm = new Label(id == null ? null : phoneNumbers.getItem(id).toString());
+                //styles
+                headerForm.setHeight(27, Sizeable.UNITS_PIXELS);
+                headerForm.addStyleName("headerForm");
+
+                TextField field = new TextField("Phone Number");
                 field.setValue(id == null ? null : phoneNumbers.getItem(id));
                 field.setRequired(true);
+
                 field.setRequiredError(bundle.getString("wavilon.settings.services.error.phoneNumbers.mobile.empty"));
                 field.addValidator(new RegexpValidator("[+][0-9]{10}", bundle.getString("wavilon.settings.services.error.phoneNumbers.mobile.incorrect")));
 
                 entityEditor.removeAllProperties();
                 entityEditor.addField("mobile", field);
+                //styles
+                entityEditor.addStyleName("labelField");
+                entityEditor.setHeight(33, Sizeable.UNITS_PIXELS);
 
                 Button change = new Button(bundle.getString("wavilon.settings.services.phoneNumbers.change"), entityEditor, "commit");
                 change.setClickShortcut(KeyCode.ENTER);
+                change.addStyleName("buttonForm");
 
                 //add form and button
+                right.addComponent(headerForm);
                 right.addComponent(entityEditor);
                 right.addComponent(change);
+                //styles
+                right.addStyleName("formRegion");
+                right.setMargin(false, true, false, true);
             }
         });
 

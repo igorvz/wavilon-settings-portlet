@@ -7,6 +7,7 @@ import com.aimprosoft.wavilon.service.AgentDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.liferay.portal.util.PortalUtil;
 import com.vaadin.data.Item;
+import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.ui.*;
 import org.apache.commons.collections.PredicateUtils;
 
@@ -24,7 +25,7 @@ public class AgentsForm extends VerticalLayout {
     private List<String> extensions = new LinkedList<String>();
     Agent agent = null;
 
-    public AgentsForm(final ResourceBundle bundle, Item item, final VerticalLayout right, Table table) {
+    public AgentsForm(final ResourceBundle bundle, Item item, final VerticalLayout right, final Table table, final IndexedContainer tableData) {
         this.bundle = bundle;
         this.item = item;
 
@@ -62,26 +63,35 @@ public class AgentsForm extends VerticalLayout {
                 try {
                     form.commit();
 
-                    if (agent.getId() == null){
-                        PortletRequest request = ((GenericPortletApplication)getApplication()).getPortletRequest();
+                    if (agent.getRevision() == null) {
+                        agent.setId(UUID.randomUUID().toString());
+                        PortletRequest request = ((GenericPortletApplication) getApplication()).getPortletRequest();
                         agent.setLiferayUserId(PortalUtil.getUserId(request));
                         agent.setLiferayOrganizationId(PortalUtil.getScopeGroupId(request));
                         agent.setLiferayPortalId(PortalUtil.getCompany(request).getWebId());
+
+                    } else {
+                        table.removeItem(table.getValue());
+                        table.select(null);
                     }
 
                     String firstName = (String) form.getField("firstName").getValue();
-                    agent.setId(UUID.randomUUID().toString());
                     agent.setFirstName(firstName);
                     service.addAgent(agent);
                     getWindow().showNotification("Well done");
                     right.removeAllComponents();
+
+
+                    Object object = tableData.addItem();
+                    tableData.getContainerProperty(object, bundle.getString("wavilon.agent.name")).setValue(agent.getFirstName());
+                    tableData.getContainerProperty(object, "id").setValue(agent.getId());
 
                 } catch (Exception ignored) {
                 }
             }
         });
         addComponent(form);
-        addComponent(apply);
+        addComponent(apply);    addComponent(apply);
 
     }
 

@@ -9,8 +9,8 @@ public class Extension extends BaseModel{
     @JsonProperty("email")
     private String email;
 
-    @JsonProperty("url")
-    private String url;
+    @JsonProperty("sipURL")
+    private String sipURL;
 
     @JsonProperty("phoneNumber")
     private String phoneNumber;
@@ -38,12 +38,12 @@ public class Extension extends BaseModel{
         this.email = email;
     }
 
-    public String getUrl() {
-        return url;
+    public String getSipURL() {
+        return sipURL;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setSipURL(String sipURL) {
+        this.sipURL = sipURL;
     }
 
     public String getPhoneNumber() {

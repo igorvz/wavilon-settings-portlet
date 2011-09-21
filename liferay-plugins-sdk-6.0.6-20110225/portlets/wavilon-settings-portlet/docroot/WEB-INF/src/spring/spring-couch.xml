@@ -46,5 +46,13 @@
             </bean>
         </property>
     </bean>
+
+    <bean id="recordingCouchDBServiceImpl" class="com.aimprosoft.wavilon.service.impl.RecordingCouchDBServiceImpl" parent="abstractCouchDBService">
+        <property name="objectReader">
+            <bean class="org.codehaus.jackson.map.ObjectReader" factory-bean="objectMapper" factory-method="reader">
+                <constructor-arg index="0" value="com.aimprosoft.wavilon.model.Recording"/>
+            </bean>
+        </property>
+    </bean>
     
 </beans>

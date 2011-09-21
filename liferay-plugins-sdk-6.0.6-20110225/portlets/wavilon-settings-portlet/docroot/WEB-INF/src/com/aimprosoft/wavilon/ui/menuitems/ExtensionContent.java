@@ -55,6 +55,7 @@ public class ExtensionContent extends VerticalLayout {
         table.setContainerDataSource(tableData);
         table.setHeight(330, Sizeable.UNITS_PIXELS);
         table.setWidth(200, Sizeable.UNITS_PIXELS);
+        table.addStyleName("phoneNumbers");
         left.addComponent(table);
 
         bottomLeftCorner.setWidth(100, Sizeable.UNITS_PIXELS);
@@ -88,7 +89,7 @@ public class ExtensionContent extends VerticalLayout {
 
         tableFields.add("firstName");
         tableFields.add("email");
-        tableFields.add("url");
+        tableFields.add("sip");
         tableFields.add("phoneNumber");
         tableFields.add("extensionNumber");
 
@@ -109,7 +110,7 @@ public class ExtensionContent extends VerticalLayout {
                 Object object = ic.addItem();
                 ic.getContainerProperty(object, "firstName").setValue(extension.getFirstName());
                 ic.getContainerProperty(object, "email").setValue(extension.getEmail());
-                ic.getContainerProperty(object, "url").setValue(extension.getUrl());
+                ic.getContainerProperty(object, "sipURL").setValue(extension.getSipURL());
                 ic.getContainerProperty(object, "phoneNumber").setValue(extension.getPhoneNumber());
                 ic.getContainerProperty(object, "extensionNumber").setValue(extension.getExtensionNumber());
                 ic.getContainerProperty(object, "id").setValue(extension.getId());
@@ -130,6 +131,8 @@ public class ExtensionContent extends VerticalLayout {
         Item item = id == null ? null : (Item) id;
 
         right.removeAllComponents();
+        right.addStyleName("formRegion");
+         right.setMargin(false, true, false, true);
         right.addComponent(new ExtensionForm(bundle, item, right, table, menuName));
     }
 
@@ -139,7 +142,7 @@ public class ExtensionContent extends VerticalLayout {
         tableFields.add("id");
         tableFields.add("firstName");
         tableFields.add("email");
-        tableFields.add("url");
+        tableFields.add("sipURL");
         tableFields.add("phoneNumber");
         tableFields.add("extensionNumber");
 

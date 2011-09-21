@@ -5,7 +5,6 @@ import com.aimprosoft.wavilon.model.Queue;
 import java.io.IOException;
 import java.util.List;
 
-//todo will be implemented
 public interface QueueDatabaseService {
 
     void addQueue(Queue queue) throws IOException;
