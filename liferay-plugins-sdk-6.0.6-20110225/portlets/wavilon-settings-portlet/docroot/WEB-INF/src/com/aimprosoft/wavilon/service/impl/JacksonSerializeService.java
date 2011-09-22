@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Required;
 
 import java.io.IOException;
 
-public class JacksonSerializeService<T> implements SerializeService<T>{
+public class JacksonSerializeService<T> implements SerializeService<T> {
 
     private ObjectWriter objectWriter;
 
@@ -30,10 +30,13 @@ public class JacksonSerializeService<T> implements SerializeService<T>{
     private void discardIfNull(JSONObject json) {
         //discard revision if it is null
         discardIfNull(json, "_rev");
+
+        //discard attachments if it is null
+        discardIfNull(json, "_attachments");
     }
 
     private void discardIfNull(JSONObject json, String field) {
-        if (json.getString(field) == null || "null".equalsIgnoreCase(json.getString(field))){
+        if (json.getString(field) == null || "null".equalsIgnoreCase(json.getString(field))) {
             json.discard(field);
         }
     }

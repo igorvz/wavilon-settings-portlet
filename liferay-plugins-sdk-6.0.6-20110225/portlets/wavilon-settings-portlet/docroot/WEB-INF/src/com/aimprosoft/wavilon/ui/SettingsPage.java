@@ -93,8 +93,9 @@ public class SettingsPage extends VerticalLayout {
             }
         });
 
-        Button queues = new NativeButton(bundle.getString("wavilon.settings.queues"));
-        queues.addListener(new Button.ClickListener() {
+        Label queues = new Label(bundle.getString("wavilon.settings.queues"));
+        Button allQueues = new NativeButton(bundle.getString("wavilon.settings.all.queues"));
+        allQueues.addListener(new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
                 Button button = event.getButton();
 
@@ -104,12 +105,13 @@ public class SettingsPage extends VerticalLayout {
                 detailsContent.addComponent(new QueuesContent(bundle));
             }
         });
-        queues.addStyleName("label");
+//        allQueues.addStyleName("label");
 
-        Button agents = new NativeButton(bundle.getString("wavilon.settings.agents"));
-        agents.addListener(new Button.ClickListener() {
+        Label agents = new Label(bundle.getString("wavilon.settings.agents"));
+        Button allAgents = new NativeButton(bundle.getString("wavilon.settings.all.agents"));
+        allAgents.addListener(new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
-               Button button = event.getButton();
+                Button button = event.getButton();
 
                 assignActiveButton(button);
 
@@ -117,7 +119,7 @@ public class SettingsPage extends VerticalLayout {
                 detailsContent.addComponent(new AgentsContent(bundle));
             }
         });
-        agents.addStyleName("label");
+//        allAgents.addStyleName("label");
 
         Label extension = new Label(bundle.getString("wavilon.settings.extensions"));
         Button sipExtension = new NativeButton(bundle.getString("wavilon.settings.extensions.sip"));
@@ -160,11 +162,13 @@ public class SettingsPage extends VerticalLayout {
         recordings.addListener(new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
                 Button button = event.getButton();
+                RecordingsContent recordingsContent = new RecordingsContent(bundle);
 
                 assignActiveButton(button);
 
                 detailsContent.removeAllComponents();
-                detailsContent.addComponent(new RecordingsContent(bundle));
+                detailsContent.addComponent(recordingsContent);
+                recordingsContent.init();
             }
         });
 
@@ -173,7 +177,9 @@ public class SettingsPage extends VerticalLayout {
         leftColumn.addComponent(virtualNumbersServices);
         leftColumn.addComponent(gtalkServices);
         leftColumn.addComponent(queues);
+        leftColumn.addComponent(allQueues);
         leftColumn.addComponent(agents);
+        leftColumn.addComponent(allAgents);
         leftColumn.addComponent(extension);
         leftColumn.addComponent(sipExtension);
         leftColumn.addComponent(gtalkExtension);

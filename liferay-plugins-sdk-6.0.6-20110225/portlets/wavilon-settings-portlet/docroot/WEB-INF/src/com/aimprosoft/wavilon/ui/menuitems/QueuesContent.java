@@ -9,6 +9,7 @@ import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -32,19 +33,21 @@ public class QueuesContent extends VerticalLayout {
     }
 
     private void initQueuesPanel() {
-        ComboBox queuesComboBox = new ComboBox("Select queue");
+        final ComboBox queuesComboBox = new ComboBox("Select queue");
         queuesComboBox.setNullSelectionAllowed(false);
         for (Queue queue : queues) {
-            queuesComboBox.addItem(queue.getTitle());
+            queuesComboBox.addItem(queue);
         }
 
-        queuesComboBox.addListener(new Property.ValueChangeListener() {
+        //todo fire value change listener
+        queuesComboBox.addListener(new ComboBox.ValueChangeListener() {
             public void valueChange(Property.ValueChangeEvent event) {
                 Object id = event.getProperty().getValue();
 
-                selectedQueue = queues.get((Integer) id);
+                selectedQueue = (Queue) id;
 
                 viewQueueForm(selectedQueue.getId());
+
             }
         });
 
@@ -75,12 +78,12 @@ public class QueuesContent extends VerticalLayout {
         try {
             return service.getAllQueues();
         } catch (IOException e) {
-            return null;
+            return Collections.emptyList();
         }
     }
 
     private void viewQueueForm(String queueId) {
         queuesFormLayout.removeAllComponents();
-        queuesFormLayout.addComponent(new QueuesForm(bundle, queueId));
+        queuesFormLayout.addComponent(new QueuesForm(bundle, queueId, queuesFormLayout));
     }
 }

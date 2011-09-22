@@ -10,6 +10,11 @@ public class Agent extends BaseModel {
     public Agent() {
     }
 
+    @Override
+    public String getEntityType() {
+        return "agent";
+    }
+
     public String getFirstName() {
         return firstName;
     }
@@ -17,4 +22,10 @@ public class Agent extends BaseModel {
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
+
+    @Override
+    public String toString() {
+        return firstName + " " + getLiferayOrganizationId();
+    }
+
 }

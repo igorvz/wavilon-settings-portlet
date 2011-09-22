@@ -16,12 +16,11 @@ public class AgentCouchDBServiceImpl extends AbstractCouchDBService implements A
     }
 
     public Agent getAgent(String id) throws IOException {
-        Document document = database.getDocument(id);
-        return objectReader.readValue(document.toString());
+        return (Agent) getModelById(id);
     }
 
     public List<Agent> getAllAgents() throws IOException {
-        ViewResults viewResults = database.adhoc(functions.getAllDocumentFunction());
+        ViewResults viewResults = database.adhoc(functions.getAllAgentFunction());
 
         List<Agent> agentList = new LinkedList<Agent>();
 
@@ -35,20 +34,15 @@ public class AgentCouchDBServiceImpl extends AbstractCouchDBService implements A
     }
 
     public void removeAgent(Agent agent) throws IOException {
-        String documentId = agent.getId();
-        Document document = database.getDocument(documentId);
-        database.deleteDocument(document);
+        removeModel(agent);
     }
 
     public void removeAgent(String id) throws IOException {
-        Document document = database.getDocument(id);
-        database.deleteDocument(document);
+        removeModelById(id);
     }
 
-    @SuppressWarnings("unchecked")
     public void updateAgent(Agent agent) throws IOException {
-        Document document = serializeService.toDocument(agent);
-        database.saveDocument(document);
+        updateModel(agent);
     }
 
 }

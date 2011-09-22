@@ -16,12 +16,11 @@ public class RecordingCouchDBServiceImpl extends AbstractCouchDBService implemen
     }
 
     public Recording getRecording(String id) throws IOException {
-        Document document = database.getDocument(id);
-        return objectReader.readValue(document.toString());
+        return (Recording) getModelById(id, true);
     }
 
     public List<Recording> getAllRecordings() throws IOException {
-        ViewResults viewResults = database.adhoc(functions.getAllDocumentFunction());
+        ViewResults viewResults = database.adhoc(functions.getAllRecordingFunction());
 
         List<Recording> recordingList = new LinkedList<Recording>();
 
@@ -35,19 +34,15 @@ public class RecordingCouchDBServiceImpl extends AbstractCouchDBService implemen
     }
 
     public void removeRecording(Recording recording) throws IOException {
-        String documentId = recording.getId();
-        Document document = database.getDocument(documentId);
-        database.deleteDocument(document);
+        removeModel(recording);
     }
 
     public void removeRecording(String id) throws IOException {
-        Document document = database.getDocument(id);
-        database.deleteDocument(document);
+        removeModelById(id);
     }
 
     @SuppressWarnings("unchecked")
     public void updateRecording(Recording recording) throws IOException {
-      Document document = serializeService.toDocument(recording);
-        database.saveDocument(document);
+        updateModel(recording);
     }
 }

@@ -3,7 +3,7 @@
 }
 
 .leftcolumn .v-label {
-    color: #000;
+    color: #888;
     font-weight: bold;
     padding: 5px 0 3px 10px;
     margin: 10px 0 0;
@@ -23,7 +23,7 @@
 
 .v-view .leftcolumn .v-nativebutton-active {
     /*background: url("../images/selected-bg.png") repeat-x scroll 0 0 transparent;*/
-    background:none repeat scroll 0 0 #6093E0;
+    background:none repeat scroll 0 0 #5C94DA;
     color: #FFFFFF;
     /*font-weight: bold;*/
     /*text-shadow: 0 1px 0 #384359;*/
@@ -43,7 +43,7 @@
 }
 
 .v-table .v-selected, .black .v-table .v-selected {
-    background: none repeat scroll 0 0 #3D80DF !important;
+    background: none repeat scroll 0 0 #5C94DA !important;
     color: #FFFFFF;
     text-shadow: none !important;
 }

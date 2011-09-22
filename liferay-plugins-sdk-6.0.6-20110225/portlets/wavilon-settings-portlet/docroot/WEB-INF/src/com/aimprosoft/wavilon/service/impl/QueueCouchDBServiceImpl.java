@@ -16,12 +16,11 @@ public class QueueCouchDBServiceImpl extends AbstractCouchDBService implements Q
     }
 
     public Queue getQueue(String id) throws IOException {
-        Document document = database.getDocument(id);
-        return objectReader.readValue(document.toString());
+        return (Queue) getModelById(id);
     }
 
     public List<Queue> getAllQueues() throws IOException {
-        ViewResults viewResults = database.adhoc(functions.getAllDocumentFunction());
+        ViewResults viewResults = database.adhoc(functions.getAllQueueFunction());
         List<Queue> queueList = new LinkedList<Queue>();
 
         for (Document doc : viewResults.getResults()) {
@@ -34,20 +33,15 @@ public class QueueCouchDBServiceImpl extends AbstractCouchDBService implements Q
     }
 
     public void removeQueue(Queue queue) throws IOException {
-        String documentId = queue.getId();
-        Document document = database.getDocument(documentId);
-        database.deleteDocument(document);
+        removeModel(queue);
     }
 
     public void removeQueue(String id) throws IOException {
-        Document document = database.getDocument(id);
-        database.deleteDocument(document);
+        removeModelById(id);
     }
 
-    @SuppressWarnings("unchecked")
     public void updateQueue(Queue queue) throws IOException {
-        Document document = serializeService.toDocument(queue);
-        database.saveDocument(document);
+        updateModel(queue);
     }
 
 }

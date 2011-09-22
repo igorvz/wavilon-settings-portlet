@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface AgentDatabaseService {
 
-     void addAgent(Agent agent) throws IOException;
+    void addAgent(Agent agent) throws IOException;
 
     Agent getAgent(String id) throws IOException;
 

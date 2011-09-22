@@ -21,12 +21,15 @@ public class RecordingsForm extends VerticalLayout {
     private Item item;
     private static RecordingDatabaseService service = ObjectFactory.getBean(RecordingDatabaseService.class);
     private List<String> extensions = new LinkedList<String>();
-    Recording recording = null;
+    private Recording recording = null;
+    private RecordingUploader recordingUploader = null;
 
-    public RecordingsForm(final ResourceBundle bundle, Item item, final VerticalLayout right, Table table) {
+    public RecordingsForm(final ResourceBundle bundle) {
         this.bundle = bundle;
-        this.item = item;
+    }
 
+    public void init(Item item, final VerticalLayout right, Table table) {
+        this.item = item;
 
         if (item != null) {
             String id = (String) item.getItemProperty("id").getValue();
@@ -77,10 +80,12 @@ public class RecordingsForm extends VerticalLayout {
             }
         });
 
+        recordingUploader = new RecordingUploader();
         addComponent(form);
-        addComponent(new RecordingUploader(recording));
-        addComponent(select);
 
+        addComponent(recordingUploader);
+        recordingUploader.init(recording);
+        addComponent(select);
     }
 
 }

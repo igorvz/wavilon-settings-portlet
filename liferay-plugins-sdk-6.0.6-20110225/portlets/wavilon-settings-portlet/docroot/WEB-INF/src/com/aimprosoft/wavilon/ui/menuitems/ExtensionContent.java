@@ -132,7 +132,7 @@ public class ExtensionContent extends VerticalLayout {
 
         right.removeAllComponents();
         right.addStyleName("formRegion");
-         right.setMargin(false, true, false, true);
+        right.setMargin(false, true, false, true);
         right.addComponent(new ExtensionForm(bundle, item, right, table, menuName));
     }
 

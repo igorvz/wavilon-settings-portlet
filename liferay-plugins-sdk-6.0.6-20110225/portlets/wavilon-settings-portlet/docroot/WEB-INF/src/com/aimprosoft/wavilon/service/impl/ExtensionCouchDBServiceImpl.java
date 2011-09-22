@@ -10,14 +10,14 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class ExtensionCouchDBServiceImpl extends AbstractCouchDBService implements ExtensionDatabaseService {
+
     public Extension getExtension(String id) throws IOException {
-        Document document = database.getDocument(id);
-        return objectReader.readValue(document.toString());
+        return (Extension) getModelById(id);
     }
 
     public List<Extension> getAllExtension() throws IOException {
 
-        ViewResults viewResults = database.getAllDocuments();
+        ViewResults viewResults = database.adhoc(functions.getAllExtensionFunction());
         List<Extension> extensionList = new LinkedList<Extension>();
 
         for (Document doc : viewResults.getResults()) {
@@ -29,9 +29,7 @@ public class ExtensionCouchDBServiceImpl extends AbstractCouchDBService implemen
         return extensionList;
     }
 
-    @SuppressWarnings("unchecked")
     public void updateExtension(Extension extension) throws IOException {
-        Document document = serializeService.toDocument(extension);
-        database.saveDocument(document);
+        updateModel(extension);
     }
 }

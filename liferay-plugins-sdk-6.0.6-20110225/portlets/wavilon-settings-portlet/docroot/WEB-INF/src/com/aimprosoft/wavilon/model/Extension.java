@@ -22,6 +22,11 @@ public class Extension extends BaseModel{
 
     }
 
+    @Override
+    public String getEntityType() {
+        return "extension";
+    }
+
     public String getFirstName() {
         return firstName;
     }

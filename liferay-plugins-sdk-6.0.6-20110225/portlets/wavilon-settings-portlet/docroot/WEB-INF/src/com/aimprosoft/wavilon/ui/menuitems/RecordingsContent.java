@@ -32,6 +32,9 @@ public class RecordingsContent extends VerticalLayout {
 
     public RecordingsContent(ResourceBundle bundle) {
         this.bundle = bundle;
+    }
+
+    public void init() {
         tableFields = fillFields();
         hiddenFields = fillHiddenFields();
         tableData = createTableData();
@@ -96,7 +99,6 @@ public class RecordingsContent extends VerticalLayout {
 
                 String recordingID = (String) table.getItem(id).getItemProperty("id").getValue();
 
-
                 try {
                     service.removeRecording(recordingID);
                 } catch (IOException ignored) {
@@ -129,7 +131,7 @@ public class RecordingsContent extends VerticalLayout {
             ic.addContainerProperty(field, String.class, "");
         }
 
-        if (! recordings.isEmpty()) {
+        if (!recordings.isEmpty()) {
             for (Recording recording : recordings) {
                 Object object = ic.addItem();
                 ic.getContainerProperty(object, "name").setValue(recording.getFirstName());
@@ -154,7 +156,10 @@ public class RecordingsContent extends VerticalLayout {
         Item item = id == null ? null : (Item) id;
 
         right.removeAllComponents();
-        right.addComponent(new RecordingsForm(bundle, item, right, table));
+        right.setMargin(false, true, false, true);
+        RecordingsForm recordingsForm = new RecordingsForm(bundle);
+        right.addComponent(recordingsForm);
+        recordingsForm.init( item, right, table);
     }
 
     private List<String> fillHiddenFields() {

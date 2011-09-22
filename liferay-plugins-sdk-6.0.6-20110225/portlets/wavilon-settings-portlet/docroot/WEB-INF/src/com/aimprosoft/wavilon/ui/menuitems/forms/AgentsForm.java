@@ -8,6 +8,7 @@ import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.liferay.portal.util.PortalUtil;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
+import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 import org.apache.commons.collections.PredicateUtils;
 
@@ -23,11 +24,13 @@ public class AgentsForm extends VerticalLayout {
     private Item item;
     private static AgentDatabaseService service = ObjectFactory.getBean(AgentDatabaseService.class);
     private List<String> extensions = new LinkedList<String>();
-    Agent agent = null;
+    private Agent agent = null;
 
     public AgentsForm(final ResourceBundle bundle, Item item, final VerticalLayout right, final Table table, final IndexedContainer tableData) {
         this.bundle = bundle;
         this.item = item;
+        right.addStyleName("formRegion");
+        right.setMargin(false, true, false, true);
 
 
         if (item != null) {
@@ -42,7 +45,14 @@ public class AgentsForm extends VerticalLayout {
             agent.setFirstName("");
         }
 
+        Label headerForm = new Label(agent.getRevision() == null ? null : agent.getFirstName() + " " + agent.getLiferayOrganizationId());
+        headerForm.setHeight(27, Sizeable.UNITS_PIXELS);
+        headerForm.addStyleName("headerForm");
+        addComponent(headerForm);
+
         final Form form = new Form();
+        form.addStyleName("labelField");
+
 
         TextField firstName = new TextField("First name");
         firstName.setValue(agent.getFirstName());
@@ -91,8 +101,8 @@ public class AgentsForm extends VerticalLayout {
             }
         });
         addComponent(form);
-        addComponent(apply);    addComponent(apply);
-
+        addComponent(apply);
+        setComponentAlignment(apply, Alignment.BOTTOM_RIGHT);
     }
 
 
