@@ -1,16 +1,20 @@
 package com.aimprosoft.wavilon.ui.menuitems;
 
+import com.aimprosoft.wavilon.application.GenericPortletApplication;
 import com.aimprosoft.wavilon.model.Agent;
 import com.aimprosoft.wavilon.service.AgentDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.ui.menuitems.forms.AgentsForm;
+import com.liferay.portal.util.PortalUtil;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 
+import javax.portlet.PortletRequest;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -22,7 +26,7 @@ public class AgentsContent extends VerticalLayout {
     private HorizontalLayout main = new HorizontalLayout();
     private VerticalLayout left = new VerticalLayout();
     private VerticalLayout right = new VerticalLayout();
-
+    private static PortletRequest request;
     private Table table = new Table();
     private List<String> tableFields;
     private IndexedContainer tableData;
@@ -32,10 +36,16 @@ public class AgentsContent extends VerticalLayout {
 
     public AgentsContent(ResourceBundle bundle) {
         this.bundle = bundle;
+    }
+
+    public void init() {
+        request = ((GenericPortletApplication) getApplication()).getPortletRequest();
         tableFields = fillFields();
         hiddenFields = fillHiddenFields();
         tableData = createTableData();
 
+        this.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+        this.setSizeFull();
         initLayout();
         initTableAddRemoveButtons();
         initAddressList();
@@ -45,8 +55,14 @@ public class AgentsContent extends VerticalLayout {
         main.setHeight(400, Sizeable.UNITS_PIXELS);
         main.setSizeUndefined();
         addComponent(main);
+        main.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+        main.setSizeFull();
         main.addComponent(left);
         main.addComponent(right);
+        left.setWidth(Sizeable.SIZE_UNDEFINED, 0);
+        right.setWidth(99, Sizeable.UNITS_PERCENTAGE);
+        main.setExpandRatio(left, 0.5f);
+        main.setExpandRatio(right, 9.0f);
 
         table.setContainerDataSource(tableData);
         table.setHeight(330, Sizeable.UNITS_PIXELS);
@@ -141,9 +157,9 @@ public class AgentsContent extends VerticalLayout {
 
     private static List<Agent> getAgents() {
         try {
-            return agentsService.getAllAgents();
-        } catch (IOException e) {
-            return null;
+            return agentsService.getAllAgentsByUser(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request));
+        } catch (Exception e) {
+            return Collections.emptyList();
         }
     }
 
@@ -151,7 +167,9 @@ public class AgentsContent extends VerticalLayout {
         Item item = id == null ? null : (Item) id;
 
         right.removeAllComponents();
-        right.addComponent(new AgentsForm(bundle, item, right, table, tableData));
+        AgentsForm agentsForm = new AgentsForm(bundle);
+        right.addComponent(agentsForm);
+        agentsForm.init(item, right, table, tableData);
     }
 
     private List<String> fillHiddenFields() {

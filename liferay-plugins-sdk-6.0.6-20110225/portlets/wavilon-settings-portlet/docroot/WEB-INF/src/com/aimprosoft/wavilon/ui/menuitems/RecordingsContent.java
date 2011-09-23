@@ -39,6 +39,8 @@ public class RecordingsContent extends VerticalLayout {
         hiddenFields = fillHiddenFields();
         tableData = createTableData();
 
+        this.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+        this.setSizeFull();
         initLayout();
         initTableAddRemoveButtons();
         initAddressList();
@@ -48,8 +50,14 @@ public class RecordingsContent extends VerticalLayout {
         main.setHeight(400, Sizeable.UNITS_PIXELS);
         main.setSizeUndefined();
         addComponent(main);
+        main.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+        main.setSizeFull();
         main.addComponent(left);
         main.addComponent(right);
+        left.setWidth(Sizeable.SIZE_UNDEFINED, 0);
+        right.setWidth(99, Sizeable.UNITS_PERCENTAGE);
+        main.setExpandRatio(left, 0.5f);
+        main.setExpandRatio(right, 9.0f);
 
         table.setContainerDataSource(tableData);
         table.setHeight(330, Sizeable.UNITS_PIXELS);

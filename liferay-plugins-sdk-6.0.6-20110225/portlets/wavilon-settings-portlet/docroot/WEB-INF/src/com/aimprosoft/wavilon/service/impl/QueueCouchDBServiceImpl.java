@@ -2,6 +2,7 @@ package com.aimprosoft.wavilon.service.impl;
 
 import com.aimprosoft.wavilon.model.Queue;
 import com.aimprosoft.wavilon.service.QueueDatabaseService;
+import com.aimprosoft.wavilon.util.FormatUtil;
 import com.fourspaces.couchdb.Document;
 import com.fourspaces.couchdb.ViewResults;
 
@@ -21,6 +22,21 @@ public class QueueCouchDBServiceImpl extends AbstractCouchDBService implements Q
 
     public List<Queue> getAllQueues() throws IOException {
         ViewResults viewResults = database.adhoc(functions.getAllQueueFunction());
+        List<Queue> queueList = new LinkedList<Queue>();
+
+        for (Document doc : viewResults.getResults()) {
+            Queue queue = getQueue(doc.getId());
+
+            queueList.add(queue);
+        }
+
+        return queueList;
+    }
+
+    public List<Queue> getAllQueuesByUser(Long userId, Long organizationId) throws IOException {
+        String formattedFunction = FormatUtil.formatFunction(functions.getBaseModelsByUserAndTypeFunction(), "queue", userId, organizationId);
+
+        ViewResults viewResults = database.adhoc(formattedFunction);
         List<Queue> queueList = new LinkedList<Queue>();
 
         for (Document doc : viewResults.getResults()) {

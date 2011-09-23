@@ -111,6 +111,8 @@
 
 .singInPanel{
     background: none repeat scroll 0 0 #939394;
+    font-weight: bold;
+    padding: 5px;
 }
 
 .singInPanel a{

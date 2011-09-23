@@ -2,6 +2,7 @@ package com.aimprosoft.wavilon.service.impl;
 
 import com.aimprosoft.wavilon.model.Agent;
 import com.aimprosoft.wavilon.service.AgentDatabaseService;
+import com.aimprosoft.wavilon.util.FormatUtil;
 import com.fourspaces.couchdb.Document;
 import com.fourspaces.couchdb.ViewResults;
 
@@ -43,6 +44,22 @@ public class AgentCouchDBServiceImpl extends AbstractCouchDBService implements A
 
     public void updateAgent(Agent agent) throws IOException {
         updateModel(agent);
+    }
+
+    public List<Agent> getAllAgentsByUser(Long userId, Long organizationId) throws IOException {
+        String formattedFunction = FormatUtil.formatFunction(functions.getBaseModelsByUserAndTypeFunction(), "agent", userId, organizationId);
+
+       ViewResults viewResults = database.adhoc(formattedFunction);
+
+        List<Agent> agentList = new LinkedList<Agent>();
+
+        for (Document doc : viewResults.getResults()) {
+            Agent agent = getAgent(doc.getId());
+
+            agentList.add(agent);
+        }
+
+        return agentList;
     }
 
 }

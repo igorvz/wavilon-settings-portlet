@@ -16,9 +16,10 @@ public class SettingsPage extends VerticalLayout {
     private VerticalLayout leftColumn;
     private VerticalLayout rightColumn;
     private VerticalLayout detailsContent;
-
-    public SettingsPage(final ResourceBundle bundle) {
+    private Long userId;
+    public SettingsPage(final ResourceBundle bundle, Long userId) {
         this.bundle = bundle;
+        this.userId =userId;
 
         addStyleName("settingsPanel");
         setSides(this);
@@ -39,17 +40,20 @@ public class SettingsPage extends VerticalLayout {
         rightColumn = new VerticalLayout();
         rightColumn.setStyleName("rightcolumn");
         rightColumn.setHeight("100%");
+        rightColumn.setWidth("100%");
         rightColumn.setMargin(true);
         panel.addComponent(rightColumn);
 
         VerticalLayout detailsBox = new VerticalLayout();
         detailsBox.setStyleName("detailsBox");
         detailsBox.setHeight(390, Sizeable.UNITS_PIXELS);
+        detailsBox.setWidth("100%");
         setSides(detailsBox);
 
         detailsContent = new VerticalLayout();
         detailsContent.setStyleName("detailsContent");
         detailsContent.setHeight(390, Sizeable.UNITS_PIXELS);
+        detailsContent.setWidth("100%");
 //        setSides(detailsContent);
         detailsBox.addComponent(detailsContent);
 
@@ -102,7 +106,9 @@ public class SettingsPage extends VerticalLayout {
                 assignActiveButton(button);
 
                 detailsContent.removeAllComponents();
-                detailsContent.addComponent(new QueuesContent(bundle));
+                QueuesContent queuesContent = new QueuesContent(bundle);
+                detailsContent.addComponent(queuesContent);
+                queuesContent.init();
             }
         });
 //        allQueues.addStyleName("label");
@@ -116,7 +122,9 @@ public class SettingsPage extends VerticalLayout {
                 assignActiveButton(button);
 
                 detailsContent.removeAllComponents();
-                detailsContent.addComponent(new AgentsContent(bundle));
+                AgentsContent agentsContent = new AgentsContent(bundle);
+                detailsContent.addComponent(agentsContent);
+                agentsContent.init();
             }
         });
 //        allAgents.addStyleName("label");

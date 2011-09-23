@@ -4,6 +4,7 @@ import com.aimprosoft.wavilon.ui.PleaseSignInPage;
 import com.aimprosoft.wavilon.ui.SettingsPage;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.theme.ThemeDisplay;
+import com.liferay.portal.util.PortalUtil;
 import com.vaadin.ui.Window;
 import org.apache.log4j.Logger;
 
@@ -14,7 +15,7 @@ import java.util.ResourceBundle;
 
 public class SettingsApplication extends GenericPortletApplication {
 
-
+    private Long userId;
     private Logger _logger = Logger.getLogger(getClass());
 
     @Override
@@ -45,7 +46,8 @@ public class SettingsApplication extends GenericPortletApplication {
             window.addStyleName("wrapperLayouts");
             window.getLayout().setMargin(false);
             if (themeDisplay.isSignedIn()) {
-                window.addComponent(new SettingsPage(bundle));
+                userId = PortalUtil.getUserId(renderRequest);
+                window.addComponent(new SettingsPage(bundle, userId));
             } else {
                 window.addComponent(new PleaseSignInPage(bundle));
             }

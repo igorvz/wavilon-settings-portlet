@@ -18,8 +18,16 @@ public class Functions {
         return allAgentFunction;
     }
 
+    @Value("${fetch.all.base.model.by.user.and.type}")
+    private String baseModelsByUserAndTypeFunction;
+
+    public String getBaseModelsByUserAndTypeFunction() {
+        return baseModelsByUserAndTypeFunction;
+    }
+
     @Value("${fetch.all.queues}")
     private String allQueueFunction;
+
 
     public String getAllQueueFunction() {
         return allQueueFunction;
@@ -38,4 +46,6 @@ public class Functions {
     public String getAllRecordingFunction() {
         return allRecordingFunction;
     }
+
+
 }

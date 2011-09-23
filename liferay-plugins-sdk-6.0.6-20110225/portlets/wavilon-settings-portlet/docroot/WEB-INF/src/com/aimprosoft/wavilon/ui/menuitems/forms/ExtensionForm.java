@@ -35,7 +35,6 @@ public class ExtensionForm extends VerticalLayout {
         final TextField field = new TextField();
         field.setRequired(true);
 
-
         String fieldName = "";
         String columnName = "";
 
@@ -43,7 +42,6 @@ public class ExtensionForm extends VerticalLayout {
             fieldName = "Phone Number";
             columnName = "phoneNumber";
             field.addValidator(new RegexpValidator("[+][0-9]{10}", "Incorrect phone number. Must begin with a + ..."));
-
         }
 
         if ("SIP".equals(menuName)) {

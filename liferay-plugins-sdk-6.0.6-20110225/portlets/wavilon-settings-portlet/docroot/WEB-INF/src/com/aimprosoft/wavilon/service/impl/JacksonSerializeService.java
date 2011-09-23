@@ -19,6 +19,9 @@ public class JacksonSerializeService<T> implements SerializeService<T> {
     }
 
     public Document toDocument(T object) throws IOException {
+        /**
+         * Object to JSON is done such way due absent JSON mapping functionality in net.sf.json.JSONObject.
+         */
         String jsonString = objectWriter.writeValueAsString(object);
         JSONObject json = (JSONObject) JSONSerializer.toJSON(jsonString);
 

@@ -1,13 +1,16 @@
 package com.aimprosoft.wavilon.ui.menuitems;
 
+import com.aimprosoft.wavilon.application.GenericPortletApplication;
 import com.aimprosoft.wavilon.model.Queue;
 import com.aimprosoft.wavilon.service.QueueDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.ui.menuitems.forms.QueuesForm;
+import com.liferay.portal.util.PortalUtil;
 import com.vaadin.data.Property;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 
+import javax.portlet.PortletRequest;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
@@ -17,12 +20,18 @@ public class QueuesContent extends VerticalLayout {
     private ResourceBundle bundle;
     private Queue selectedQueue;
     private List<Queue> queues;
+    private static PortletRequest request;
     private QueueDatabaseService service = ObjectFactory.getBean(QueueDatabaseService.class);
     private HorizontalLayout queuesPanel = new HorizontalLayout();
     private VerticalLayout queuesFormLayout = new VerticalLayout();
+    private ComboBox queuesComboBox;
 
     public QueuesContent(ResourceBundle bundle) {
         this.bundle = bundle;
+    }
+
+    public void init() {
+        request = ((GenericPortletApplication) getApplication()).getPortletRequest();
         queues = getQueues();
 
         initLayout();
@@ -33,7 +42,7 @@ public class QueuesContent extends VerticalLayout {
     }
 
     private void initQueuesPanel() {
-        final ComboBox queuesComboBox = new ComboBox("Select queue");
+        queuesComboBox = new ComboBox("Select queue");
         queuesComboBox.setNullSelectionAllowed(false);
         for (Queue queue : queues) {
             queuesComboBox.addItem(queue);
@@ -76,14 +85,16 @@ public class QueuesContent extends VerticalLayout {
 
     private List<Queue> getQueues() {
         try {
-            return service.getAllQueues();
-        } catch (IOException e) {
+            return service.getAllQueuesByUser(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request));
+        } catch (Exception e) {
             return Collections.emptyList();
         }
     }
 
     private void viewQueueForm(String queueId) {
         queuesFormLayout.removeAllComponents();
-        queuesFormLayout.addComponent(new QueuesForm(bundle, queueId, queuesFormLayout));
+        QueuesForm queuesForm = new QueuesForm(bundle);
+        queuesFormLayout.addComponent(queuesForm);
+        queuesForm.init(queueId, queuesFormLayout, queuesComboBox);
     }
 }

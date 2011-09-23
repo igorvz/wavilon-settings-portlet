@@ -5,12 +5,13 @@ import com.aimprosoft.wavilon.application.GenericPortletApplication;
 import com.aimprosoft.wavilon.model.Agent;
 import com.aimprosoft.wavilon.service.AgentDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.util.PortalUtil;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
-import org.apache.commons.collections.PredicateUtils;
 
 import javax.portlet.PortletRequest;
 import java.io.IOException;
@@ -21,16 +22,21 @@ import java.util.UUID;
 
 public class AgentsForm extends VerticalLayout {
     private ResourceBundle bundle;
+    private PortletRequest request;
     private Item item;
     private static AgentDatabaseService service = ObjectFactory.getBean(AgentDatabaseService.class);
     private List<String> extensions = new LinkedList<String>();
     private Agent agent = null;
 
-    public AgentsForm(final ResourceBundle bundle, Item item, final VerticalLayout right, final Table table, final IndexedContainer tableData) {
+    public AgentsForm(ResourceBundle bundle) {
         this.bundle = bundle;
+    }
+
+    public void init(Item item, final VerticalLayout right, final Table table, final IndexedContainer tableData) {
+        request = ((GenericPortletApplication) getApplication()).getPortletRequest();
         this.item = item;
         right.addStyleName("formRegion");
-        right.setMargin(false, true, false, true);
+        right.setMargin(false);
 
 
         if (item != null) {
@@ -43,6 +49,13 @@ public class AgentsForm extends VerticalLayout {
 
             agent = new Agent();
             agent.setFirstName("");
+
+            agent.setId(UUID.randomUUID().toString());
+            try {
+                agent.setLiferayUserId(PortalUtil.getUserId(request));
+                agent.setLiferayOrganizationId(PortalUtil.getScopeGroupId(request));
+                agent.setLiferayPortalId(PortalUtil.getCompany(request).getWebId());
+            } catch (Exception ignored) {}
         }
 
         Label headerForm = new Label(agent.getRevision() == null ? null : agent.getFirstName() + " " + agent.getLiferayOrganizationId());
@@ -74,11 +87,7 @@ public class AgentsForm extends VerticalLayout {
                     form.commit();
 
                     if (agent.getRevision() == null) {
-                        agent.setId(UUID.randomUUID().toString());
-                        PortletRequest request = ((GenericPortletApplication) getApplication()).getPortletRequest();
-                        agent.setLiferayUserId(PortalUtil.getUserId(request));
-                        agent.setLiferayOrganizationId(PortalUtil.getScopeGroupId(request));
-                        agent.setLiferayPortalId(PortalUtil.getCompany(request).getWebId());
+
 
                     } else {
                         table.removeItem(table.getValue());

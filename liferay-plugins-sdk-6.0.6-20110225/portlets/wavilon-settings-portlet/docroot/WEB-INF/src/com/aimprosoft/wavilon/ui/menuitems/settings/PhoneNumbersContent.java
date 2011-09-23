@@ -27,6 +27,8 @@ public class PhoneNumbersContent extends HorizontalLayout {
 
         tableData = createTableData(bundle);
 
+        this.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+        this.setSizeFull();
         initLayout();
         initAddressList(bundle);
     }
@@ -49,8 +51,14 @@ public class PhoneNumbersContent extends HorizontalLayout {
         phoneNumbers.setStyleName("phoneNumbers");
 
         //add lift and right parts
-        addComponent(left);
-        addComponent(right);
+        this.addComponent(left);
+        left.addStyleName("leftSide");
+        left.setWidth(Sizeable.SIZE_UNDEFINED, 0);
+        this.addComponent(right);
+        right.addStyleName("rightSide");
+        right.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+        this.setExpandRatio(left, 0.5f);
+        this.setExpandRatio(right, 9.0f);
     }
 
     private void fillForm() {
@@ -72,6 +80,7 @@ public class PhoneNumbersContent extends HorizontalLayout {
                 Label headerForm = new Label(id == null ? null : phoneNumbers.getItem(id).toString());
                 //styles
                 headerForm.setHeight(27, Sizeable.UNITS_PIXELS);
+                headerForm.setWidth("100%");
                 headerForm.addStyleName("headerForm");
 
                 TextField field = new TextField("Phone Number");
@@ -86,6 +95,7 @@ public class PhoneNumbersContent extends HorizontalLayout {
                 //styles
                 entityEditor.addStyleName("labelField");
                 entityEditor.setHeight(33, Sizeable.UNITS_PIXELS);
+                entityEditor.setWidth("100%");
 
                 Button change = new Button(bundle.getString("wavilon.settings.services.phoneNumbers.change"), entityEditor, "commit");
                 change.setClickShortcut(KeyCode.ENTER);

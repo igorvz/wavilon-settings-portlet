@@ -21,13 +21,18 @@ public class QueuesForm extends VerticalLayout {
     private ResourceBundle bundle;
     private QueueDatabaseService service = ObjectFactory.getBean(QueueDatabaseService.class);
     private AgentDatabaseService agentService = ObjectFactory.getBean(AgentDatabaseService.class);
-
+    private static PortletRequest request;
+    private Button remove;
     private Queue queue;
 
-    public QueuesForm(final ResourceBundle bundle, final String queueId, final VerticalLayout queuesFormLayout) {
+    public QueuesForm(final ResourceBundle bundle) {
         this.bundle = bundle;
-        queue = getQueue(queueId);
 
+    }
+
+    public void init(final String queueId, final VerticalLayout queuesFormLayout, final ComboBox queuesComboBox) {
+        request = ((GenericPortletApplication) getApplication()).getPortletRequest();
+        queue = getQueue(queueId);
 
         final Form queueForm = new QueuesFormLayout();
 
@@ -35,8 +40,8 @@ public class QueuesForm extends VerticalLayout {
         TextField maxTimeInput = new TextField();
         maxTimeInput.setWidth(40, Sizeable.UNITS_PIXELS);
         maxTimeInput.setRequired(true);
-        maxTimeInput.setRequiredError(bundle.getString("wavilon.settings.validation.form.error.empty.max.time.input"));
-        maxTimeInput.addValidator(new IntegerValidator(bundle.getString("wavilon.settings.validation.form.error.integer.max.time.input")));
+        maxTimeInput.setRequiredError(bundle.getString("wavilon.settings.validation.form.error.empty.queues.max.time.input"));
+        maxTimeInput.addValidator(new IntegerValidator(bundle.getString("wavilon.settings.validation.form.error.queues.integer.max.time.input")));
 
         List<String> typeList = new LinkedList<String>();
         typeList.add("Type 1");
@@ -56,8 +61,8 @@ public class QueuesForm extends VerticalLayout {
         List<String> availableAgents = null;
         List<Agent> agentList = null;
         try {
-            agentList = agentService.getAllAgents();
-        } catch (IOException ignored) {
+            agentList = agentService.getAllAgentsByUser(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request));
+        } catch (Exception ignored) {
             agentList = Collections.emptyList();
         }
 
@@ -71,8 +76,8 @@ public class QueuesForm extends VerticalLayout {
         TextField maxLengthInput = new TextField();
         maxLengthInput.setWidth(40, Sizeable.UNITS_PIXELS);
         maxLengthInput.setRequired(true);
-        maxLengthInput.setRequiredError(bundle.getString("wavilon.settings.validation.form.error.empty.max.length.input"));
-        maxLengthInput.addValidator(new IntegerValidator(bundle.getString("wavilon.settings.validation.form.error.integer.max.length.input")));
+        maxLengthInput.setRequiredError(bundle.getString("wavilon.settings.validation.form.error.empty.queues.max.length.input"));
+        maxLengthInput.addValidator(new IntegerValidator(bundle.getString("wavilon.settings.validation.form.error.queues.integer.max.length.input")));
         ComboBox secondRowType = new ComboBox();
         secondRowType.setWidth(100, Sizeable.UNITS_PIXELS);
         ComboBox secondRowSelectNode = new ComboBox();
@@ -85,7 +90,7 @@ public class QueuesForm extends VerticalLayout {
         TextField title = new TextField();
         title.setWidth(120, Sizeable.UNITS_PIXELS);
         title.setRequired(true);
-        title.setRequiredError(bundle.getString("wavilon.settings.validation.form.error.empty.title"));
+        title.setRequiredError(bundle.getString("wavilon.settings.validation.form.error.empty.queues.title"));
 
 
         //twin col select
@@ -102,10 +107,10 @@ public class QueuesForm extends VerticalLayout {
             maxTimeInput.setValue(queue.getMaxTime());
             maxLengthInput.setValue(queue.getMaxLength());
 
-            if(null != queue.getAgents()){
-            availableAgents = queue.getAgents();
-            }else {
-                availableAgents= Collections.emptyList();
+            if (null != queue.getAgents()) {
+                availableAgents = queue.getAgents();
+            } else {
+                availableAgents = Collections.emptyList();
             }
         }
         for (String s : typeList) {
@@ -113,10 +118,10 @@ public class QueuesForm extends VerticalLayout {
             firstRowType.addItem(s);
 
             if (null != queue.getRevision()) {
-                if (queue.getDistinctionMaxTimeType().equals(s)) {
+                if (null != queue.getDistinctionMaxTimeType() && queue.getDistinctionMaxTimeType().equals(s)) {
                     firstRowType.setValue(s);
                 }
-                if (queue.getDistinctionFullType().equals(s)) {
+                if (null != queue.getDistinctionFullType() && queue.getDistinctionFullType().equals(s)) {
                     secondRowType.setValue(s);
                 }
             }
@@ -127,10 +132,10 @@ public class QueuesForm extends VerticalLayout {
             secondRowSelectNode.addItem(s);
 
             if (null != queue.getRevision()) {
-                if (queue.getDistinctionMaxTimeNode().equals(s)) {
+                if (null != queue.getDistinctionMaxTimeNode() && queue.getDistinctionMaxTimeNode().equals(s)) {
                     firstRowSelectNode.setValue(s);
                 }
-                if (queue.getDistinctionFullNode().equals(s)) {
+                if (null != queue.getDistinctionFullNode() && queue.getDistinctionFullNode().equals(s)) {
                     secondRowSelectNode.setValue(s);
                 }
             }
@@ -139,7 +144,7 @@ public class QueuesForm extends VerticalLayout {
             hold.addItem(s);
 
             if (null != queue.getRevision()) {
-                if (queue.getMusicOnHold().equals(s)) {
+                if (null != queue.getMusicOnHold() && queue.getMusicOnHold().equals(s)) {
                     hold.setValue(s);
                 }
             }
@@ -148,9 +153,9 @@ public class QueuesForm extends VerticalLayout {
         List<Agent> selectedAgents = new ArrayList<Agent>();
         for (Agent agent : agentList) {
             agents.addItem(agent);
-            if (null != queue.getRevision() && queue.getAgents()!= null) {
-                for (String agentId: queue.getAgents()){
-                    if (agent.getId().equals(agentId)){
+            if (null != queue.getRevision() && queue.getAgents() != null) {
+                for (String agentId : queue.getAgents()) {
+                    if (agent.getId().equals(agentId)) {
                         selectedAgents.add(agent);
                     }
                 }
@@ -185,6 +190,8 @@ public class QueuesForm extends VerticalLayout {
                         queue.setLiferayUserId(PortalUtil.getUserId(request));
                         queue.setLiferayOrganizationId(PortalUtil.getScopeGroupId(request));
                         queue.setLiferayPortalId(PortalUtil.getCompany(request).getWebId());
+                    } else {
+                        queuesComboBox.removeItem(queue);
                     }
 
                     queue.setMaxTime(NumberUtils.toInt((String) queueForm.getField("maxTimeInput").getValue().toString()));
@@ -207,6 +214,8 @@ public class QueuesForm extends VerticalLayout {
 
                     service.addQueue(queue);
                     queuesFormLayout.removeAllComponents();
+
+                    queuesComboBox.addItem(queue);
                     getWindow().showNotification("Well done");
                 } catch (Exception e) {
                     e.getMessage();
@@ -218,8 +227,9 @@ public class QueuesForm extends VerticalLayout {
         setComponentAlignment(apply, Alignment.BOTTOM_RIGHT);
 
         if (null != queue.getRevision()) {
-            Button remove = new Button("Remove", new Button.ClickListener() {
+            remove = new Button("Remove", new Button.ClickListener() {
                 public void buttonClick(Button.ClickEvent event) {
+                    queuesComboBox.removeItem(queue);
                     try {
                         service.removeQueue(queueId);
                     } catch (IOException ignored) {
@@ -230,7 +240,6 @@ public class QueuesForm extends VerticalLayout {
             addComponent(remove);
             setComponentAlignment(remove, Alignment.BOTTOM_RIGHT);
         }
-
     }
 
     private Queue getQueue(String queueId) {

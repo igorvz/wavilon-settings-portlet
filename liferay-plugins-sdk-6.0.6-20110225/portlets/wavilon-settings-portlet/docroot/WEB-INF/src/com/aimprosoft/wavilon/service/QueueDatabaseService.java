@@ -13,6 +13,8 @@ public interface QueueDatabaseService {
 
     List<Queue> getAllQueues() throws IOException;
 
+    List<Queue> getAllQueuesByUser(Long id, Long organizationId) throws IOException;
+
     void removeQueue(Queue queue) throws IOException;
 
     void removeQueue(String id) throws IOException;

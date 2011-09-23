@@ -13,6 +13,8 @@ public interface AgentDatabaseService {
 
     List<Agent> getAllAgents() throws IOException;
 
+    List<Agent> getAllAgentsByUser(Long id, Long organizationId) throws IOException;
+
     void removeAgent(Agent agent) throws IOException;
 
     void removeAgent(String id) throws IOException;
