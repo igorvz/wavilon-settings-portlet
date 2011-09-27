@@ -1,23 +1,29 @@
 package com.aimprosoft.wavilon.ui.menuitems;
 
+import com.aimprosoft.wavilon.application.GenericPortletApplication;
 import com.aimprosoft.wavilon.model.Recording;
 import com.aimprosoft.wavilon.service.RecordingDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.ui.menuitems.forms.RecordingsForm;
+import com.liferay.portal.util.PortalUtil;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 
+import javax.portlet.PortletRequest;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
 
 public class RecordingsContent extends VerticalLayout {
     private ResourceBundle bundle;
-    private static RecordingDatabaseService service = ObjectFactory.getBean(RecordingDatabaseService.class);
+    private Long userId;
+    private static PortletRequest request;
+    private RecordingDatabaseService service = ObjectFactory.getBean(RecordingDatabaseService.class);
     private List<String> hiddenFields;
     private HorizontalLayout main = new HorizontalLayout();
     private VerticalLayout left = new VerticalLayout();
@@ -35,12 +41,11 @@ public class RecordingsContent extends VerticalLayout {
     }
 
     public void init() {
+        request = ((GenericPortletApplication) getApplication()).getPortletRequest();
         tableFields = fillFields();
         hiddenFields = fillHiddenFields();
         tableData = createTableData();
 
-        this.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-        this.setSizeFull();
         initLayout();
         initTableAddRemoveButtons();
         initAddressList();
@@ -50,14 +55,8 @@ public class RecordingsContent extends VerticalLayout {
         main.setHeight(400, Sizeable.UNITS_PIXELS);
         main.setSizeUndefined();
         addComponent(main);
-        main.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-        main.setSizeFull();
         main.addComponent(left);
         main.addComponent(right);
-        left.setWidth(Sizeable.SIZE_UNDEFINED, 0);
-        right.setWidth(99, Sizeable.UNITS_PERCENTAGE);
-        main.setExpandRatio(left, 0.5f);
-        main.setExpandRatio(right, 9.0f);
 
         table.setContainerDataSource(tableData);
         table.setHeight(330, Sizeable.UNITS_PIXELS);
@@ -145,18 +144,16 @@ public class RecordingsContent extends VerticalLayout {
                 ic.getContainerProperty(object, "name").setValue(recording.getFirstName());
                 ic.getContainerProperty(object, "id").setValue(recording.getId());
             }
-        } else {
-            Object object = ic.addItem();
-            ic.getContainerProperty(object, "name").setValue("Empty data");
         }
+
         return ic;
     }
 
-    private static List<Recording> getRecordings() {
+    private List<Recording> getRecordings() {
         try {
-            return service.getAllRecordings();
-        } catch (IOException e) {
-            return null;
+            return service.getAllRecordingsByUserId(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request));
+        } catch (Exception e) {
+            return Collections.emptyList();
         }
     }
 
@@ -167,7 +164,7 @@ public class RecordingsContent extends VerticalLayout {
         right.setMargin(false, true, false, true);
         RecordingsForm recordingsForm = new RecordingsForm(bundle);
         right.addComponent(recordingsForm);
-        recordingsForm.init( item, right, table);
+        recordingsForm.init(item, right, tableData);
     }
 
     private List<String> fillHiddenFields() {

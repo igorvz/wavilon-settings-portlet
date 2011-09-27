@@ -46,6 +46,32 @@ public class Functions {
     public String getAllRecordingFunction() {
         return allRecordingFunction;
     }
+    
+@Value("${fetch.all.phone.numbers}")
+    private String allPhoneNumbers;
 
+    public String getAllPhoneNumbersFunction() {
+        return allPhoneNumbers;
+    }    
 
+    @Value("${fetch.all.extensions.gtalk}")
+    private String allExtensionGtalkFunction;
+
+    public String getAllExtensionGtalkFunction() {
+        return allExtensionGtalkFunction;
+    }
+
+    @Value("${fetch.all.extensions.phone.number}")
+    private String allExtensionPhoneNumberFunction;
+
+    public String getAllExtensionPhoneNumberFunction() {
+        return allExtensionPhoneNumberFunction;
+    }
+
+    @Value("${fetch.all.extensions.sipUrl}")
+    private String allExtensionSipURLFunction;
+
+    public String getAllExtensionSipURLFunction() {
+        return allExtensionSipURLFunction;
+    }
 }

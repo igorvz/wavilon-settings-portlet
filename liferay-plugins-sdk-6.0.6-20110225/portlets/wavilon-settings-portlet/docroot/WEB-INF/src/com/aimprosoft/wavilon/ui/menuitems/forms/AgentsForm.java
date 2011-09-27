@@ -86,10 +86,7 @@ public class AgentsForm extends VerticalLayout {
                 try {
                     form.commit();
 
-                    if (agent.getRevision() == null) {
-
-
-                    } else {
+                    if (agent.getRevision() != null) {
                         table.removeItem(table.getValue());
                         table.select(null);
                     }

@@ -17,13 +17,15 @@
         <constructor-arg value="${db.name}"/>
     </bean>
 
-    <bean id="abstractCouchDBService" class="com.aimprosoft.wavilon.service.impl.AbstractCouchDBService" abstract="true">
+    <bean id="abstractCouchDBService" class="com.aimprosoft.wavilon.service.impl.AbstractCouchDBService"
+          abstract="true">
         <property name="database" ref="database"/>
         <property name="functions" ref="functions"/>
         <property name="serializeService" ref="serializeService"/>
     </bean>
 
-    <bean id="queueCouchDBServiceImpl" class="com.aimprosoft.wavilon.service.impl.QueueCouchDBServiceImpl" parent="abstractCouchDBService">
+    <bean id="queueCouchDBServiceImpl" class="com.aimprosoft.wavilon.service.impl.QueueCouchDBServiceImpl"
+          parent="abstractCouchDBService">
         <property name="objectReader">
             <bean class="org.codehaus.jackson.map.ObjectReader" factory-bean="objectMapper" factory-method="reader">
                 <constructor-arg index="0" value="com.aimprosoft.wavilon.model.Queue"/>
@@ -31,7 +33,8 @@
         </property>
     </bean>
 
-    <bean id="agentCouchDBServiceImpl" class="com.aimprosoft.wavilon.service.impl.AgentCouchDBServiceImpl" parent="abstractCouchDBService">
+    <bean id="agentCouchDBServiceImpl" class="com.aimprosoft.wavilon.service.impl.AgentCouchDBServiceImpl"
+          parent="abstractCouchDBService">
         <property name="objectReader">
             <bean class="org.codehaus.jackson.map.ObjectReader" factory-bean="objectMapper" factory-method="reader">
                 <constructor-arg index="0" value="com.aimprosoft.wavilon.model.Agent"/>
@@ -39,7 +42,8 @@
         </property>
     </bean>
 
-    <bean id="extensionCouchDBServiceImpl" class="com.aimprosoft.wavilon.service.impl.ExtensionCouchDBServiceImpl" parent="abstractCouchDBService">
+    <bean id="extensionCouchDBServiceImpl" class="com.aimprosoft.wavilon.service.impl.ExtensionCouchDBServiceImpl"
+          parent="abstractCouchDBService">
         <property name="objectReader">
             <bean class="org.codehaus.jackson.map.ObjectReader" factory-bean="objectMapper" factory-method="reader">
                 <constructor-arg index="0" value="com.aimprosoft.wavilon.model.Extension"/>
@@ -47,10 +51,45 @@
         </property>
     </bean>
 
-    <bean id="recordingCouchDBServiceImpl" class="com.aimprosoft.wavilon.service.impl.RecordingCouchDBServiceImpl" parent="abstractCouchDBService">
+    <bean id="recordingCouchDBServiceImpl" class="com.aimprosoft.wavilon.service.impl.RecordingCouchDBServiceImpl"
+          parent="abstractCouchDBService">
         <property name="objectReader">
             <bean class="org.codehaus.jackson.map.ObjectReader" factory-bean="objectMapper" factory-method="reader">
                 <constructor-arg index="0" value="com.aimprosoft.wavilon.model.Recording"/>
+            </bean>
+        </property>
+    </bean>
+    
+    <bean id="phoneNumberDBServiceImpl" class="com.aimprosoft.wavilon.service.impl.PhoneNumberDBServiceImpl"
+          parent="abstractCouchDBService">
+        <property name="objectReader">
+            <bean class="org.codehaus.jackson.map.ObjectReader" factory-bean="objectMapper" factory-method="reader">
+                <constructor-arg index="0" value="com.aimprosoft.wavilon.model.PhoneNumber"/>
+            </bean>
+        </property>
+    </bean>
+    
+
+     <bean id="extensionPhoneNumberCouchDBServiceImpl" class="com.aimprosoft.wavilon.service.impl.ExtensionPhoneNumberCouchDBImpl" parent="abstractCouchDBService">
+        <property name="objectReader">
+            <bean class="org.codehaus.jackson.map.ObjectReader" factory-bean="objectMapper" factory-method="reader">
+                <constructor-arg index="0" value="com.aimprosoft.wavilon.model.ExtensionPhoneNumber"/>
+            </bean>
+        </property>
+    </bean>
+
+     <bean id="extensionGtalkCouchDBServiceImpl" class="com.aimprosoft.wavilon.service.impl.ExtensionGtalkCouchDBCouchDBServiceImpl" parent="abstractCouchDBService">
+        <property name="objectReader">
+            <bean class="org.codehaus.jackson.map.ObjectReader" factory-bean="objectMapper" factory-method="reader">
+                <constructor-arg index="0" value="com.aimprosoft.wavilon.model.ExtensionGtalk"/>
+            </bean>
+        </property>
+    </bean>
+
+     <bean id="extensionSipUrlCouchDBServiceImpl" class="com.aimprosoft.wavilon.service.impl.ExtensionSipURLCouchDBService" parent="abstractCouchDBService">
+        <property name="objectReader">
+            <bean class="org.codehaus.jackson.map.ObjectReader" factory-bean="objectMapper" factory-method="reader">
+                <constructor-arg index="0" value="com.aimprosoft.wavilon.model.ExtensionSipUrl"/>
             </bean>
         </property>
     </bean>

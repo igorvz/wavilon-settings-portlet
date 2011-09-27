@@ -6,6 +6,7 @@ import com.aimprosoft.wavilon.service.QueueDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.ui.menuitems.forms.QueuesForm;
 import com.liferay.portal.util.PortalUtil;
+import com.vaadin.data.Container;
 import com.vaadin.data.Property;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
@@ -43,6 +44,7 @@ public class QueuesContent extends VerticalLayout {
 
     private void initQueuesPanel() {
         queuesComboBox = new ComboBox("Select queue");
+        queuesComboBox.setImmediate(true);
         queuesComboBox.setNullSelectionAllowed(false);
         for (Queue queue : queues) {
             queuesComboBox.addItem(queue);
@@ -64,7 +66,7 @@ public class QueuesContent extends VerticalLayout {
 
         Button addQueueButton = new NativeButton("add", new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
-                viewQueueForm(null);
+                viewQueueForm("-1");
             }
         });
         queuesPanel.addComponent(addQueueButton);

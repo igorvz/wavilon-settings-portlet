@@ -33,7 +33,6 @@ public class QueuesForm extends VerticalLayout {
     public void init(final String queueId, final VerticalLayout queuesFormLayout, final ComboBox queuesComboBox) {
         request = ((GenericPortletApplication) getApplication()).getPortletRequest();
         queue = getQueue(queueId);
-
         final Form queueForm = new QueuesFormLayout();
 
         //first row
@@ -243,7 +242,7 @@ public class QueuesForm extends VerticalLayout {
     }
 
     private Queue getQueue(String queueId) {
-        if (StringUtils.isEmpty(queueId)) {
+        if ("-1".equals(queueId)) {
             return new Queue();
         }
         try {

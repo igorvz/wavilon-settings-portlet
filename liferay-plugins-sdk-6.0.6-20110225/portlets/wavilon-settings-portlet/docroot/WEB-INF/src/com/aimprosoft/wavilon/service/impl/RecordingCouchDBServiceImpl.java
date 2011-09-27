@@ -2,6 +2,7 @@ package com.aimprosoft.wavilon.service.impl;
 
 import com.aimprosoft.wavilon.model.Recording;
 import com.aimprosoft.wavilon.service.RecordingDatabaseService;
+import com.aimprosoft.wavilon.util.FormatUtil;
 import com.fourspaces.couchdb.Document;
 import com.fourspaces.couchdb.ViewResults;
 
@@ -30,6 +31,22 @@ public class RecordingCouchDBServiceImpl extends AbstractCouchDBService implemen
             recordingList.add(recording);
         }
 
+        return recordingList;
+    }
+
+    public List<Recording> getAllRecordingsByUserId(Long userId, Long organizationId) throws IOException {
+        String formattedFunction = FormatUtil.formatFunction(functions.getBaseModelsByUserAndTypeFunction(), "recording", userId, organizationId);
+
+        ViewResults viewResults = database.adhoc(formattedFunction);
+
+        List<Recording> recordingList = new LinkedList<Recording>();
+
+        for (Document doc : viewResults.getResults()) {
+
+            Recording recording = getRecording(doc.getId());
+
+            recordingList.add(recording);
+        }
         return recordingList;
     }
 

@@ -45,11 +45,12 @@ public class SettingsApplication extends GenericPortletApplication {
 
             window.addStyleName("wrapperLayouts");
             window.getLayout().setMargin(false);
+            window.getContent().setSizeFull();
             if (themeDisplay.isSignedIn()) {
                 userId = PortalUtil.getUserId(renderRequest);
-                window.addComponent(new SettingsPage(bundle, userId));
+                window.setContent(new SettingsPage(bundle, userId));
             } else {
-                window.addComponent(new PleaseSignInPage(bundle));
+                window.setContent(new PleaseSignInPage(bundle));
             }
 
         } catch (Exception e) {

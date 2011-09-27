@@ -1,5 +1,5 @@
 .wrapperLayouts {
-    font-family:  Verdana, Arial, sans-serif;
+    font-family: Verdana, Arial, sans-serif;
 }
 
 .leftcolumn .v-label {
@@ -23,7 +23,7 @@
 
 .v-view .leftcolumn .v-nativebutton-active {
     /*background: url("../images/selected-bg.png") repeat-x scroll 0 0 transparent;*/
-    background:none repeat scroll 0 0 #5C94DA;
+    background: none repeat scroll 0 0 #5C94DA;
     color: #FFFFFF;
     /*font-weight: bold;*/
     /*text-shadow: 0 1px 0 #384359;*/
@@ -32,14 +32,23 @@
     display: block;
 }
 
-.v-view .leftcolumn .label.v-nativebutton-active{
-    background:none transparent;
-     color: #000;
+.v-view .leftcolumn .label.v-nativebutton-active {
+    color: white;
+    font-weight: bold;
+    padding: 5px 0 3px 10px;
+    margin: 10px 0 0;
+    /*background:none transparent;*/
+    /*color: #000;*/
 }
 
-.v-view .leftcolumn {
+.v-view .v-gridlayout-margin > div > div {
     background: none repeat scroll 0 0 #ebebeb;
-    height: 400px;
+    /*height: 400px;*/
+}
+
+.v-view .v-gridlayout-margin .rightcolumn{
+    background: #f5f5f5;
+    border-left:1px solid #949698;
 }
 
 .v-table .v-selected, .black .v-table .v-selected {
@@ -107,8 +116,6 @@
     padding: 0 7px;
 }
 
-
-
 .singInPanel{
     background: none repeat scroll 0 0 #939394;
     font-weight: bold;
@@ -122,9 +129,6 @@
     margin: 0;
 }
 
-.settingsPanel{
-    height: 400px !important;
-}
 
 .settingsPanel > div {
     margin: 0 !important;
@@ -153,4 +157,8 @@
 }
 .formRegion .v-form-labelField{
     margin: 5px 0;
+}
+
+.wrapperLayouts, .settingsPanel{
+    height: 100% !important;
 }

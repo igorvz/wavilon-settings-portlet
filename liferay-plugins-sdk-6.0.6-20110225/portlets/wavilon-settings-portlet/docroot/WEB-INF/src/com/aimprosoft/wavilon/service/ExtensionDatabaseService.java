@@ -12,4 +12,6 @@ public interface ExtensionDatabaseService {
     List<Extension> getAllExtension() throws IOException;
 
     void updateExtension(Extension extension) throws IOException;
+
+    List<Extension> getAllExtensionByUserId(Long userId, Long organizationId) throws IOException;
 }

@@ -1,10 +1,6 @@
 package com.aimprosoft.wavilon.ui;
 
-import com.aimprosoft.wavilon.ui.menuitems.AgentsContent;
-import com.aimprosoft.wavilon.ui.menuitems.ExtensionContent;
-import com.aimprosoft.wavilon.ui.menuitems.QueuesContent;
-import com.aimprosoft.wavilon.ui.menuitems.RecordingsContent;
-import com.aimprosoft.wavilon.ui.menuitems.settings.PhoneNumbersContent;
+import com.aimprosoft.wavilon.ui.menuitems.*;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 
@@ -17,89 +13,77 @@ public class SettingsPage extends VerticalLayout {
     private VerticalLayout rightColumn;
     private VerticalLayout detailsContent;
     private Long userId;
+
     public SettingsPage(final ResourceBundle bundle, Long userId) {
         this.bundle = bundle;
-        this.userId =userId;
+        this.userId = userId;
 
         addStyleName("settingsPanel");
-        setSides(this);
 
-        HorizontalSplitPanel panel = new HorizontalSplitPanel();
-//        setSides(panel);
-        panel.setSplitPosition(150, Sizeable.UNITS_PIXELS);
-        panel.setHeight(400, Sizeable.UNITS_PIXELS);
-        panel.setLocked(false);
+        GridLayout panel = new GridLayout(2, 1);
+//        HorizontalSplitPanel panel = new HorizontalSplitPanel();
+//        panel.setSplitPosition(150, Sizeable.UNITS_PIXELS);
+//        panel.setLocked(false);
+        panel.setSizeFull();
+        panel.setWidth("100%");
         addComponent(panel);
 
         leftColumn = new VerticalLayout();
         leftColumn.setStyleName("leftcolumn");
-        leftColumn.setHeight(400, Sizeable.UNITS_PIXELS);
-//        setSides(leftColumn);
+        leftColumn.setWidth(150, Sizeable.UNITS_PIXELS);
         panel.addComponent(leftColumn);
 
         rightColumn = new VerticalLayout();
         rightColumn.setStyleName("rightcolumn");
-        rightColumn.setHeight("100%");
-        rightColumn.setWidth("100%");
-        rightColumn.setMargin(true);
         panel.addComponent(rightColumn);
 
         VerticalLayout detailsBox = new VerticalLayout();
         detailsBox.setStyleName("detailsBox");
-        detailsBox.setHeight(390, Sizeable.UNITS_PIXELS);
-        detailsBox.setWidth("100%");
         setSides(detailsBox);
 
         detailsContent = new VerticalLayout();
         detailsContent.setStyleName("detailsContent");
-        detailsContent.setHeight(390, Sizeable.UNITS_PIXELS);
-        detailsContent.setWidth("100%");
-//        setSides(detailsContent);
         detailsBox.addComponent(detailsContent);
 
         rightColumn.addComponent(detailsBox);
 
+        panel.addStyleName("gridLayout");
+        panel.setColumnExpandRatio(0, 0);
+        panel.setColumnExpandRatio(1, 1.0f);
         addButtons();
 
         setExpandRatio(panel, 0);
     }
 
     private void addButtons() {
-        Label services = new Label(bundle.getString("wavilon.settings.services"));
-        Button phoneNumbersServices = new NativeButton(bundle.getString("wavilon.settings.services.phoneNumbers"));
-        phoneNumbersServices.addListener(new Button.ClickListener() {
+
+        Button phoneNumbers = new NativeButton(bundle.getString("wavilon.settings.services.phoneNumbers"));
+        phoneNumbers.addStyleName("label");
+        phoneNumbers.addListener(new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
-               Button button = event.getButton();
+                Button button = event.getButton();
 
                 assignActiveButton(button);
                 detailsContent.removeAllComponents();
-                detailsContent.addComponent(new PhoneNumbersContent(bundle));
+                PhoneNumbersContent phoneNumbersContent = new PhoneNumbersContent(bundle);
+                detailsContent.addComponent(phoneNumbersContent);
+                phoneNumbersContent.init();
             }
         });
 
-        Button virtualNumbersServices = new NativeButton(bundle.getString("wavilon.settings.services.virtualNumbers"));
-        virtualNumbersServices.addListener(new Button.ClickListener() {
+        Button virtualNumbers= new NativeButton(bundle.getString("wavilon.settings.services.virtualNumbers"));
+        virtualNumbers.addStyleName("label");
+        virtualNumbers.addListener(new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
                 Button button = event.getButton();
 
                 assignActiveButton(button);
-
             }
         });
 
-        Button gtalkServices = new NativeButton(bundle.getString("wavilon.settings.services.gtalk"));
-        gtalkServices.addListener(new Button.ClickListener() {
-            public void buttonClick(Button.ClickEvent event) {
-                Button button = event.getButton();
-
-                assignActiveButton(button);
-
-            }
-        });
-
-        Label queues = new Label(bundle.getString("wavilon.settings.queues"));
-        Button allQueues = new NativeButton(bundle.getString("wavilon.settings.all.queues"));
-        allQueues.addListener(new Button.ClickListener() {
+        Button queues = new NativeButton(bundle.getString("wavilon.settings.queues"));
+        queues.addStyleName("label");
+        queues.addListener(new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
                 Button button = event.getButton();
 
@@ -111,11 +95,10 @@ public class SettingsPage extends VerticalLayout {
                 queuesContent.init();
             }
         });
-//        allQueues.addStyleName("label");
 
-        Label agents = new Label(bundle.getString("wavilon.settings.agents"));
-        Button allAgents = new NativeButton(bundle.getString("wavilon.settings.all.agents"));
-        allAgents.addListener(new Button.ClickListener() {
+        Button agents = new NativeButton(bundle.getString("wavilon.settings.agents"));
+        agents.addStyleName("label");
+        agents.addListener(new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
                 Button button = event.getButton();
 
@@ -127,46 +110,17 @@ public class SettingsPage extends VerticalLayout {
                 agentsContent.init();
             }
         });
-//        allAgents.addStyleName("label");
 
-        Label extension = new Label(bundle.getString("wavilon.settings.extensions"));
-        Button sipExtension = new NativeButton(bundle.getString("wavilon.settings.extensions.sip"));
-        sipExtension.addListener(new Button.ClickListener() {
+        Button extensions = new NativeButton(bundle.getString("wavilon.settings.extensions"));
+        extensions.addStyleName("label");
+        extensions.addListener(new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
-               Button button = event.getButton();
 
-                assignActiveButton(button);
-
-                detailsContent.removeAllComponents();
-                detailsContent.addComponent(new ExtensionContent(bundle, bundle.getString("wavilon.settings.extensions.sip")));
-            }
-        });
-
-        Button gtalkExtension = new NativeButton(bundle.getString("wavilon.settings.extensions.gtalk"));
-        gtalkExtension.addListener(new Button.ClickListener() {
-            public void buttonClick(Button.ClickEvent event) {
-               Button button = event.getButton();
-
-                assignActiveButton(button);
-
-                detailsContent.removeAllComponents();
-                detailsContent.addComponent(new ExtensionContent(bundle, bundle.getString("wavilon.settings.extensions.gtalk")));
-            }
-        });
-
-        Button phoneNumbersExtension = new NativeButton(bundle.getString("wavilon.settings.extensions.phoneNumbers"));
-        phoneNumbersExtension.addListener(new Button.ClickListener() {
-            public void buttonClick(Button.ClickEvent event) {
-               Button button = event.getButton();
-
-                assignActiveButton(button);
-
-                detailsContent.removeAllComponents();
-                detailsContent.addComponent(new ExtensionContent(bundle, bundle.getString("wavilon.settings.extensions.phoneNumbers")));
             }
         });
 
         Button recordings = new NativeButton(bundle.getString("wavilon.settings.recordings"));
+        recordings.addStyleName("label");
         recordings.addListener(new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
                 Button button = event.getButton();
@@ -180,18 +134,11 @@ public class SettingsPage extends VerticalLayout {
             }
         });
 
-        leftColumn.addComponent(services);
-        leftColumn.addComponent(phoneNumbersServices);
-        leftColumn.addComponent(virtualNumbersServices);
-        leftColumn.addComponent(gtalkServices);
+        leftColumn.addComponent(phoneNumbers);
+        leftColumn.addComponent(virtualNumbers);
         leftColumn.addComponent(queues);
-        leftColumn.addComponent(allQueues);
         leftColumn.addComponent(agents);
-        leftColumn.addComponent(allAgents);
-        leftColumn.addComponent(extension);
-        leftColumn.addComponent(sipExtension);
-        leftColumn.addComponent(gtalkExtension);
-        leftColumn.addComponent(phoneNumbersExtension);
+        leftColumn.addComponent(extensions);
         leftColumn.addComponent(recordings);
     }
 
@@ -203,10 +150,10 @@ public class SettingsPage extends VerticalLayout {
     //remove selection for all buttons
     private void removeButtonSelection() {
         Iterator<Component> componentIterator = leftColumn.getComponentIterator();
-        while (componentIterator.hasNext()){
+        while (componentIterator.hasNext()) {
             Component component = componentIterator.next();
             //make sure component is button
-            if (component instanceof Button){
+            if (component instanceof Button) {
                 component.removeStyleName("active");
             }
         }

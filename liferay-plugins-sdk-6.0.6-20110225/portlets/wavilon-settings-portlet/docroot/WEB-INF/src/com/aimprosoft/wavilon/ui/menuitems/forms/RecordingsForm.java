@@ -6,8 +6,13 @@ import com.aimprosoft.wavilon.service.RecordingDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.liferay.portal.util.PortalUtil;
 import com.vaadin.data.Item;
+import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.event.ShortcutAction;
-import com.vaadin.ui.*;
+import com.vaadin.terminal.UserError;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Form;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.VerticalLayout;
 
 import javax.portlet.PortletRequest;
 import java.io.IOException;
@@ -28,7 +33,7 @@ public class RecordingsForm extends VerticalLayout {
         this.bundle = bundle;
     }
 
-    public void init(Item item, final VerticalLayout right, Table table) {
+    public void init(final Item item, final VerticalLayout right, final IndexedContainer tableData) {
         this.item = item;
 
         if (item != null) {
@@ -51,7 +56,7 @@ public class RecordingsForm extends VerticalLayout {
         firstName.setRequiredError(bundle.getString("wavilon.settings.validation.form.error.firstName"));
         form.addField("firstName", firstName);
 
-        Button select = new Button("Select", form, "commit");
+        final Button select = new Button("Select", form, "commit");
         select.setClickShortcut(ShortcutAction.KeyCode.ENTER);
         select.addListener(new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
@@ -70,17 +75,28 @@ public class RecordingsForm extends VerticalLayout {
 
                     recording.setFirstName(firstName);
 
-                    service.updateRecording(recording);
+                    if (recording.getAttachments() == null) {
 
-                    getWindow().showNotification("Well done");
-                    right.removeAllComponents();
+                        UserError userError = new UserError("You must select file");
+                        form.setComponentError(userError);
+                    }
+                    else {
+                        service.updateRecording(recording);
 
+                        getWindow().showNotification("Well done");
+                        right.removeAllComponents();
+
+                        Object object = tableData.addItem();
+                        tableData.getContainerProperty(object, "id").setValue(recording.getId());
+                        tableData.getContainerProperty(object, "name").setValue(recording.getFirstName());
+                    }
                 } catch (Exception ignored) {
                 }
             }
         });
 
         recordingUploader = new RecordingUploader();
+        recordingUploader.attach();
         addComponent(form);
 
         addComponent(recordingUploader);

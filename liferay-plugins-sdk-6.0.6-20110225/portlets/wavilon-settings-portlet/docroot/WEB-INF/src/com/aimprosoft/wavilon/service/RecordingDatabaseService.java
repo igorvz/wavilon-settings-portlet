@@ -13,6 +13,8 @@ public interface RecordingDatabaseService {
 
     List<Recording> getAllRecordings() throws IOException;
 
+    List<Recording> getAllRecordingsByUserId(Long userId, Long organizationId) throws IOException;
+
     void removeRecording(Recording recording) throws IOException;
 
     void removeRecording(String id) throws IOException;
