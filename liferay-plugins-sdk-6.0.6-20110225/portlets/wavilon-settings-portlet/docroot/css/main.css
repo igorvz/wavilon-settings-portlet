@@ -2,57 +2,93 @@
     font-family: Verdana, Arial, sans-serif;
 }
 
-.leftcolumn .v-label {
-    color: #888;
-    font-weight: bold;
-    padding: 5px 0 3px 10px;
-    margin: 10px 0 0;
-    /*text-shadow: 0 1px 0 #FFFFFF;*/
-}
-
 .v-view .leftcolumn .v-nativebutton {
     background: none repeat scroll 0 0 transparent;
     border: medium none;
     line-height: 19px;
-    padding: 0 25px;
+    padding: 5px 10px;
     text-align: left;
     text-shadow: none;
-    font-style: italic;
+    font-weight: bold;
     width: 100%;
-}
-
-.v-view .leftcolumn .v-nativebutton-active {
-    /*background: url("../images/selected-bg.png") repeat-x scroll 0 0 transparent;*/
-    background: none repeat scroll 0 0 #5C94DA;
-    color: #FFFFFF;
-    /*font-weight: bold;*/
-    /*text-shadow: 0 1px 0 #384359;*/
-    border-radius: 0;
-    font-style: normal;
     display: block;
 }
 
-.v-view .leftcolumn .label.v-nativebutton-active {
-    color: white;
-    font-weight: bold;
-    padding: 5px 0 3px 10px;
-    margin: 10px 0 0;
-    /*background:none transparent;*/
-    /*color: #000;*/
+.v-view .leftcolumn .v-nativebutton-active {
+    background: none repeat scroll 0 0 #6093e0;
+    color: #FFFFFF;
+    border-radius: 0;
+    display: block;
 }
 
-.v-view .v-gridlayout-margin > div > div {
+.v-view  .leftcolumn {
+    height: 100%;
+    padding: 20px 0;
+}
+
+.v-view .leftcolumn div{
+    float: none !important;
+}
+
+.v-view .gridLayout .v-splitpanel-first-container{
     background: none repeat scroll 0 0 #ebebeb;
-    /*height: 400px;*/
 }
 
-.v-view .v-gridlayout-margin .rightcolumn{
+
+.v-view .rightcolumn{
     background: #f5f5f5;
-    border-left:1px solid #949698;
+    display: block;
+    height: 100% !important;
+    position: relative;
+}
+
+.v-view .rightcolumn .phoneHeader{
+    background: url("../images/phone.png") no-repeat scroll 0 50% transparent;
+    color: #282828;
+    font-size: 18px;
+    height: 29px;
+    line-height: 23px;
+    padding: 0 26px;
+    vertical-align: middle;
+}
+
+.v-view .rightcolumn .agentHeader{
+    color: #282828;
+    font-size: 18px;
+    height: 29px;
+    line-height: 23px;
+    padding: 0 26px;
+    vertical-align: middle;
+}
+
+.headLine .v-button .v-button-wrap,
+.headLine .v-button:active .v-button-wrap,
+.headLine .v-button.v-pressed .v-button-wrap,
+.headLine .v-button:focus .v-button-wrap{
+    background: url("../images/button.png") no-repeat scroll 0 0 transparent;
+    height: 22px;
+    line-height: 18px;
+    padding: 0;
+    width: 21px;
+}
+
+.headLine .v-button,
+.headLine .v-button:active,
+.headLine .v-button.v-pressed,
+.headLine .v-button:focus {
+    background: none transparent;
+}
+
+.headLine .v-button-caption {
+    color: #fff;
+    font-size: 11px;
+    font-weight: bold;
+    line-height: 16px;
+    text-shadow: 0 1px 0 #000;
 }
 
 .v-table .v-selected, .black .v-table .v-selected {
-    background: none repeat scroll 0 0 #5C94DA !important;
+    background: none repeat scroll 0 0 #6093e0 !important;
     color: #FFFFFF;
     text-shadow: none !important;
 }
@@ -106,14 +142,7 @@
     overflow: hidden;
     padding: 3px 0 0;
     white-space: nowrap;
-}
-
-.v-view .leftcolumn .v-nativebutton-label {
-    font-family: Verdana,  Arial, sans-serif;
-    font-style: normal;
-    font-weight: bold;
-    margin: 10px 0 0;
-    padding: 0 7px;
+    width: 100% !important;
 }
 
 .singInPanel{
@@ -134,10 +163,6 @@
     margin: 0 !important;
 }
 
-.leftcolumn div{
-    height: auto !important;
-    float: none !important;
-}
 
 /*----------------------Form Design--------------------------*/
 .formRegion .headerForm{
@@ -156,9 +181,22 @@
 
 }
 .formRegion .v-form-labelField{
-    margin: 5px 0;
+    margin: 30px 0;
 }
 
 .wrapperLayouts, .settingsPanel{
     height: 100% !important;
+}
+
+.formRegion .buttonsPanel  {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+}
+.formRegion .buttonsPanel  .v-button{
+    margin: 0 0 0 5px;
+}
+
+.v-form-errormessage {
+    color: red;
 }

@@ -50,4 +50,16 @@ public class ExtensionCouchDBServiceImpl extends AbstractCouchDBService implemen
         }
         return extensionList;
     }
+
+    public void addExtension(Extension extension) throws IOException {
+        updateExtension(extension);
+    }
+
+    public void removeExtension(Extension extension) throws IOException {
+        removeModel(extension);
+    }
+
+    public void removeExtension(String id) throws IOException {
+        removeModelById(id);
+    }
 }

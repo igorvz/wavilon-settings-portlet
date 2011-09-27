@@ -3,6 +3,7 @@ package com.aimprosoft.wavilon.ui;
 import com.aimprosoft.wavilon.ui.menuitems.*;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
+import com.vaadin.ui.themes.Reindeer;
 
 import java.util.Iterator;
 import java.util.ResourceBundle;
@@ -20,22 +21,23 @@ public class SettingsPage extends VerticalLayout {
 
         addStyleName("settingsPanel");
 
-        GridLayout panel = new GridLayout(2, 1);
-//        HorizontalSplitPanel panel = new HorizontalSplitPanel();
-//        panel.setSplitPosition(150, Sizeable.UNITS_PIXELS);
-//        panel.setLocked(false);
-        panel.setSizeFull();
+        HorizontalSplitPanel panel = new HorizontalSplitPanel();
+        panel.setSplitPosition(250, Sizeable.UNITS_PIXELS);
+        panel.addStyleName(Reindeer.SPLITPANEL_SMALL);
+        panel.setLocked(false);
+        panel.setHeight(550, Sizeable.UNITS_PIXELS);
         panel.setWidth("100%");
         addComponent(panel);
 
         leftColumn = new VerticalLayout();
         leftColumn.setStyleName("leftcolumn");
-        leftColumn.setWidth(150, Sizeable.UNITS_PIXELS);
-        panel.addComponent(leftColumn);
+        panel.setFirstComponent(leftColumn);
 
         rightColumn = new VerticalLayout();
         rightColumn.setStyleName("rightcolumn");
-        panel.addComponent(rightColumn);
+        rightColumn.setMargin(true);
+        rightColumn.setSizeFull();
+        panel.setSecondComponent(rightColumn);
 
         VerticalLayout detailsBox = new VerticalLayout();
         detailsBox.setStyleName("detailsBox");
@@ -48,8 +50,6 @@ public class SettingsPage extends VerticalLayout {
         rightColumn.addComponent(detailsBox);
 
         panel.addStyleName("gridLayout");
-        panel.setColumnExpandRatio(0, 0);
-        panel.setColumnExpandRatio(1, 1.0f);
         addButtons();
 
         setExpandRatio(panel, 0);
@@ -71,13 +71,17 @@ public class SettingsPage extends VerticalLayout {
             }
         });
 
-        Button virtualNumbers= new NativeButton(bundle.getString("wavilon.settings.services.virtualNumbers"));
+        Button virtualNumbers = new NativeButton(bundle.getString("wavilon.settings.services.virtualNumbers"));
         virtualNumbers.addStyleName("label");
         virtualNumbers.addListener(new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
                 Button button = event.getButton();
 
                 assignActiveButton(button);
+                detailsContent.removeAllComponents();
+                VirtualNumbersContent virtualNumbersContent = new VirtualNumbersContent(bundle);
+                detailsContent.addComponent(virtualNumbersContent);
+                virtualNumbersContent.init();
             }
         });
 
@@ -115,6 +119,14 @@ public class SettingsPage extends VerticalLayout {
         extensions.addStyleName("label");
         extensions.addListener(new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
+                Button button = event.getButton();
+                ExtensionContent extensionContent = new ExtensionContent(bundle);
+
+                assignActiveButton(button);
+
+                detailsContent.removeAllComponents();
+                detailsContent.addComponent(extensionContent);
+                extensionContent.init();
 
             }
         });

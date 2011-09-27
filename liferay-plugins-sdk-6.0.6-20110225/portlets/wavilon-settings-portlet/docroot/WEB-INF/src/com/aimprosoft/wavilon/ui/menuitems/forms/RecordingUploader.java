@@ -29,7 +29,6 @@ public class RecordingUploader extends VerticalLayout{
 
         final Embedded image = new Embedded("Uploaded Image");
         image.setVisible(false);
-//        image.setHeight(150, Sizeable.UNITS_PIXELS);
         image.setWidth(200, Sizeable.UNITS_PIXELS);
 
         if (recording.getAttachments() != null) {
@@ -83,7 +82,6 @@ public class RecordingUploader extends VerticalLayout{
                 image.setSource(new FileResource(file, getApplication()));
 
                 try {
-
                     attachments.setData(FileUtils.readFileToByteArray(file));
 
                     Map<String, Attachment> uploadedFile = new HashMap<String, Attachment>();

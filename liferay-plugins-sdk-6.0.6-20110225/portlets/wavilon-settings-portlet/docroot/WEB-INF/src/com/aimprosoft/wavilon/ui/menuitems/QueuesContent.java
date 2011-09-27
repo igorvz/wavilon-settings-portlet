@@ -6,13 +6,11 @@ import com.aimprosoft.wavilon.service.QueueDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.ui.menuitems.forms.QueuesForm;
 import com.liferay.portal.util.PortalUtil;
-import com.vaadin.data.Container;
 import com.vaadin.data.Property;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 
 import javax.portlet.PortletRequest;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -21,7 +19,7 @@ public class QueuesContent extends VerticalLayout {
     private ResourceBundle bundle;
     private Queue selectedQueue;
     private List<Queue> queues;
-    private static PortletRequest request;
+    private PortletRequest request;
     private QueueDatabaseService service = ObjectFactory.getBean(QueueDatabaseService.class);
     private HorizontalLayout queuesPanel = new HorizontalLayout();
     private VerticalLayout queuesFormLayout = new VerticalLayout();
@@ -50,7 +48,6 @@ public class QueuesContent extends VerticalLayout {
             queuesComboBox.addItem(queue);
         }
 
-        //todo fire value change listener
         queuesComboBox.addListener(new ComboBox.ValueChangeListener() {
             public void valueChange(Property.ValueChangeEvent event) {
                 Object id = event.getProperty().getValue();

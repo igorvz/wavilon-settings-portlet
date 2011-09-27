@@ -21,18 +21,14 @@ import java.util.ResourceBundle;
 
 public class AgentsContent extends VerticalLayout {
     private ResourceBundle bundle;
-    private static AgentDatabaseService agentsService = ObjectFactory.getBean(AgentDatabaseService.class);
+    private AgentDatabaseService service = ObjectFactory.getBean(AgentDatabaseService.class);
     private List<String> hiddenFields;
-    private HorizontalLayout main = new HorizontalLayout();
-    private VerticalLayout left = new VerticalLayout();
     private VerticalLayout right = new VerticalLayout();
-    private static PortletRequest request;
+    private PortletRequest request;
     private Table table = new Table();
     private List<String> tableFields;
     private IndexedContainer tableData;
-
-    private HorizontalLayout bottomLeftCorner = new HorizontalLayout();
-    private Button contactRemovalButton;
+    private AgentsForm agentsForm;
 
     public AgentsContent(ResourceBundle bundle) {
         this.bundle = bundle;
@@ -47,91 +43,68 @@ public class AgentsContent extends VerticalLayout {
         this.setWidth(100, Sizeable.UNITS_PERCENTAGE);
         this.setSizeFull();
         initLayout();
-        initTableAddRemoveButtons();
-        initAddressList();
+        initAgents();
     }
 
     private void initLayout() {
-        main.setHeight(400, Sizeable.UNITS_PIXELS);
-        main.setSizeUndefined();
-        addComponent(main);
-        main.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-        main.setSizeFull();
-        main.addComponent(left);
-        main.addComponent(right);
-        left.setWidth(Sizeable.SIZE_UNDEFINED, 0);
-        right.setWidth(99, Sizeable.UNITS_PERCENTAGE);
-        main.setExpandRatio(left, 0.5f);
-        main.setExpandRatio(right, 9.0f);
+        HorizontalLayout head = createHead();
+        setWidth(100.0F, 8);
+        addComponent(head);
 
-        table.setContainerDataSource(tableData);
-        table.setHeight(330, Sizeable.UNITS_PIXELS);
-        table.setWidth(200, Sizeable.UNITS_PIXELS);
-        left.addComponent(table);
-
-        bottomLeftCorner.setWidth(100, Sizeable.UNITS_PIXELS);
-        left.addComponent(bottomLeftCorner);
-        left.setComponentAlignment(bottomLeftCorner, Alignment.BOTTOM_LEFT);
+        table.setContainerDataSource(this.tableData);
+        table.setWidth(100.0F, 8);
+        table.setStyleName("phoneNumbers");
+        addComponent(table);
     }
 
-    private List<String> initAddressList() {
-        table.setContainerDataSource(tableData);
-        table.setVisibleColumns(tableFields.toArray());
+    private List<String> initAgents() {
+        table.setContainerDataSource(this.tableData);
+        table.setVisibleColumns(this.tableFields.toArray());
         table.setSelectable(true);
         table.setImmediate(true);
 
         table.addListener(new Property.ValueChangeListener() {
             public void valueChange(Property.ValueChangeEvent event) {
+
                 Object id = table.getValue();
-
-                contactRemovalButton.setVisible(id != null);
-
-                if (id != null) {
-                    viewRightColumnContent(table.getItem(id));
+                if (null != id) {
+                    getForm((String) table.getItem(id).getItemProperty("id").getValue());
                 }
-
             }
         });
-
-        return tableFields;
+        return this.tableFields;
     }
 
-    private void initTableAddRemoveButtons() {
-        // New item button
-        bottomLeftCorner.addComponent(new Button("+",
-                new Button.ClickListener() {
-                    public void buttonClick(Button.ClickEvent event) {
-                        viewRightColumnContent(null);
-                    }
-                }));
-
-        // Remove item button
-        contactRemovalButton = new Button("-", new Button.ClickListener() {
+    private HorizontalLayout createButtons() {
+        HorizontalLayout addRemoveButtons = new HorizontalLayout();
+        addRemoveButtons.addComponent(new Button("+", new Button.ClickListener() {
+            public void buttonClick(Button.ClickEvent event) {
+                getForm("-1");
+            }
+        }));
+        addRemoveButtons.addComponent(new Button("-", new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
                 Object id = table.getValue();
-
-                String agentID = (String) table.getItem(id).getItemProperty("id").getValue();
-
-
-                try {
-                    agentsService.removeAgent(agentID);
-                } catch (IOException ignored) {
+                if (null != id) {
+                    String phoneNumbersID = (String) table.getItem(id).getItemProperty("id").getValue();
+                    try {
+                        service.removeAgent(phoneNumbersID);
+                    } catch (IOException ignored) {
+                    }
+                    table.removeItem(table.getValue());
+                    table.select(null);
+                } else {
+                    getWindow().showNotification("Select Agent");
                 }
-
-                table.removeItem(table.getValue());
-                table.select(null);
-                right.removeAllComponents();
-
             }
-        });
-        contactRemovalButton.setVisible(false);
-        bottomLeftCorner.addComponent(contactRemovalButton);
+        }));
+        return addRemoveButtons;
     }
 
     private LinkedList<String> fillFields() {
         LinkedList<String> tableFields = new LinkedList<String>();
 
-        tableFields.add(bundle.getString("wavilon.agent.name"));
+        tableFields.add("");
 
         return tableFields;
     }
@@ -148,36 +121,57 @@ public class AgentsContent extends VerticalLayout {
         if (!agents.isEmpty()) {
             for (Agent agent : agents) {
                 Object object = ic.addItem();
-                ic.getContainerProperty(object, bundle.getString("wavilon.agent.name")).setValue(agent.getFirstName());
+                ic.getContainerProperty(object, "").setValue(agent.getFirstName());
                 ic.getContainerProperty(object, "id").setValue(agent.getId());
             }
         }
         return ic;
     }
 
-    private static List<Agent> getAgents() {
+    private List<Agent> getAgents() {
         try {
-            return agentsService.getAllAgentsByUser(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request));
+            return service.getAllAgentsByUser(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request));
         } catch (Exception e) {
             return Collections.emptyList();
         }
     }
 
-    private void viewRightColumnContent(Object id) {
-        Item item = id == null ? null : (Item) id;
+    private void getForm(String id) {
+        agentsForm = new AgentsForm(bundle, table);
+        agentsForm.setWidth(330.0F, 0);
+        agentsForm.setHeight(300.0F, 0);
+        agentsForm.center();
+        agentsForm.setModal(true);
 
-        right.removeAllComponents();
-        AgentsForm agentsForm = new AgentsForm(bundle);
-        right.addComponent(agentsForm);
-        agentsForm.init(item, right, table, tableData);
+        getWindow().addWindow(agentsForm);
+        agentsForm.init(id);
     }
 
     private List<String> fillHiddenFields() {
         LinkedList<String> tableFields = new LinkedList<String>();
 
-        tableFields.add(bundle.getString("wavilon.agent.name"));
+        tableFields.add("");
         tableFields.add("id");
 
         return tableFields;
     }
+
+    public HorizontalLayout createHead() {
+        HorizontalLayout head = new HorizontalLayout();
+        head.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+        Label headLabel = new Label("Agents");
+        head.addComponent(headLabel);
+        head.setMargin(true);
+        head.addStyleName("headLine");
+        headLabel.addStyleName("agentHeader");
+
+        HorizontalLayout addRemoveButtons = createButtons();
+        head.addComponent(addRemoveButtons);
+
+        head.setComponentAlignment(headLabel, Alignment.TOP_LEFT);
+        head.setComponentAlignment(addRemoveButtons, Alignment.TOP_RIGHT);
+
+        return head;
+    }
+
 }

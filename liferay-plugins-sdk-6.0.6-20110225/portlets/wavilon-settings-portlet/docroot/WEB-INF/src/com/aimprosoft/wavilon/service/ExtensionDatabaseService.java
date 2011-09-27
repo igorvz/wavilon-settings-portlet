@@ -14,4 +14,11 @@ public interface ExtensionDatabaseService {
     void updateExtension(Extension extension) throws IOException;
 
     List<Extension> getAllExtensionByUserId(Long userId, Long organizationId) throws IOException;
+
+    void addExtension(Extension extension) throws IOException;
+
+    void removeExtension(Extension extension) throws IOException;
+
+    void removeExtension(String id) throws IOException;
+
 }

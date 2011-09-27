@@ -1,115 +1,145 @@
 package com.aimprosoft.wavilon.ui.menuitems.forms;
 
-
 import com.aimprosoft.wavilon.application.GenericPortletApplication;
 import com.aimprosoft.wavilon.model.Agent;
 import com.aimprosoft.wavilon.service.AgentDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
-import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.util.PortalUtil;
-import com.vaadin.data.Item;
-import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 
 import javax.portlet.PortletRequest;
-import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.ResourceBundle;
 import java.util.UUID;
 
-public class AgentsForm extends VerticalLayout {
+public class AgentsForm extends Window {
+    private AgentDatabaseService service = ObjectFactory.getBean(AgentDatabaseService.class);
     private ResourceBundle bundle;
     private PortletRequest request;
-    private Item item;
-    private static AgentDatabaseService service = ObjectFactory.getBean(AgentDatabaseService.class);
-    private List<String> extensions = new LinkedList<String>();
-    private Agent agent = null;
+    private Table table;
+    private Agent agent;
 
-    public AgentsForm(ResourceBundle bundle) {
+
+    public AgentsForm(ResourceBundle bundle, Table table) {
         this.bundle = bundle;
+        this.table = table;
+        setCaption("Edit Agent");
     }
 
-    public void init(Item item, final VerticalLayout right, final Table table, final IndexedContainer tableData) {
+    public void init(String id) {
         request = ((GenericPortletApplication) getApplication()).getPortletRequest();
-        this.item = item;
-        right.addStyleName("formRegion");
-        right.setMargin(false);
+        agent = createAgent(id);
+
+        VerticalLayout content = new VerticalLayout();
+        content.addStyleName("formRegion");
+
+        content.setWidth(280, Sizeable.UNITS_PIXELS);
+        content.setHeight(200, Sizeable.UNITS_PIXELS);
+        addComponent(content);
+
+        Label headerForm = createHeader(id, agent);
+        content.addComponent(headerForm);
+
+        final Form form = createForm();
+        content.addComponent(form);
 
 
-        if (item != null) {
-            String id = (String) item.getItemProperty("id").getValue();
-            try {
-                agent = service.getAgent(id);
-            } catch (IOException ignored) {
+        HorizontalLayout buttons = createButtons(content);
+
+
+        Button cancel = new Button("Cancel", new Button.ClickListener() {
+            public void buttonClick(Button.ClickEvent event) {
+                close();
             }
-        } else {
+        });
+        buttons.addComponent(cancel);
 
-            agent = new Agent();
-            agent.setFirstName("");
-
-            agent.setId(UUID.randomUUID().toString());
-            try {
-                agent.setLiferayUserId(PortalUtil.getUserId(request));
-                agent.setLiferayOrganizationId(PortalUtil.getScopeGroupId(request));
-                agent.setLiferayPortalId(PortalUtil.getCompany(request).getWebId());
-            } catch (Exception ignored) {}
-        }
-
-        Label headerForm = new Label(agent.getRevision() == null ? null : agent.getFirstName() + " " + agent.getLiferayOrganizationId());
-        headerForm.setHeight(27, Sizeable.UNITS_PIXELS);
-        headerForm.addStyleName("headerForm");
-        addComponent(headerForm);
-
-        final Form form = new Form();
-        form.addStyleName("labelField");
-
-
-        TextField firstName = new TextField("First name");
-        firstName.setValue(agent.getFirstName());
-        firstName.setRequired(true);
-        firstName.setRequiredError(bundle.getString("wavilon.settings.validation.form.error.firstName"));
-        form.addField("firstName", firstName);
-
-        extensions.add("Ojgice 101");
-        extensions.add("Nane 3527");
-        ComboBox contentExtension = new ComboBox();
-        for (String extension : extensions) {
-            contentExtension.addItem(extension);
-        }
-        form.addField("contentExtension", contentExtension);
-
-        Button apply = new Button(bundle.getString("wavilon.settings.validation.form.button.save"), new Button.ClickListener() {
+        Button save = new Button(bundle.getString("wavilon.settings.validation.form.button.save"), new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
                 try {
                     form.commit();
 
-                    if (agent.getRevision() != null) {
+                    String name = (String) form.getField("firstName").getValue();
+                    agent.setFirstName(name);
+                    service.addAgent(agent);
+
+                    if (null != agent.getRevision()){
                         table.removeItem(table.getValue());
                         table.select(null);
                     }
 
-                    String firstName = (String) form.getField("firstName").getValue();
-                    agent.setFirstName(firstName);
-                    service.addAgent(agent);
+                    Object object = table.addItem();
+                    table.getContainerProperty(object, "").setValue(agent.getFirstName());
+                    table.getContainerProperty(object, "id").setValue(agent.getId());
+
                     getWindow().showNotification("Well done");
-                    right.removeAllComponents();
-
-
-                    Object object = tableData.addItem();
-                    tableData.getContainerProperty(object, bundle.getString("wavilon.agent.name")).setValue(agent.getFirstName());
-                    tableData.getContainerProperty(object, "id").setValue(agent.getId());
-
+                    close();
                 } catch (Exception ignored) {
                 }
             }
         });
-        addComponent(form);
-        addComponent(apply);
-        setComponentAlignment(apply, Alignment.BOTTOM_RIGHT);
+        buttons.addComponent(save);
     }
 
+    private Agent createAgent(String id) {
+        if ("-1".equals(id)) {
+            return newAgent();
+        }
+        try {
+            return service.getAgent(id);
+        } catch (Exception e) {
+            return newAgent();
+        }
+
+    }
+
+    private Agent newAgent() {
+        Agent newAgent = new Agent();
+
+        try {
+            newAgent.setId(UUID.randomUUID().toString());
+            newAgent.setLiferayUserId(PortalUtil.getUserId(request));
+            newAgent.setLiferayOrganizationId(PortalUtil.getScopeGroupId(request));
+            newAgent.setLiferayPortalId(PortalUtil.getCompany(request).getWebId());
+        } catch (Exception ignored) {
+        }
+
+        newAgent.setFirstName("");
+        return newAgent;
+    }
+
+    private Form createForm() {
+        Form form = new Form();
+        form.addStyleName("labelField");
+
+        TextField firstName = new TextField("First Name");
+        firstName.setRequired(true);
+        firstName.setRequiredError("Empty field First Name");
+
+        if (null != agent.getRevision() && !"".equals(agent.getRevision())) {
+            firstName.setValue(agent.getFirstName());
+        }
+        form.addField("firstName", firstName);
+
+        return form;
+    }
+
+    private Label createHeader(String id, Agent agent) {
+        Label headerForm = new Label("-1".equals(id) ? "New Agent" : agent.getFirstName());
+
+        headerForm.setHeight(27, Sizeable.UNITS_PIXELS);
+        headerForm.setWidth("100%");
+        headerForm.addStyleName("headerForm");
+
+        return headerForm;
+    }
+
+    private HorizontalLayout createButtons(VerticalLayout content) {
+        HorizontalLayout buttons = new HorizontalLayout();
+        content.addComponent(buttons);
+        content.setComponentAlignment(buttons, Alignment.BOTTOM_RIGHT);
+        buttons.addStyleName("buttonsPanel");
+        return buttons;
+    }
 
 }

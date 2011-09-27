@@ -1,8 +1,8 @@
 package com.aimprosoft.wavilon.ui.menuitems.forms;
 
 import com.aimprosoft.wavilon.application.GenericPortletApplication;
-import com.aimprosoft.wavilon.model.PhoneNumber;
-import com.aimprosoft.wavilon.service.PhoneNumberDatabaseService;
+import com.aimprosoft.wavilon.model.VirtualNumber;
+import com.aimprosoft.wavilon.service.VirtualNumberDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.liferay.portal.util.PortalUtil;
 import com.vaadin.data.validator.RegexpValidator;
@@ -13,31 +13,30 @@ import javax.portlet.PortletRequest;
 import java.util.ResourceBundle;
 import java.util.UUID;
 
-public class PhoneNumbersForm extends Window {
-    private PhoneNumberDatabaseService service = ObjectFactory.getBean(PhoneNumberDatabaseService.class);
+public class VirtualNumbersForm extends Window {
+    private VirtualNumberDatabaseService service = ObjectFactory.getBean(VirtualNumberDatabaseService.class);
     private ResourceBundle bundle;
     private PortletRequest request;
     private Table table;
-    private PhoneNumber phoneNumber;
+    private VirtualNumber virtualNumber;
 
 
-    public PhoneNumbersForm(ResourceBundle bundle, Table table) {
+    public VirtualNumbersForm(ResourceBundle bundle, Table table) {
         this.bundle = bundle;
         this.table = table;
-        setCaption("Edit Phone Number");
+        setCaption("Edit Virtual Number");
     }
 
     public void init(String id) {
         request = ((GenericPortletApplication) getApplication()).getPortletRequest();
-        phoneNumber = createPhoneNumber(id);
+        virtualNumber = createVirtualNumber(id);
 
         VerticalLayout content = new VerticalLayout();
         content.addStyleName("formRegion");
 
-        content.setSizeFull();
         addComponent(content);
 
-        Label headerForm = createHeader(id, phoneNumber);
+        Label headerForm = createHeader(id, virtualNumber);
         content.addComponent(headerForm);
 
         final Form form = createForm();
@@ -60,51 +59,52 @@ public class PhoneNumbersForm extends Window {
                     form.commit();
 
                     String name = (String) form.getField("name").getValue();
-                    phoneNumber.setName(name);
-                    service.addPhoneNumber(phoneNumber);
+                    virtualNumber.setName(name);
+                    service.addVirtualNumber(virtualNumber);
 
-                    if (null != phoneNumber.getRevision()) {
+                    if (null != virtualNumber.getRevision()){
                         table.removeItem(table.getValue());
                         table.select(null);
                     }
 
                     Object object = table.addItem();
-                    table.getContainerProperty(object, "").setValue(phoneNumber.getName());
-                    table.getContainerProperty(object, "id").setValue(phoneNumber.getId());
+                    table.getContainerProperty(object, "").setValue(virtualNumber.getName());
+                    table.getContainerProperty(object, "id").setValue(virtualNumber.getId());
 
                     getWindow().showNotification("Well done");
                     close();
-                } catch (Exception ignored) {}
+                } catch (Exception ignored) {
+                }
             }
         });
         buttons.addComponent(save);
     }
 
-    private PhoneNumber createPhoneNumber(String id) {
+    private VirtualNumber createVirtualNumber(String id) {
         if ("-1".equals(id)) {
-            return newPhoneNumber();
+            return newVirtualNumber();
         }
         try {
-            return service.getPhoneNumber(id);
+            return service.getVirtualNumber(id);
         } catch (Exception e) {
-            return newPhoneNumber();
+            return newVirtualNumber();
         }
 
     }
 
-    private PhoneNumber newPhoneNumber() {
-        PhoneNumber newPhoneNumber = new PhoneNumber();
+    private VirtualNumber newVirtualNumber() {
+        VirtualNumber newVirtualNumber = new VirtualNumber();
 
         try {
-            newPhoneNumber.setId(UUID.randomUUID().toString());
-            newPhoneNumber.setLiferayUserId(PortalUtil.getUserId(request));
-            newPhoneNumber.setLiferayOrganizationId(PortalUtil.getScopeGroupId(request));
-            newPhoneNumber.setLiferayPortalId(PortalUtil.getCompany(request).getWebId());
+            newVirtualNumber.setId(UUID.randomUUID().toString());
+            newVirtualNumber.setLiferayUserId(PortalUtil.getUserId(request));
+            newVirtualNumber.setLiferayOrganizationId(PortalUtil.getScopeGroupId(request));
+            newVirtualNumber.setLiferayPortalId(PortalUtil.getCompany(request).getWebId());
         } catch (Exception ignored) {
         }
 
-        newPhoneNumber.setName("");
-        return newPhoneNumber;
+        newVirtualNumber.setName("");
+        return newVirtualNumber;
     }
 
     private Form createForm() {
@@ -116,16 +116,16 @@ public class PhoneNumbersForm extends Window {
         name.setRequiredError("Empty field name");
         name.addValidator(new RegexpValidator("[+][0-9]{10}", "<div align=\"center\">Mobile must be numeric, begin with + <br/>and consist of 10 digit</div>"));
 
-        if (null != phoneNumber.getRevision() && !"".equals(phoneNumber.getRevision())) {
-            name.setValue(phoneNumber.getName());
+        if (null != virtualNumber.getRevision() && !"".equals(virtualNumber.getRevision())) {
+            name.setValue(virtualNumber.getName());
         }
         form.addField("name", name);
 
         return form;
     }
 
-    private Label createHeader(String id, PhoneNumber phoneNumber) {
-        Label headerForm = new Label("-1".equals(id) ? "New Phone Number" : phoneNumber.getName());
+    private Label createHeader(String id, VirtualNumber virtualNumber) {
+        Label headerForm = new Label("-1".equals(id) ? "New Virtual Number" : virtualNumber.getName());
 
         headerForm.setHeight(27, Sizeable.UNITS_PIXELS);
         headerForm.setWidth("100%");

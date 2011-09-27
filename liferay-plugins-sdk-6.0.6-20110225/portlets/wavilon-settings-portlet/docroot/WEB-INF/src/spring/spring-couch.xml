@@ -10,7 +10,7 @@
         <constructor-arg index="0" value="${db.host}"/>
         <constructor-arg index="1" value="${db.port}"/>
         <constructor-arg index="2" value="${db.username}"/>
-        <constructor-arg index="3" value="${db.password}"/>
+        <constructor-arg index="3" value="  ${db.password}"/>
     </bean>
 
     <bean name="database" factory-bean="databaseSession" factory-method="getDatabase">
@@ -93,5 +93,13 @@
             </bean>
         </property>
     </bean>
-    
+
+     <bean id="virtualNumberSipUrlCouchDBServiceImpl" class="com.aimprosoft.wavilon.service.impl.VirtualNumberDBServiceImpl" parent="abstractCouchDBService">
+        <property name="objectReader">
+            <bean class="org.codehaus.jackson.map.ObjectReader" factory-bean="objectMapper" factory-method="reader">
+                <constructor-arg index="0" value="com.aimprosoft.wavilon.model.VirtualNumber"/>
+            </bean>
+        </property>
+    </bean>
+
 </beans>

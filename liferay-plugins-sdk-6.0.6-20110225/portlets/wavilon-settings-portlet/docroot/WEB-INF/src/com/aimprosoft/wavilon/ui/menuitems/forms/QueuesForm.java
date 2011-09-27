@@ -21,7 +21,7 @@ public class QueuesForm extends VerticalLayout {
     private ResourceBundle bundle;
     private QueueDatabaseService service = ObjectFactory.getBean(QueueDatabaseService.class);
     private AgentDatabaseService agentService = ObjectFactory.getBean(AgentDatabaseService.class);
-    private static PortletRequest request;
+    private PortletRequest request;
     private Button remove;
     private Queue queue;
 

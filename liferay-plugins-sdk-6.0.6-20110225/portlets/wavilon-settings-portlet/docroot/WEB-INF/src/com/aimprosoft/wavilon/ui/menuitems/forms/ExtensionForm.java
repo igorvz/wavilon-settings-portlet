@@ -1,11 +1,11 @@
 package com.aimprosoft.wavilon.ui.menuitems.forms;
 
 import com.aimprosoft.wavilon.application.GenericPortletApplication;
-import com.aimprosoft.wavilon.model.PhoneNumber;
-import com.aimprosoft.wavilon.service.PhoneNumberDatabaseService;
+import com.aimprosoft.wavilon.model.Extension;
+import com.aimprosoft.wavilon.service.ExtensionDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.liferay.portal.util.PortalUtil;
-import com.vaadin.data.validator.RegexpValidator;
+import com.vaadin.event.ShortcutAction;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 
@@ -13,39 +13,36 @@ import javax.portlet.PortletRequest;
 import java.util.ResourceBundle;
 import java.util.UUID;
 
-public class PhoneNumbersForm extends Window {
-    private PhoneNumberDatabaseService service = ObjectFactory.getBean(PhoneNumberDatabaseService.class);
+public class ExtensionForm extends Window {
+    private ExtensionDatabaseService service = ObjectFactory.getBean(ExtensionDatabaseService.class);
     private ResourceBundle bundle;
     private PortletRequest request;
     private Table table;
-    private PhoneNumber phoneNumber;
+    private Extension extension;
 
-
-    public PhoneNumbersForm(ResourceBundle bundle, Table table) {
+    public ExtensionForm(ResourceBundle bundle, Table table) {
         this.bundle = bundle;
         this.table = table;
-        setCaption("Edit Phone Number");
+
+        setCaption("Edit Extensions");
     }
 
     public void init(String id) {
         request = ((GenericPortletApplication) getApplication()).getPortletRequest();
-        phoneNumber = createPhoneNumber(id);
+        extension = createExtension(id);
 
         VerticalLayout content = new VerticalLayout();
         content.addStyleName("formRegion");
 
-        content.setSizeFull();
         addComponent(content);
 
-        Label headerForm = createHeader(id, phoneNumber);
+        Label headerForm = createHeader(id, extension);
         content.addComponent(headerForm);
 
         final Form form = createForm();
         content.addComponent(form);
 
-
         HorizontalLayout buttons = createButtons(content);
-
 
         Button cancel = new Button("Cancel", new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
@@ -60,72 +57,72 @@ public class PhoneNumbersForm extends Window {
                     form.commit();
 
                     String name = (String) form.getField("name").getValue();
-                    phoneNumber.setName(name);
-                    service.addPhoneNumber(phoneNumber);
+                    extension.setFirstName(name);
+                    service.addExtension(extension);
 
-                    if (null != phoneNumber.getRevision()) {
+                    if (null != extension.getRevision()){
                         table.removeItem(table.getValue());
                         table.select(null);
                     }
 
                     Object object = table.addItem();
-                    table.getContainerProperty(object, "").setValue(phoneNumber.getName());
-                    table.getContainerProperty(object, "id").setValue(phoneNumber.getId());
+                    table.getContainerProperty(object, "").setValue(extension.getFirstName());
+                    table.getContainerProperty(object, "id").setValue(extension.getId());
 
                     getWindow().showNotification("Well done");
                     close();
-                } catch (Exception ignored) {}
+                } catch (Exception ignored) {
+                }
             }
         });
+        save.setClickShortcut(ShortcutAction.KeyCode.ENTER);
         buttons.addComponent(save);
     }
 
-    private PhoneNumber createPhoneNumber(String id) {
+    private Extension createExtension(String id) {
         if ("-1".equals(id)) {
-            return newPhoneNumber();
+            return newExtension();
         }
         try {
-            return service.getPhoneNumber(id);
+            return service.getExtension(id);
         } catch (Exception e) {
-            return newPhoneNumber();
+            return newExtension();
         }
-
     }
 
-    private PhoneNumber newPhoneNumber() {
-        PhoneNumber newPhoneNumber = new PhoneNumber();
+    private Extension newExtension() {
+        Extension extension = new Extension();
 
         try {
-            newPhoneNumber.setId(UUID.randomUUID().toString());
-            newPhoneNumber.setLiferayUserId(PortalUtil.getUserId(request));
-            newPhoneNumber.setLiferayOrganizationId(PortalUtil.getScopeGroupId(request));
-            newPhoneNumber.setLiferayPortalId(PortalUtil.getCompany(request).getWebId());
+            extension.setId(UUID.randomUUID().toString());
+            extension.setLiferayUserId(PortalUtil.getUserId(request));
+            extension.setLiferayOrganizationId(PortalUtil.getScopeGroupId(request));
+            extension.setLiferayPortalId(PortalUtil.getCompany(request).getWebId());
         } catch (Exception ignored) {
         }
 
-        newPhoneNumber.setName("");
-        return newPhoneNumber;
+        extension.setFirstName("");
+        return extension;
     }
 
     private Form createForm() {
         Form form = new Form();
         form.addStyleName("labelField");
 
-        TextField name = new TextField("Name");
+        TextField name = new TextField("First Name");
         name.setRequired(true);
-        name.setRequiredError("Empty field name");
-        name.addValidator(new RegexpValidator("[+][0-9]{10}", "<div align=\"center\">Mobile must be numeric, begin with + <br/>and consist of 10 digit</div>"));
+        name.setRequiredError("Empty field First Name");
 
-        if (null != phoneNumber.getRevision() && !"".equals(phoneNumber.getRevision())) {
-            name.setValue(phoneNumber.getName());
+        if (null != extension.getRevision() && !"".equals(extension.getRevision())) {
+            name.setValue(extension.getFirstName());
         }
         form.addField("name", name);
 
         return form;
     }
 
-    private Label createHeader(String id, PhoneNumber phoneNumber) {
-        Label headerForm = new Label("-1".equals(id) ? "New Phone Number" : phoneNumber.getName());
+    private Label createHeader(String id, Extension extension) {
+        Label headerForm = new Label("-1".equals(id) ? "New extension" : extension.getFirstName());
 
         headerForm.setHeight(27, Sizeable.UNITS_PIXELS);
         headerForm.setWidth("100%");
@@ -136,8 +133,8 @@ public class PhoneNumbersForm extends Window {
 
     private HorizontalLayout createButtons(VerticalLayout content) {
         HorizontalLayout buttons = new HorizontalLayout();
-        content.addComponent(buttons);
         buttons.addStyleName("buttonsPanel");
+        content.addComponent(buttons);
         content.setComponentAlignment(buttons, Alignment.BOTTOM_RIGHT);
 
         return buttons;
