@@ -4,8 +4,12 @@ import org.codehaus.jackson.annotate.JsonProperty;
 
 public class Agent extends BaseModel {
 
-    @JsonProperty("firstName")
-    private String firstName;
+    @JsonProperty("name")
+    private String name;
+
+   @JsonProperty("currentExtension")
+    private String currentExtension;
+
 
     public Agent() {
     }
@@ -15,17 +19,25 @@ public class Agent extends BaseModel {
         return "agent";
     }
 
-    public String getFirstName() {
-        return firstName;
+    public String getName() {
+        return name;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getCurrentExtension() {
+        return currentExtension;
+    }
+
+    public void setCurrentExtension(String currentExtension) {
+        this.currentExtension = currentExtension;
     }
 
     @Override
     public String toString() {
-        return firstName + " " + getLiferayOrganizationId();
+        return name;
     }
 
 }

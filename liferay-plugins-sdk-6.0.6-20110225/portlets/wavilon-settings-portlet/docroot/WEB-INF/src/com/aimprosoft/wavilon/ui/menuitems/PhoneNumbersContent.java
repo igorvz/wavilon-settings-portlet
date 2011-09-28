@@ -4,6 +4,7 @@ import com.aimprosoft.wavilon.application.GenericPortletApplication;
 import com.aimprosoft.wavilon.model.PhoneNumber;
 import com.aimprosoft.wavilon.service.PhoneNumberDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
+import com.aimprosoft.wavilon.ui.menuitems.forms.ConfirmingRemove;
 import com.aimprosoft.wavilon.ui.menuitems.forms.PhoneNumbersForm;
 import com.liferay.portal.util.PortalUtil;
 import com.vaadin.data.Property;
@@ -26,7 +27,6 @@ public class PhoneNumbersContent extends VerticalLayout {
     private PortletRequest request;
     private PhoneNumberDatabaseService service = (PhoneNumberDatabaseService) ObjectFactory.getBean(PhoneNumberDatabaseService.class);
     private List<String> hiddenFields;
-    private String column = "";
     private PhoneNumbersForm phoneNumbersForm;
 
     public PhoneNumbersContent(ResourceBundle bundle) {
@@ -39,7 +39,6 @@ public class PhoneNumbersContent extends VerticalLayout {
         this.tableFields = fillFields();
         this.tableData = createTableData();
 
-        setHeight(100, Sizeable.UNITS_PERCENTAGE);
         setWidth(100, Sizeable.UNITS_PERCENTAGE);
         setSizeUndefined();
         initLayout();
@@ -49,7 +48,8 @@ public class PhoneNumbersContent extends VerticalLayout {
     private List<String> fillFields() {
         List<String> tableFields = new LinkedList<String>();
 
-        tableFields.add(this.column);
+        tableFields.add("NUMBER");
+        tableFields.add("NAME");
 
         return tableFields;
     }
@@ -61,7 +61,8 @@ public class PhoneNumbersContent extends VerticalLayout {
 
         this.phoneNumbers.setContainerDataSource(this.tableData);
         this.phoneNumbers.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-        this.phoneNumbers.setStyleName("phoneNumbers");
+
+        this.phoneNumbers.addStyleName("tableCustom");
         addComponent(this.phoneNumbers);
     }
 
@@ -92,7 +93,8 @@ public class PhoneNumbersContent extends VerticalLayout {
 
         for (PhoneNumber number : numbers) {
             Object object = ic.addItem();
-            ic.getContainerProperty(object, this.column).setValue(number.getName());
+            ic.getContainerProperty(object, "NUMBER").setValue(number.getNumber());
+            ic.getContainerProperty(object, "NAME").setValue(number.getName());
             ic.getContainerProperty(object, "id").setValue(number.getId());
         }
 
@@ -109,18 +111,19 @@ public class PhoneNumbersContent extends VerticalLayout {
 
     public HorizontalLayout createHead() {
         HorizontalLayout head = new HorizontalLayout();
-        head.setWidth(100.0F, 8);
+        head.setWidth(100, Sizeable.UNITS_PERCENTAGE);
         Label headLabel = new Label("Phone Numbers");
         head.addComponent(headLabel);
-        head.setMargin(true);
+        head.setMargin(false);
         head.addStyleName("headLine");
         headLabel.addStyleName("phoneHeader");
+        headLabel.addStyleName("tableHeader");
 
         HorizontalLayout addRemoveButtons = createButtons();
         head.addComponent(addRemoveButtons);
 
         head.setComponentAlignment(headLabel, Alignment.TOP_LEFT);
-        head.setComponentAlignment(addRemoveButtons, Alignment.TOP_RIGHT);
+        head.setComponentAlignment(addRemoveButtons, Alignment.MIDDLE_RIGHT);
 
         return head;
     }
@@ -137,12 +140,13 @@ public class PhoneNumbersContent extends VerticalLayout {
                 Object id = PhoneNumbersContent.this.phoneNumbers.getValue();
                 if (null != id) {
                     String phoneNumbersID = (String) PhoneNumbersContent.this.phoneNumbers.getItem(id).getItemProperty("id").getValue();
-                    try {
-                        service.removePhoneNumber(phoneNumbersID);
-                    } catch (IOException ignored) {
-                    }
-                    phoneNumbers.removeItem(phoneNumbers.getValue());
-                    phoneNumbers.select(null);
+
+                    ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
+                    getWindow().addWindow(confirmingRemove);
+                    confirmingRemove.init(phoneNumbersID, phoneNumbers);
+                    confirmingRemove.center();
+                    confirmingRemove.setWidth("300px");
+                    confirmingRemove.setHeight("180px");
                 } else {
                     PhoneNumbersContent.this.getWindow().showNotification("Select Phone Number");
                 }
@@ -163,11 +167,12 @@ public class PhoneNumbersContent extends VerticalLayout {
     }
 
     private List<String> fillHiddenFields() {
-        List<String> tableFields = new LinkedList<String>();
+        List<String> hiddenFields = new LinkedList<String>();
 
-        tableFields.add(this.column);
-        tableFields.add("id");
+        hiddenFields.add("NUMBER");
+        hiddenFields.add("NAME");
+        hiddenFields.add("id");
 
-        return tableFields;
+        return hiddenFields;
     }
 }

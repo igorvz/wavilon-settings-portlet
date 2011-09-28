@@ -8,6 +8,7 @@ import com.aimprosoft.wavilon.ui.menuitems.forms.RecordingsForm;
 import com.liferay.portal.util.PortalUtil;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.IndexedContainer;
+import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 
 import javax.portlet.PortletRequest;
@@ -44,30 +45,31 @@ public class RecordingsContent extends VerticalLayout {
 
     private void initLayout() {
         HorizontalLayout head = createHead();
-        setWidth(100.0F, 8);
+        setWidth(100, Sizeable.UNITS_PERCENTAGE);
         addComponent(head);
 
         table.setContainerDataSource(tableData);
-        table.setWidth(100.0F, 8);
-        table.setStyleName("phoneNumbers");
+        table.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+        table.setStyleName("tableCustom");
         addComponent(table);
     }
 
     private HorizontalLayout createHead() {
         HorizontalLayout head = new HorizontalLayout();
-        head.setWidth(100.0F, 8);
+        head.setWidth(100, Sizeable.UNITS_PERCENTAGE);
 
         Label headLabel = new Label("Recordings");
         head.addComponent(headLabel);
-        head.setMargin(true);
+        head.setMargin(false);
         head.addStyleName("headLine");
-        headLabel.addStyleName("phoneHeader");
+        headLabel.addStyleName("tableHeader");
+        headLabel.addStyleName("recordingsHeader");
 
         HorizontalLayout addRemoveButtons = createButtons();
         head.addComponent(addRemoveButtons);
 
         head.setComponentAlignment(headLabel, Alignment.TOP_LEFT);
-        head.setComponentAlignment(addRemoveButtons, Alignment.TOP_RIGHT);
+        head.setComponentAlignment(addRemoveButtons, Alignment.MIDDLE_RIGHT);
 
         return head;
     }

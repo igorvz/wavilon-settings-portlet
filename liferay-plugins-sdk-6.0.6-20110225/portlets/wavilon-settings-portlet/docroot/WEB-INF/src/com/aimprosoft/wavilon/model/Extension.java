@@ -3,8 +3,24 @@ package com.aimprosoft.wavilon.model;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 public class Extension extends BaseModel{
-    @JsonProperty("firstName")
-    private String firstName;
+
+    @JsonProperty("name")
+    private String name;
+
+    @JsonProperty("extensionType")
+    private String extensionType;
+
+    @JsonProperty("extensionId")
+    private int extensionId;
+
+    @JsonProperty("phoneNumber")
+    private String phoneNumber;
+
+    @JsonProperty("sipURL")
+    private String sipURL;
+
+    @JsonProperty("gTalk")
+    private String gTalk;
 
     public Extension(){
     }
@@ -14,22 +30,51 @@ public class Extension extends BaseModel{
         return "extension";
     }
 
-    public String getFirstName() {
-        return firstName;
+    public String getName() {
+        return name;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    @JsonProperty("extensionNumber")
-    public int extensionNumber;
-
-    public int getExtensionNumber() {
-        return extensionNumber;
+    public String getExtensionType() {
+        return extensionType;
     }
 
-    public void setExtensionNumber(int extensionNumber) {
-        this.extensionNumber = extensionNumber;
+    public void setExtensionType(String extensionType) {
+        this.extensionType = extensionType;
+    }
+
+    public int getExtensionId() {
+        return extensionId;
+    }
+
+    public void setExtensionId(int extensionId) {
+        this.extensionId = extensionId;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public String getSipURL() {
+        return sipURL;
+    }
+
+    public void setSipURL(String sipURL) {
+        this.sipURL = sipURL;
+    }
+
+    public String getgTalk() {
+        return gTalk;
+    }
+
+    public void setgTalk(String gTalk) {
+        this.gTalk = gTalk;
     }
 }

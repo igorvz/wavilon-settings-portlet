@@ -2,19 +2,24 @@ package com.aimprosoft.wavilon.ui.menuitems.forms;
 
 import com.aimprosoft.wavilon.application.GenericPortletApplication;
 import com.aimprosoft.wavilon.model.PhoneNumber;
+import com.aimprosoft.wavilon.model.VirtualNumber;
 import com.aimprosoft.wavilon.service.PhoneNumberDatabaseService;
+import com.aimprosoft.wavilon.service.VirtualNumberDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.util.PortalUtil;
 import com.vaadin.data.validator.RegexpValidator;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 
 import javax.portlet.PortletRequest;
-import java.util.ResourceBundle;
-import java.util.UUID;
+import java.io.IOException;
+import java.util.*;
 
 public class PhoneNumbersForm extends Window {
     private PhoneNumberDatabaseService service = ObjectFactory.getBean(PhoneNumberDatabaseService.class);
+    private VirtualNumberDatabaseService VNService = ObjectFactory.getBean(VirtualNumberDatabaseService.class);
     private ResourceBundle bundle;
     private PortletRequest request;
     private Table table;
@@ -24,12 +29,17 @@ public class PhoneNumbersForm extends Window {
     public PhoneNumbersForm(ResourceBundle bundle, Table table) {
         this.bundle = bundle;
         this.table = table;
-        setCaption("Edit Phone Number");
     }
 
     public void init(String id) {
         request = ((GenericPortletApplication) getApplication()).getPortletRequest();
         phoneNumber = createPhoneNumber(id);
+
+        if ("-1".equals(id)) {
+            setCaption("New Phone Number");
+        } else {
+            setCaption("Edit Phone Number");
+        }
 
         VerticalLayout content = new VerticalLayout();
         content.addStyleName("formRegion");
@@ -60,21 +70,27 @@ public class PhoneNumbersForm extends Window {
                     form.commit();
 
                     String name = (String) form.getField("name").getValue();
-                    phoneNumber.setName(name);
-                    service.addPhoneNumber(phoneNumber);
+
 
                     if (null != phoneNumber.getRevision()) {
                         table.removeItem(table.getValue());
                         table.select(null);
+                    }   else {
+                        String number = (String) form.getField("numbers").getValue();
+                        phoneNumber.setNumber(number);
                     }
 
+                    phoneNumber.setName(name);
+                    service.addPhoneNumber(phoneNumber);
                     Object object = table.addItem();
-                    table.getContainerProperty(object, "").setValue(phoneNumber.getName());
+                    table.getContainerProperty(object, "NUMBER").setValue(phoneNumber.getNumber());
+                    table.getContainerProperty(object, "NAME").setValue(phoneNumber.getName());
                     table.getContainerProperty(object, "id").setValue(phoneNumber.getId());
 
                     getWindow().showNotification("Well done");
                     close();
-                } catch (Exception ignored) {}
+                } catch (Exception ignored) {
+                }
             }
         });
         buttons.addComponent(save);
@@ -104,6 +120,7 @@ public class PhoneNumbersForm extends Window {
         }
 
         newPhoneNumber.setName("");
+        newPhoneNumber.setNumber("");
         return newPhoneNumber;
     }
 
@@ -114,14 +131,69 @@ public class PhoneNumbersForm extends Window {
         TextField name = new TextField("Name");
         name.setRequired(true);
         name.setRequiredError("Empty field name");
-        name.addValidator(new RegexpValidator("[+][0-9]{10}", "<div align=\"center\">Mobile must be numeric, begin with + <br/>and consist of 10 digit</div>"));
-
-        if (null != phoneNumber.getRevision() && !"".equals(phoneNumber.getRevision())) {
-            name.setValue(phoneNumber.getName());
-        }
         form.addField("name", name);
 
+        if (null != this.phoneNumber.getRevision() && !"".equals(this.phoneNumber.getRevision())) {
+            name.setValue(phoneNumber.getName());
+
+            TextField number = new TextField("Number");
+            number.setValue(this.phoneNumber.getNumber());
+            number.setReadOnly(true);
+
+            form.addField("phoneNumber", number);
+
+
+
+
+
+        } else {
+            List<String> virtualNumbers = createVirtualNumbers();
+            ComboBox numbers = new ComboBox("Number", virtualNumbers);
+            numbers.setImmediate(true);
+            numbers.setNullSelectionAllowed(false);
+            numbers.setNullSelectionItemId("Select . . .");
+            numbers.setRequired(true);
+            name.setRequiredError("Empty field \"Number\"");
+
+            form.addField("numbers", numbers);
+
+
+
+            String noteString = "The selected phone number has a" +
+                    "monthly cost of 0.00€ Clicking save" +
+                    "you are accepting that the amount" +
+                    "of 0.00€ will be charged monthly ets.";
+            TextArea note = new TextArea("Note", noteString);
+            note.setReadOnly(true);
+
+            form.addField("note", note);
+        }
+
+
         return form;
+    }
+
+    private List<String> createVirtualNumbers() {
+        List<String> numbers = new LinkedList<String>();
+        List<VirtualNumber> virtualNumbers = getVirtualNumbers();
+
+        if(!virtualNumbers.isEmpty()){
+            for (VirtualNumber virtualNumber : virtualNumbers) {
+                numbers.add(virtualNumber.getNumber());
+            }
+        }
+        Collections.sort(numbers);
+        numbers.add(0, "Select . . .");
+        return numbers;
+    }
+
+    private List<VirtualNumber> getVirtualNumbers() {
+        try {
+            return VNService.getAllVirtualNumbersByUser(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request));
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
+
     }
 
     private Label createHeader(String id, PhoneNumber phoneNumber) {

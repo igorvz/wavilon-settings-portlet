@@ -1,17 +1,24 @@
+.v-view {
+    overflow: hidden !important;
+}
+
 .wrapperLayouts {
     font-family: Verdana, Arial, sans-serif;
+
 }
 
 .v-view .leftcolumn .v-nativebutton {
     background: none repeat scroll 0 0 transparent;
     border: medium none;
     line-height: 19px;
-    padding: 5px 10px;
+    padding: 8px 10px;
     text-align: left;
     text-shadow: none;
     font-weight: bold;
     width: 100%;
     display: block;
+    color:#686868;
+    font-size: 13px;
 }
 
 .v-view .leftcolumn .v-nativebutton-active {
@@ -34,7 +41,6 @@
     background: none repeat scroll 0 0 #ebebeb;
 }
 
-
 .v-view .rightcolumn{
     background: #f5f5f5;
     display: block;
@@ -44,21 +50,38 @@
 
 .v-view .rightcolumn .phoneHeader{
     background: url("../images/phone.png") no-repeat scroll 0 50% transparent;
-    color: #282828;
-    font-size: 18px;
-    height: 29px;
-    line-height: 23px;
-    padding: 0 26px;
-    vertical-align: middle;
+    padding: 0 30px;
+}
+.v-view .rightcolumn .recordingsHeader{
+    background: url("../images/recordings.png") no-repeat scroll 0 50% transparent;
+    padding: 0 45px;
+}
+.v-view .rightcolumn .extensionHeader{
+    background: url("../images/extensions.png") no-repeat scroll 0 50% transparent;
+    padding: 0 58px;
+}
+.v-view .rightcolumn .virtualHeader{
+    background: url("../images/virtual.png") no-repeat scroll 0 50% transparent;
+    padding: 0 30px;
+}
+.v-view .rightcolumn .agentHeader{
+    background: url("../images/agents.png") no-repeat scroll 0 50% transparent;
+    padding: 0 45px;
 }
 
-.v-view .rightcolumn .agentHeader{
+.v-view .rightcolumn .tableHeader{
     color: #282828;
     font-size: 18px;
-    height: 29px;
-    line-height: 23px;
-    padding: 0 26px;
     vertical-align: middle;
+    font-weight: bold;
+    height: 41px;
+    line-height: 41px;
+}
+
+
+.headLine {
+    /*margin: 15px 0;*/
+    margin: 5px 0;
 }
 
 .headLine .v-button .v-button-wrap,
@@ -77,6 +100,7 @@
 .headLine .v-button.v-pressed,
 .headLine .v-button:focus {
     background: none transparent;
+    margin: 5px 5px 0;
 }
 
 .headLine .v-button-caption {
@@ -86,6 +110,29 @@
     line-height: 16px;
     text-shadow: 0 1px 0 #000;
 }
+
+.queuesPanel .v-nativebutton,
+.queuesPanel .v-nativebutton:active,
+.queuesPanel .v-nativebutton.v-pressed,
+.queuesPanel .v-nativebutton:focus{
+    background: url("../images/button.png") no-repeat scroll 0 0 transparent;
+    height: 22px;
+    line-height: 18px;
+    padding: 0;
+    width: 21px;
+    border: medium none;
+    margin-top: 14px;
+    margin-left: 14px;
+}
+
+.queuesPanel .v-nativebutton-caption {
+    color: #FFFFFF !important;
+    font-family: serif !important;
+    font-weight: bold;
+    text-shadow: 0 1px 0 #000000;
+    vertical-align: middle;
+}
+
 
 .v-table .v-selected, .black .v-table .v-selected {
     background: none repeat scroll 0 0 #6093e0 !important;
@@ -193,10 +240,51 @@
     bottom: 20px;
     right: 20px;
 }
+
+.formRegion .v-button .v-button-wrap,
+.formRegion .v-button:active .v-button-wrap,
+.formRegion .v-button.v-pressed .v-button-wrap,
+.formRegion .v-button:focus .v-button-wrap{
+    background: url("../images/buttonbg2.png") no-repeat scroll 100% 0 transparent;
+}
+
+.formRegion .v-button,
+.formRegion .v-button:active,
+.formRegion .v-button.v-pressed,
+.formRegion .v-button:focus {
+    background: url("../images/buttonbg1.png") no-repeat scroll 0 0 transparent;
+    padding: 0 0 0 5px;
+}
+
+.formRegion .v-button-caption {
+    font-size: 12px;
+    font-weight: bold;
+    text-shadow: 0 1px 1px #ccc;
+}
+
 .formRegion .buttonsPanel  .v-button{
     margin: 0 0 0 5px;
 }
 
 .v-form-errormessage {
     color: red;
+}
+
+.v-window-outerheader {
+    background: none repeat scroll 0 0 #878787 !important;
+}
+
+.v-window-wrap {
+    border: 1px solid #707171 !important;
+}
+
+.v-window-header {
+    color: #FFFFFF !important;
+    font-family: Verdana !important;
+    font-size: 12px !important;
+    text-shadow: 0 0 0 #000000 !important;
+}
+
+.v-window-closebox {
+    background: #878787 url(../images/close.png) no-repeat 0 0 !important;
 }

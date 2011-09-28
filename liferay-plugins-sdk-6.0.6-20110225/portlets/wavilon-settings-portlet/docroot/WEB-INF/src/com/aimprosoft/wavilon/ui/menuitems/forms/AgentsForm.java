@@ -2,18 +2,20 @@ package com.aimprosoft.wavilon.ui.menuitems.forms;
 
 import com.aimprosoft.wavilon.application.GenericPortletApplication;
 import com.aimprosoft.wavilon.model.Agent;
+import com.aimprosoft.wavilon.model.Extension;
 import com.aimprosoft.wavilon.service.AgentDatabaseService;
+import com.aimprosoft.wavilon.service.ExtensionDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.liferay.portal.util.PortalUtil;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 
 import javax.portlet.PortletRequest;
-import java.util.ResourceBundle;
-import java.util.UUID;
+import java.util.*;
 
 public class AgentsForm extends Window {
     private AgentDatabaseService service = ObjectFactory.getBean(AgentDatabaseService.class);
+    private ExtensionDatabaseService extensionService = ObjectFactory.getBean(ExtensionDatabaseService.class);
     private ResourceBundle bundle;
     private PortletRequest request;
     private Table table;
@@ -33,8 +35,6 @@ public class AgentsForm extends Window {
         VerticalLayout content = new VerticalLayout();
         content.addStyleName("formRegion");
 
-        content.setWidth(280, Sizeable.UNITS_PIXELS);
-        content.setHeight(200, Sizeable.UNITS_PIXELS);
         addComponent(content);
 
         Label headerForm = createHeader(id, agent);
@@ -60,16 +60,20 @@ public class AgentsForm extends Window {
                     form.commit();
 
                     String name = (String) form.getField("firstName").getValue();
-                    agent.setFirstName(name);
+                    String currentExtension = (String) form.getField("extensions").getValue();
+                    agent.setName(name);
+                    agent.setCurrentExtension(currentExtension);
+
                     service.addAgent(agent);
 
-                    if (null != agent.getRevision()){
+                    if (null != agent.getRevision()) {
                         table.removeItem(table.getValue());
                         table.select(null);
                     }
 
                     Object object = table.addItem();
-                    table.getContainerProperty(object, "").setValue(agent.getFirstName());
+                    table.getContainerProperty(object, "NAME").setValue(agent.getName());
+                    table.getContainerProperty(object, "CURRENT EXTENSION").setValue(agent.getCurrentExtension());
                     table.getContainerProperty(object, "id").setValue(agent.getId());
 
                     getWindow().showNotification("Well done");
@@ -104,7 +108,7 @@ public class AgentsForm extends Window {
         } catch (Exception ignored) {
         }
 
-        newAgent.setFirstName("");
+        newAgent.setName("");
         return newAgent;
     }
 
@@ -116,16 +120,47 @@ public class AgentsForm extends Window {
         firstName.setRequired(true);
         firstName.setRequiredError("Empty field First Name");
 
+        List<String> extensionList = createExtensions();
+        ComboBox extensions = new ComboBox("Current extension", extensionList);
+        extensions.setImmediate(true);
+        extensions.setNullSelectionAllowed(false);
+        extensions.setNullSelectionItemId("Select . . .");
+        extensions.setRequired(true);
+        extensions.setRequiredError("Empty field \"Current extension\"");
+
+
         if (null != agent.getRevision() && !"".equals(agent.getRevision())) {
-            firstName.setValue(agent.getFirstName());
+            firstName.setValue(agent.getName());
+            extensions.setValue(agent.getCurrentExtension());
         }
         form.addField("firstName", firstName);
+        form.addField("extensions", extensions);
 
         return form;
     }
 
+    private List<String> createExtensions() {
+        List<String> extensions = new LinkedList<String>();
+
+        List<Extension> extensionList = getExtensions();
+        for (Extension extension : extensionList) {
+            extensions.add(extension.getName());
+        }
+        Collections.sort(extensions);
+        extensions.add(0,"Select . . .");
+        return extensions;
+    }
+
+    private List<Extension> getExtensions() {
+        try {
+            return extensionService.getAllExtensionByUserId(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request));
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
+    }
+
     private Label createHeader(String id, Agent agent) {
-        Label headerForm = new Label("-1".equals(id) ? "New Agent" : agent.getFirstName());
+        Label headerForm = new Label("-1".equals(id) ? "New Agent" : agent.getName());
 
         headerForm.setHeight(27, Sizeable.UNITS_PIXELS);
         headerForm.setWidth("100%");
@@ -137,7 +172,7 @@ public class AgentsForm extends Window {
     private HorizontalLayout createButtons(VerticalLayout content) {
         HorizontalLayout buttons = new HorizontalLayout();
         content.addComponent(buttons);
-        content.setComponentAlignment(buttons, Alignment.BOTTOM_RIGHT);
+        content.setComponentAlignment(buttons, Alignment.MIDDLE_RIGHT);
         buttons.addStyleName("buttonsPanel");
         return buttons;
     }

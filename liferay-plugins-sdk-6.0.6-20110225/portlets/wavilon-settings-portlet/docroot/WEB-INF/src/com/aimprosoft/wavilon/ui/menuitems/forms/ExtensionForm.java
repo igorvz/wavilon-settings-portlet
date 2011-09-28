@@ -5,8 +5,10 @@ import com.aimprosoft.wavilon.model.Extension;
 import com.aimprosoft.wavilon.service.ExtensionDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.liferay.portal.util.PortalUtil;
+import com.vaadin.data.Property;
+import com.vaadin.data.validator.EmailValidator;
+import com.vaadin.data.validator.RegexpValidator;
 import com.vaadin.event.ShortcutAction;
-import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 
 import javax.portlet.PortletRequest;
@@ -23,21 +25,23 @@ public class ExtensionForm extends Window {
     public ExtensionForm(ResourceBundle bundle, Table table) {
         this.bundle = bundle;
         this.table = table;
-
-        setCaption("Edit Extensions");
     }
 
     public void init(String id) {
+
         request = ((GenericPortletApplication) getApplication()).getPortletRequest();
         extension = createExtension(id);
+
+        if (!"".equals(extension.getName())) {
+            setCaption("Edit Extension");
+        } else {
+            setCaption("New Extension");
+        }
 
         VerticalLayout content = new VerticalLayout();
         content.addStyleName("formRegion");
 
         addComponent(content);
-
-        Label headerForm = createHeader(id, extension);
-        content.addComponent(headerForm);
 
         final Form form = createForm();
         content.addComponent(form);
@@ -57,17 +61,37 @@ public class ExtensionForm extends Window {
                     form.commit();
 
                     String name = (String) form.getField("name").getValue();
-                    extension.setFirstName(name);
+                    String extensionType = (String) form.getField("extensionType").getValue();
+                    String changeField = (String) form.getField("changeField").getValue();
+
+                    Object object = table.addItem();
+
+                    if ("Gtalk".equals(extensionType)) {
+                        extension.setgTalk(changeField);
+                    }
+
+                    if ("SIP".equals(extensionType)) {
+                        extension.setSipURL(changeField);
+                    }
+
+                    if ("Phone Number".equals(extensionType)) {
+                        extension.setPhoneNumber(changeField);
+                    }
+
+                    extension.setExtensionType(extensionType);
+                    extension.setName(name);
                     service.addExtension(extension);
 
-                    if (null != extension.getRevision()){
+                    if (null != extension.getRevision()) {
                         table.removeItem(table.getValue());
                         table.select(null);
                     }
 
-                    Object object = table.addItem();
-                    table.getContainerProperty(object, "").setValue(extension.getFirstName());
-                    table.getContainerProperty(object, "id").setValue(extension.getId());
+                    table.getContainerProperty(object, "extensionIdBase").setValue(extension.getId());
+                    table.getContainerProperty(object, "id").setValue(extension.getLiferayOrganizationId());
+                    table.getContainerProperty(object, "name").setValue(extension.getName());
+                    table.getContainerProperty(object, "extension type").setValue(extension.getExtensionType());
+                    table.getContainerProperty(object, "destination").setValue(setDestination(extensionType));
 
                     getWindow().showNotification("Well done");
                     close();
@@ -77,6 +101,18 @@ public class ExtensionForm extends Window {
         });
         save.setClickShortcut(ShortcutAction.KeyCode.ENTER);
         buttons.addComponent(save);
+    }
+
+    private String setDestination(String extensionType) {
+        if ("Phone number".equals(extensionType)) {
+            return extension.getPhoneNumber();
+        }
+        if ("SIP".equals(extensionType)) {
+            return extension.getSipURL();
+        }
+        if ("Gtalk".equals(extensionType)) {
+            return extension.getgTalk();
+        } else return "";
     }
 
     private Extension createExtension(String id) {
@@ -101,34 +137,90 @@ public class ExtensionForm extends Window {
         } catch (Exception ignored) {
         }
 
-        extension.setFirstName("");
+        extension.setName("");
         return extension;
     }
 
     private Form createForm() {
-        Form form = new Form();
+        final Form form = new Form();
         form.addStyleName("labelField");
 
-        TextField name = new TextField("First Name");
+        TextField extensionId = new TextField("Extension id");
+
+        TextField name = new TextField("Name");
         name.setRequired(true);
         name.setRequiredError("Empty field First Name");
 
+        ComboBox extensionType = new ComboBox("Extension type");
+        extensionType.setImmediate(true);
+        String select = "Select...";
+        extensionType.addItem(select);
+        extensionType.setNullSelectionItemId(select);
+        extensionType.addItem("Phone Number");
+        extensionType.addItem("Gtalk");
+        extensionType.addItem("SIP");
+
+        extensionType.addListener((Property.ValueChangeListener) new ComboBox.ValueChangeListener() {
+            public void valueChange(Property.ValueChangeEvent event) {
+                Object id = event.getProperty().getValue();
+
+                String fieldName = (String) id;
+
+                form.removeItemProperty("changeField");
+                final TextField changeField = new TextField();
+                changeField.setRequired(true);
+
+                if ("Gtalk".equals(fieldName)) {
+                    changeField.setCaption("Gtalk email");
+
+                    if (null != extension.getRevision() && !"".equals(extension.getRevision())) {
+                        changeField.setValue(extension.getgTalk());
+                    } else changeField.setValue("");
+
+                    changeField.setRequiredError("Gtalk email must be not empty");
+                    changeField.addValidator(new EmailValidator("Wrong format email address"));
+                }
+
+                if ("SIP".equals(fieldName)) {
+                    changeField.setCaption("SIP URI");
+
+                    if (null != extension.getRevision() && !"".equals(extension.getRevision())) {
+                        changeField.setValue(extension.getSipURL());
+
+                    } else changeField.setValue("");
+
+                    changeField.setRequiredError("SIP URI email must be not empty");
+                }
+
+                if ("Phone number".equals(fieldName)) {
+                    changeField.setCaption("Phone number");
+
+                    if (null != extension.getRevision() && !"".equals(extension.getRevision())) {
+                        changeField.setValue(extension.getPhoneNumber());
+                    } else changeField.setValue("");
+
+                    changeField.setRequiredError("Phone number email must be not empty");
+                    changeField.addValidator(new RegexpValidator("[+][0-9]{10}", "Phone number must begin with +..."));
+                }
+                form.addField("changeField", changeField);
+            }
+        });
+
         if (null != extension.getRevision() && !"".equals(extension.getRevision())) {
-            name.setValue(extension.getFirstName());
+            name.setValue(extension.getName());
         }
+        try {
+            extensionId.setValue(PortalUtil.getScopeGroupId(request));
+            extensionId.setReadOnly(true);
+        } catch (Exception ignored) {
+        }
+
+
+        form.addField("extensionId", extensionId);
         form.addField("name", name);
+        form.addField("extensionType", extensionType);
 
         return form;
-    }
-
-    private Label createHeader(String id, Extension extension) {
-        Label headerForm = new Label("-1".equals(id) ? "New extension" : extension.getFirstName());
-
-        headerForm.setHeight(27, Sizeable.UNITS_PIXELS);
-        headerForm.setWidth("100%");
-        headerForm.addStyleName("headerForm");
-
-        return headerForm;
     }
 
     private HorizontalLayout createButtons(VerticalLayout content) {

@@ -7,6 +7,9 @@ public class VirtualNumber extends BaseModel {
     @JsonProperty("name")
     private String name;
 
+    @JsonProperty("number")
+    private String number;
+
     public VirtualNumber() {
     }
 
@@ -26,5 +29,13 @@ public class VirtualNumber extends BaseModel {
     @Override
     public String toString() {
         return name;
+    }
+
+    public String getNumber() {
+        return number;
+    }
+
+    public void setNumber(String number) {
+        this.number = number;
     }
 }

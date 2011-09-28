@@ -7,7 +7,6 @@ import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.ui.menuitems.forms.QueuesForm;
 import com.liferay.portal.util.PortalUtil;
 import com.vaadin.data.Property;
-import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 
 import javax.portlet.PortletRequest;
@@ -61,25 +60,26 @@ public class QueuesContent extends VerticalLayout {
 
         queuesPanel.addComponent(queuesComboBox);
 
-        Button addQueueButton = new NativeButton("add", new Button.ClickListener() {
+        Button addQueueButton = new NativeButton("+", new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
                 viewQueueForm("-1");
             }
         });
+
+        addQueueButton.addStyleName("addButton");
+
         queuesPanel.addComponent(addQueueButton);
+        queuesPanel.addStyleName("queuesPanel");
     }
 
     private void initLayout() {
-        setHeight(400, Sizeable.UNITS_PIXELS);
-        setWidth(750, Sizeable.UNITS_PIXELS);
-
-        queuesPanel.setSizeUndefined();
+//        queuesPanel.setSizeUndefined();
         addComponent(queuesPanel);
-        setComponentAlignment(queuesPanel, Alignment.TOP_CENTER);
+        setComponentAlignment(queuesPanel, Alignment.MIDDLE_LEFT);
 
         queuesFormLayout.setSizeUndefined();
         addComponent(queuesFormLayout);
-        setComponentAlignment(queuesFormLayout, Alignment.TOP_CENTER);
+        setComponentAlignment(queuesFormLayout, Alignment.TOP_LEFT);
     }
 
     private List<Queue> getQueues() {

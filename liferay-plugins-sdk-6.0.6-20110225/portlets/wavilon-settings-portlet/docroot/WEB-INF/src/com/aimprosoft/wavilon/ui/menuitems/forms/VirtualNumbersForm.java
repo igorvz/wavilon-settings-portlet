@@ -24,12 +24,17 @@ public class VirtualNumbersForm extends Window {
     public VirtualNumbersForm(ResourceBundle bundle, Table table) {
         this.bundle = bundle;
         this.table = table;
-        setCaption("Edit Virtual Number");
     }
 
     public void init(String id) {
         request = ((GenericPortletApplication) getApplication()).getPortletRequest();
         virtualNumber = createVirtualNumber(id);
+
+        if ("-1".equals(id)) {
+            setCaption("New Virtual Number");
+        } else {
+            setCaption("Edit Virtual Number");
+        }
 
         VerticalLayout content = new VerticalLayout();
         content.addStyleName("formRegion");
@@ -59,16 +64,21 @@ public class VirtualNumbersForm extends Window {
                     form.commit();
 
                     String name = (String) form.getField("name").getValue();
+                    String number = (String)  form.getField("number").getValue();
+
                     virtualNumber.setName(name);
+                    virtualNumber.setNumber(number);
+
                     service.addVirtualNumber(virtualNumber);
 
-                    if (null != virtualNumber.getRevision()){
+                    if (null != virtualNumber.getRevision()) {
                         table.removeItem(table.getValue());
                         table.select(null);
                     }
 
                     Object object = table.addItem();
-                    table.getContainerProperty(object, "").setValue(virtualNumber.getName());
+                    table.getContainerProperty(object, "NUMBER").setValue(virtualNumber.getNumber());
+                    table.getContainerProperty(object, "NAME").setValue(virtualNumber.getName());
                     table.getContainerProperty(object, "id").setValue(virtualNumber.getId());
 
                     getWindow().showNotification("Well done");
@@ -104,6 +114,7 @@ public class VirtualNumbersForm extends Window {
         }
 
         newVirtualNumber.setName("");
+        newVirtualNumber.setNumber("");
         return newVirtualNumber;
     }
 
@@ -113,13 +124,20 @@ public class VirtualNumbersForm extends Window {
 
         TextField name = new TextField("Name");
         name.setRequired(true);
-        name.setRequiredError("Empty field name");
-        name.addValidator(new RegexpValidator("[+][0-9]{10}", "<div align=\"center\">Mobile must be numeric, begin with + <br/>and consist of 10 digit</div>"));
+        name.setRequiredError("Empty field \"Name\"");
+
+        TextField number = new TextField("Number");
+        number.setRequired(true);
+        number.setRequiredError("Empty field \"Number\"");
+        number.addValidator(new RegexpValidator("[+][0-9]{10}", "<div align=\"center\">Number must be numeric, begin with + <br/>and consist of 10 digit</div>"));
+
 
         if (null != virtualNumber.getRevision() && !"".equals(virtualNumber.getRevision())) {
             name.setValue(virtualNumber.getName());
+            number.setValue(virtualNumber.getNumber());
         }
         form.addField("name", name);
+        form.addField("number", number);
 
         return form;
     }

@@ -10,7 +10,6 @@ import com.liferay.portal.util.PortalUtil;
 import com.vaadin.data.validator.IntegerValidator;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 
 import javax.portlet.PortletRequest;
@@ -221,9 +220,14 @@ public class QueuesForm extends VerticalLayout {
                 }
             }
         });
+
         addComponent(queueForm);
-        addComponent(apply);
-        setComponentAlignment(apply, Alignment.BOTTOM_RIGHT);
+
+        HorizontalLayout buttons = new HorizontalLayout();
+
+        addComponent(buttons);
+        setComponentAlignment(buttons, Alignment.BOTTOM_RIGHT);
+        setComponentAlignment(buttons, Alignment.BOTTOM_RIGHT);
 
         if (null != queue.getRevision()) {
             remove = new Button("Remove", new Button.ClickListener() {
@@ -236,9 +240,9 @@ public class QueuesForm extends VerticalLayout {
                     queuesFormLayout.removeAllComponents();
                 }
             });
-            addComponent(remove);
-            setComponentAlignment(remove, Alignment.BOTTOM_RIGHT);
+            buttons.addComponent(remove);
         }
+        buttons.addComponent(apply);
     }
 
     private Queue getQueue(String queueId) {

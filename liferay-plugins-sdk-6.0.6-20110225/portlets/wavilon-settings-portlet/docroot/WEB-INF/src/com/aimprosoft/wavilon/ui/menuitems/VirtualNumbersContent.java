@@ -4,6 +4,7 @@ import com.aimprosoft.wavilon.application.GenericPortletApplication;
 import com.aimprosoft.wavilon.model.VirtualNumber;
 import com.aimprosoft.wavilon.service.VirtualNumberDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
+import com.aimprosoft.wavilon.ui.menuitems.forms.ConfirmingRemove;
 import com.aimprosoft.wavilon.ui.menuitems.forms.VirtualNumbersForm;
 import com.liferay.portal.util.PortalUtil;
 import com.vaadin.data.Property;
@@ -26,7 +27,6 @@ public class VirtualNumbersContent extends VerticalLayout {
     private PortletRequest request;
     private VirtualNumberDatabaseService service = (VirtualNumberDatabaseService) ObjectFactory.getBean(VirtualNumberDatabaseService.class);
     private List<String> hiddenFields;
-    private String column = "";
     private VirtualNumbersForm virtualNumbersForm;
 
     public VirtualNumbersContent(ResourceBundle bundle) {
@@ -49,7 +49,8 @@ public class VirtualNumbersContent extends VerticalLayout {
     private List<String> fillFields() {
         List<String> tableFields = new LinkedList<String>();
 
-        tableFields.add(this.column);
+        tableFields.add("NUMBER");
+        tableFields.add("NAME");
 
         return tableFields;
     }
@@ -62,6 +63,7 @@ public class VirtualNumbersContent extends VerticalLayout {
         this.virtualNumbers.setContainerDataSource(this.tableData);
         this.virtualNumbers.setWidth(100, Sizeable.UNITS_PERCENTAGE);
         this.virtualNumbers.setStyleName("virtualNumbers");
+        this.virtualNumbers.setStyleName("tableCustom");
         addComponent(this.virtualNumbers);
     }
 
@@ -92,7 +94,8 @@ public class VirtualNumbersContent extends VerticalLayout {
 
         for (VirtualNumber number : numbers) {
             Object object = ic.addItem();
-            ic.getContainerProperty(object, this.column).setValue(number.getName());
+            ic.getContainerProperty(object, "NUMBER").setValue(number.getNumber());
+            ic.getContainerProperty(object, "NAME").setValue(number.getName());
             ic.getContainerProperty(object, "id").setValue(number.getId());
         }
 
@@ -112,15 +115,16 @@ public class VirtualNumbersContent extends VerticalLayout {
         head.setWidth(100, Sizeable.UNITS_PERCENTAGE);
         Label headLabel = new Label("Virtual Numbers");
         head.addComponent(headLabel);
-        head.setMargin(true);
+        head.setMargin(false);
         head.addStyleName("headLine");
-        headLabel.addStyleName("phoneHeader");
+        headLabel.addStyleName("tableHeader");
+        headLabel.addStyleName("virtualHeader");
 
         HorizontalLayout addRemoveButtons = createButtons();
         head.addComponent(addRemoveButtons);
 
         head.setComponentAlignment(headLabel, Alignment.TOP_LEFT);
-        head.setComponentAlignment(addRemoveButtons, Alignment.TOP_RIGHT);
+        head.setComponentAlignment(addRemoveButtons, Alignment.MIDDLE_RIGHT);
 
         return head;
     }
@@ -137,12 +141,13 @@ public class VirtualNumbersContent extends VerticalLayout {
                 Object id = VirtualNumbersContent.this.virtualNumbers.getValue();
                 if (null != id) {
                     String virtualNumbersID = (String) VirtualNumbersContent.this.virtualNumbers.getItem(id).getItemProperty("id").getValue();
-                    try {
-                        service.removeVirtualNumber(virtualNumbersID);
-                    } catch (IOException ignored) {
-                    }
-                    VirtualNumbersContent.this.virtualNumbers.removeItem(VirtualNumbersContent.this.virtualNumbers.getValue());
-                    VirtualNumbersContent.this.virtualNumbers.select(null);
+
+                    ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
+                    getWindow().addWindow(confirmingRemove);
+                    confirmingRemove.init(virtualNumbersID, virtualNumbers);
+                    confirmingRemove.center();
+                    confirmingRemove.setWidth("300px");
+                    confirmingRemove.setHeight("180px");
                 } else {
                     VirtualNumbersContent.this.getWindow().showNotification("Select Virtual Number");
                 }
@@ -163,11 +168,12 @@ public class VirtualNumbersContent extends VerticalLayout {
     }
 
     private List<String> fillHiddenFields() {
-        List<String> tableFields = new LinkedList<String>();
+        List<String> hiddenFields = new LinkedList<String>();
 
-        tableFields.add(this.column);
-        tableFields.add("id");
+        hiddenFields.add("NUMBER");
+        hiddenFields.add("NAME");
+        hiddenFields.add("id");
 
-        return tableFields;
+        return hiddenFields;
     }
 }
