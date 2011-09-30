@@ -1,21 +1,18 @@
 package com.aimprosoft.wavilon.ui.menuitems.forms;
 
 import com.aimprosoft.wavilon.application.GenericPortletApplication;
+import com.aimprosoft.wavilon.model.Attachment;
 import com.aimprosoft.wavilon.model.Recording;
 import com.aimprosoft.wavilon.service.RecordingDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.liferay.portal.util.PortalUtil;
 import com.vaadin.data.Item;
 import com.vaadin.event.ShortcutAction;
-import com.vaadin.terminal.Sizeable;
 import com.vaadin.terminal.UserError;
 import com.vaadin.ui.*;
 
 import javax.portlet.PortletRequest;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ResourceBundle;
-import java.util.UUID;
+import java.util.*;
 
 public class RecordingsForm extends Window {
     private ResourceBundle bundle;
@@ -30,7 +27,6 @@ public class RecordingsForm extends Window {
     public RecordingsForm(final ResourceBundle bundle, Table table) {
         this.bundle = bundle;
         this.table = table;
-        setCaption("Edit recording");
     }
 
     public void init(String id) {
@@ -42,16 +38,25 @@ public class RecordingsForm extends Window {
 
         addComponent(content);
 
-        Label headerForm = createHeader(id, recording);
-        content.addComponent(headerForm);
-
         final Form form = createForm();
         content.addComponent(form);
 
-        recordingUploader = createRecordingUpload();
-        content.addComponent(recordingUploader);
-        recordingUploader.init(recording);
 
+        if (!"".equals(recording.getName())) {
+            setCaption("Edit Recording");
+
+        } else {
+            setCaption("New Recording");
+
+
+            HorizontalLayout uploadLayout = new HorizontalLayout();
+
+            recordingUploader = createRecordingUpload();
+            uploadLayout.addComponent(recordingUploader);
+
+            recordingUploader.init(recording);
+            content.addComponent(uploadLayout);
+        }
         HorizontalLayout buttons = createButtons(content);
 
         Button cancel = new Button("Cancel", new Button.ClickListener() {
@@ -67,7 +72,7 @@ public class RecordingsForm extends Window {
                     form.commit();
 
                     String name = (String) form.getField("name").getValue();
-                    recording.setFirstName(name);
+                    recording.setName(name);
 
                     if (recording.getAttachments() == null) {
 
@@ -83,8 +88,13 @@ public class RecordingsForm extends Window {
                         }
 
                         Object object = table.addItem();
-                        table.getContainerProperty(object, "").setValue(recording.getFirstName());
-                        table.getContainerProperty(object, "id").setValue(recording.getId());
+                        Map<String, Attachment> attachmentMap = recording.getAttachments();
+                        for (Map.Entry<String, Attachment> entry : attachmentMap.entrySet()) {
+
+                            table.getContainerProperty(object, "media file").setValue(entry.getKey());
+                            table.getContainerProperty(object, "name").setValue(recording.getName());
+                            table.getContainerProperty(object, "id").setValue(recording.getId());
+                        }
 
                         getWindow().showNotification("Well done");
                         close();
@@ -110,12 +120,12 @@ public class RecordingsForm extends Window {
         Form form = new Form();
         form.addStyleName("labelField");
 
-        TextField name = new TextField("First Name");
+        TextField name = new TextField("Name");
         name.setRequired(true);
-        name.setRequiredError("Empty field First Name");
+        name.setRequiredError("Name must be not empty");
 
         if (null != recording.getRevision() && !"".equals(recording.getRevision())) {
-            name.setValue(recording.getFirstName());
+            name.setValue(recording.getName());
         }
         form.addField("name", name);
 
@@ -127,16 +137,6 @@ public class RecordingsForm extends Window {
         recordingUploader.attach();
 
         return recordingUploader;
-    }
-
-    private Label createHeader(String id, Recording recording) {
-        Label headerForm = new Label("-1".equals(id) ? "New recording" : recording.getFirstName());
-
-        headerForm.setHeight(27, Sizeable.UNITS_PIXELS);
-        headerForm.setWidth("100%");
-        headerForm.addStyleName("headerForm");
-
-        return headerForm;
     }
 
     private Recording createRecording(String id) {
@@ -161,7 +161,7 @@ public class RecordingsForm extends Window {
         } catch (Exception ignored) {
         }
 
-        recording.setFirstName("");
+        recording.setName("");
         return recording;
     }
 

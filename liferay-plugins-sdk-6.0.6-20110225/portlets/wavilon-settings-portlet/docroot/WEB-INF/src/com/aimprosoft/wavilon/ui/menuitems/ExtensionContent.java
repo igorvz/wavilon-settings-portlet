@@ -7,8 +7,9 @@ import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.ui.menuitems.forms.ConfirmingRemove;
 import com.aimprosoft.wavilon.ui.menuitems.forms.ExtensionForm;
 import com.liferay.portal.util.PortalUtil;
-import com.vaadin.data.Property;
+import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
+import com.vaadin.event.ItemClickEvent;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 
@@ -53,13 +54,13 @@ public class ExtensionContent extends VerticalLayout {
 
         table.setContainerDataSource(tableData);
         table.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-        
+
         table.addStyleName("tableCustom");
         addComponent(table);
     }
 
     private HorizontalLayout createHead() {
-       HorizontalLayout head = new HorizontalLayout();
+        HorizontalLayout head = new HorizontalLayout();
         head.setWidth(100, Sizeable.UNITS_PERCENTAGE);
 
         Label headLabel = new Label("Extensions");
@@ -87,7 +88,7 @@ public class ExtensionContent extends VerticalLayout {
         }));
         addRemoveButtons.addComponent(new Button("-", new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
-               Object id = table.getValue();
+                Object id = table.getValue();
                 if (null != id) {
                     String extensionID = (String) table.getItem(id).getItemProperty("extensionIdBase").getValue();
 
@@ -98,37 +99,30 @@ public class ExtensionContent extends VerticalLayout {
                     confirmingRemove.setWidth("420px");
                     confirmingRemove.setHeight("180px");
                 } else {
-                    getWindow().showNotification("Select Extension]");
+                    getWindow().showNotification("Select Extension");
                 }
             }
         }));
         return addRemoveButtons;
     }
 
-    private List<String> initExtension() {
-
-        List<String> col = hiddenFields;
-        col.remove(4);
+    private void initExtension() {
 
         table.setContainerDataSource(tableData);
-        table.setVisibleColumns(col.toArray());
+        table.setVisibleColumns(tableFields.toArray());
         table.setSelectable(true);
         table.setImmediate(true);
 
-        table.addListener(new Property.ValueChangeListener() {
-            public void valueChange(Property.ValueChangeEvent event) {
-                if (extensionForm != null && extensionForm.getParent() != null) {
-                    getWindow().showNotification("Form is already open");
-                } else {
-                    Object id = table.getValue();
-                    if (null != id) {
-                        getForm((String) table.getItem(id).getItemProperty("extensionIdBase").getValue());
+        table.addListener(new ItemClickEvent.ItemClickListener() {
+            public void itemClick(ItemClickEvent event) {
+                if (event.isDoubleClick()) {
+                    Item item = event.getItem();
+                    if (null != item) {
+                        getForm((String) event.getItem().getItemProperty("extensionIdBase").getValue());
                     }
                 }
             }
         });
-
-        return tableFields;
     }
 
     private LinkedList<String> fillFields() {
@@ -147,11 +141,11 @@ public class ExtensionContent extends VerticalLayout {
         IndexedContainer ic = new IndexedContainer();
         List<Extension> extensions = getExtension();
 
-        for (String field : hiddenFields) {
+        for (String field : tableFields) {
             if ("id".equals(field)) {
                 ic.addContainerProperty(field, Integer.class, "");
 
-            }else {
+            } else {
                 ic.addContainerProperty(field, String.class, "");
             }
         }
@@ -167,13 +161,13 @@ public class ExtensionContent extends VerticalLayout {
 
                 String extensionType = extension.getExtensionType();
 
-                if ("Phone number".equals(extensionType)) {
+                if ("Phone Number".equals(extensionType)) {
                     ic.getContainerProperty(object, "destination").setValue(extension.getPhoneNumber());
 
-                }else if ("SIP".equals(extensionType)) {
+                } else if ("SIP".equals(extensionType)) {
                     ic.getContainerProperty(object, "destination").setValue(extension.getSipURL());
 
-                }else if ("Gtalk".equals(extensionType)) {
+                } else if ("Gtalk".equals(extensionType)) {
                     ic.getContainerProperty(object, "destination").setValue(extension.getgTalk());
                 }
             }
@@ -196,7 +190,6 @@ public class ExtensionContent extends VerticalLayout {
         tableFields.add("name");
         tableFields.add("extension type");
         tableFields.add("destination");
-        tableFields.add("extensionIdBase");
 
         return tableFields;
     }

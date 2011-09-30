@@ -48,7 +48,11 @@ public class SettingsApplication extends GenericPortletApplication {
             window.getContent().setSizeFull();
             if (themeDisplay.isSignedIn()) {
                 userId = PortalUtil.getUserId(renderRequest);
-                window.setContent(new SettingsPage(bundle, userId));
+                SettingsPage settingsPage = new SettingsPage(bundle);
+                window.setContent(settingsPage);
+                settingsPage.init(userId);
+
+
             } else {
                 window.setContent(new PleaseSignInPage(bundle));
             }

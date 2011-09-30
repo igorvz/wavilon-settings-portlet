@@ -1,22 +1,21 @@
 package com.aimprosoft.wavilon.ui.menuitems;
 
 import com.aimprosoft.wavilon.application.GenericPortletApplication;
+import com.aimprosoft.wavilon.model.Attachment;
 import com.aimprosoft.wavilon.model.Recording;
 import com.aimprosoft.wavilon.service.RecordingDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
+import com.aimprosoft.wavilon.ui.menuitems.forms.ConfirmingRemove;
 import com.aimprosoft.wavilon.ui.menuitems.forms.RecordingsForm;
 import com.liferay.portal.util.PortalUtil;
-import com.vaadin.data.Property;
+import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
+import com.vaadin.event.ItemClickEvent;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 
 import javax.portlet.PortletRequest;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class RecordingsContent extends VerticalLayout {
     private ResourceBundle bundle;
@@ -87,12 +86,13 @@ public class RecordingsContent extends VerticalLayout {
                 Object id = table.getValue();
                 if (null != id) {
                     String recordingID = (String) table.getItem(id).getItemProperty("id").getValue();
-                    try {
-                        service.removeRecording(recordingID);
-                    } catch (IOException ignored) {
-                    }
-                    table.removeItem(table.getValue());
-                    table.select(null);
+
+                    ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
+                    getWindow().addWindow(confirmingRemove);
+                    confirmingRemove.init(recordingID, table);
+                    confirmingRemove.center();
+                    confirmingRemove.setWidth("420px");
+                    confirmingRemove.setHeight("180px");
                 } else {
                     getWindow().showNotification("Select Recording");
                 }
@@ -105,7 +105,14 @@ public class RecordingsContent extends VerticalLayout {
     private void getForm(String id) {
         recordingsForm = new RecordingsForm(bundle, table);
         recordingsForm.setWidth(410.0F, 0);
-        recordingsForm.setHeight(440.0F, 0);
+
+        if ("-1".equals(id)) {
+            recordingsForm.setHeight(350.0F, 0);
+
+        } else {
+            recordingsForm.setHeight(220.0F, 0);
+
+        }
         recordingsForm.center();
         recordingsForm.setModal(true);
 
@@ -113,32 +120,32 @@ public class RecordingsContent extends VerticalLayout {
         recordingsForm.init(id);
     }
 
-    private List<String> initRecording() {
+    private void initRecording() {
+
         table.setContainerDataSource(tableData);
-        table.setVisibleColumns(tableFields.toArray());
+        table.setVisibleColumns(hiddenFields.toArray());
         table.setSelectable(true);
         table.setImmediate(true);
 
-        table.addListener(new Property.ValueChangeListener() {
-            public void valueChange(Property.ValueChangeEvent event) {
-                if (recordingsForm != null && recordingsForm.getParent() != null) {
-                    getWindow().showNotification("Form is already open");
-                } else {
-                    Object id = table.getValue();
-                    if (null != id) {
-                        getForm((String) table.getItem(id).getItemProperty("id").getValue());
+        table.addListener(new ItemClickEvent.ItemClickListener() {
+            public void itemClick(ItemClickEvent event) {
+                if (event.isDoubleClick()) {
+                    Item item = event.getItem();
+                    if (null != item) {
+                        getForm((String) event.getItem().getItemProperty("id").getValue());
                     }
                 }
+
             }
         });
-
-        return tableFields;
     }
 
     private LinkedList<String> fillFields() {
         LinkedList<String> tableFields = new LinkedList<String>();
 
-        tableFields.add("");
+        tableFields.add("name");
+        tableFields.add("media file");
+        tableFields.add("id");
 
         return tableFields;
     }
@@ -148,18 +155,25 @@ public class RecordingsContent extends VerticalLayout {
 
         List<Recording> recordings = getRecordings();
 
-        for (String field : hiddenFields) {
+        for (String field : tableFields) {
             ic.addContainerProperty(field, String.class, "");
         }
 
         if (!recordings.isEmpty()) {
             for (Recording recording : recordings) {
                 Object object = ic.addItem();
-                ic.getContainerProperty(object, "").setValue(recording.getFirstName());
+                String fileName = "";
+
+                Map<String, Attachment> attachmentMap = recording.getAttachments();
+                for (Map.Entry<String, Attachment> entry : attachmentMap.entrySet()) {
+                    fileName = entry.getKey();
+                }
+
+                ic.getContainerProperty(object, "name").setValue(recording.getName());
+                ic.getContainerProperty(object, "media file").setValue(fileName);
                 ic.getContainerProperty(object, "id").setValue(recording.getId());
             }
         }
-
         return ic;
     }
 
@@ -174,8 +188,8 @@ public class RecordingsContent extends VerticalLayout {
     private List<String> fillHiddenFields() {
         LinkedList<String> tableFields = new LinkedList<String>();
 
-        tableFields.add("");
-        tableFields.add("id");
+        tableFields.add("name");
+        tableFields.add("media file");
 
         return tableFields;
     }

@@ -15,8 +15,11 @@ public class SettingsPage extends VerticalLayout {
     private VerticalLayout detailsContent;
     private Long userId;
 
-    public SettingsPage(final ResourceBundle bundle, Long userId) {
+    public SettingsPage(final ResourceBundle bundle) {
         this.bundle = bundle;
+    }
+
+    public void init(Long userId) {
         this.userId = userId;
 
         addStyleName("settingsPanel");
@@ -51,6 +54,11 @@ public class SettingsPage extends VerticalLayout {
 
         panel.addStyleName("gridLayout");
         addButtons();
+
+        detailsContent.removeAllComponents();
+        PhoneNumbersContent phoneNumbersContent = new PhoneNumbersContent(bundle);
+        detailsContent.addComponent(phoneNumbersContent);
+        phoneNumbersContent.init();
 
         setExpandRatio(panel, 0);
     }

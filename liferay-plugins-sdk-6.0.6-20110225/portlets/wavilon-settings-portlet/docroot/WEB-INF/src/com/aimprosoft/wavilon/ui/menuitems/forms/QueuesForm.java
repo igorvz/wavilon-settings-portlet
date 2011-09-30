@@ -1,9 +1,7 @@
 package com.aimprosoft.wavilon.ui.menuitems.forms;
 
 import com.aimprosoft.wavilon.application.GenericPortletApplication;
-import com.aimprosoft.wavilon.model.Agent;
 import com.aimprosoft.wavilon.model.Queue;
-import com.aimprosoft.wavilon.service.AgentDatabaseService;
 import com.aimprosoft.wavilon.service.QueueDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.liferay.portal.util.PortalUtil;
@@ -13,315 +11,290 @@ import com.vaadin.ui.*;
 import org.apache.commons.lang.math.NumberUtils;
 
 import javax.portlet.PortletRequest;
-import java.io.IOException;
 import java.util.*;
 
-public class QueuesForm extends VerticalLayout {
-    private ResourceBundle bundle;
+public class QueuesForm extends Window {
+
     private QueueDatabaseService service = ObjectFactory.getBean(QueueDatabaseService.class);
-    private AgentDatabaseService agentService = ObjectFactory.getBean(AgentDatabaseService.class);
+    private ResourceBundle bundle;
     private PortletRequest request;
-    private Button remove;
+    private Table table;
     private Queue queue;
 
-    public QueuesForm(final ResourceBundle bundle) {
+
+    public QueuesForm(ResourceBundle bundle, Table table) {
         this.bundle = bundle;
+        this.table = table;
+    }
+
+    public void init(String id) {
+        request = ((GenericPortletApplication) getApplication()).getPortletRequest();
+        queue = createQueue(id);
+
+        if ("-1".equals(id)) {
+            setCaption("New Queue");
+        } else {
+            setCaption("Edit Queue");
+        }
+
+        VerticalLayout content = new VerticalLayout();
+        content.addStyleName("formRegion");
+        content.setSizeFull();
+        addComponent(content);
+
+        Label headerForm = createHeader(id, queue);
+        content.addComponent(headerForm);
+
+        final Form form = createForm();
+        content.addComponent(form);
+
+
+        HorizontalLayout buttons = createButtons(content);
+
+
+        Button cancel = new Button("Cancel", new Button.ClickListener() {
+            public void buttonClick(Button.ClickEvent event) {
+                close();
+            }
+        });
+        buttons.addComponent(cancel);
+
+        Button save = new Button(bundle.getString("wavilon.settings.validation.form.button.save"), new Button.ClickListener() {
+            public void buttonClick(Button.ClickEvent event) {
+                try {
+                    form.commit();
+
+                    String name = (String) form.getField("name").getValue();
+                    String maxTimeInput = form.getField("maxTimeInput").getValue().toString();
+                    String maxLengthInput = form.getField("maxLengthInput").getValue().toString();
+                    String extensionOnMaxTimeInput = (String) form.getField("extensionOnMaxTimeInput").getValue();
+                    String extensionOnMaxLengthInput = (String) form.getField("extensionOnMaxLengthInput").getValue();
+                    String musicOnHold = (String) form.getField("musicOnHold").getValue();
+
+
+                    if (null != queue.getRevision()) {
+                        table.removeItem(table.getValue());
+                        table.select(null);
+                    }
+
+                    queue.setName(name);
+                    queue.setMaxTime(NumberUtils.toInt(maxTimeInput));
+                    queue.setMaxLength(NumberUtils.toInt(maxLengthInput));
+                    queue.setExtensionOnMaxTime(extensionOnMaxTimeInput);
+                    queue.setExtensionOnMaxLength(extensionOnMaxLengthInput);
+                    queue.setMusicOnHold(musicOnHold);
+
+                    service.addQueue(queue);
+                    Object object = table.addItem();
+                    table.getContainerProperty(object, "NAME").setValue(queue.getName());
+                    table.getContainerProperty(object, "EXTENSION ON MAX. TIME").setValue(queue.getExtensionOnMaxTime());
+                    table.getContainerProperty(object, "EXTENSION ON MAX. LENGTH").setValue(queue.getExtensionOnMaxLength());
+                    table.getContainerProperty(object, "id").setValue(queue.getId());
+
+                    getWindow().showNotification("Well done");
+                    close();
+                } catch (Exception ignored) {
+                }
+            }
+        });
+        buttons.addComponent(save);
+    }
+
+    private Queue createQueue(String id) {
+        if ("-1".equals(id)) {
+            return newQueue();
+        }
+        try {
+            return service.getQueue(id);
+        } catch (Exception e) {
+            return newQueue();
+        }
 
     }
 
-    public void init(final String queueId, final VerticalLayout queuesFormLayout, final ComboBox queuesComboBox) {
-        request = ((GenericPortletApplication) getApplication()).getPortletRequest();
-        queue = getQueue(queueId);
-        final Form queueForm = new QueuesFormLayout();
+    private Queue newQueue() {
+        Queue newQueue = new Queue();
+
+        try {
+            newQueue.setId(UUID.randomUUID().toString());
+            newQueue.setLiferayUserId(PortalUtil.getUserId(request));
+            newQueue.setLiferayOrganizationId(PortalUtil.getScopeGroupId(request));
+            newQueue.setLiferayPortalId(PortalUtil.getCompany(request).getWebId());
+            newQueue.setAgents(Collections.<String>emptyList());
+        } catch (Exception ignored) {
+        }
+
+        newQueue.setName("");
+        return newQueue;
+    }
+
+    private Form createForm() {
+        Form queuesForm = new QueuesFormLayout();
 
         //first row
+        TextField name = new TextField();
+        name.setWidth(230, Sizeable.UNITS_PIXELS);
+        name.setRequired(true);
+        name.setRequiredError(bundle.getString("wavilon.settings.validation.form.error.empty.queues.title"));
+
+        //second row
         TextField maxTimeInput = new TextField();
-        maxTimeInput.setWidth(40, Sizeable.UNITS_PIXELS);
+        maxTimeInput.setWidth(150, Sizeable.UNITS_PIXELS);
         maxTimeInput.setRequired(true);
         maxTimeInput.setRequiredError(bundle.getString("wavilon.settings.validation.form.error.empty.queues.max.time.input"));
         maxTimeInput.addValidator(new IntegerValidator(bundle.getString("wavilon.settings.validation.form.error.queues.integer.max.time.input")));
 
-        List<String> typeList = new LinkedList<String>();
-        typeList.add("Type 1");
-        typeList.add("Type 2");
-        typeList.add("Type 3");
-
-        List<String> nodeList = new LinkedList<String>();
-        nodeList.add("Node 1");
-        nodeList.add("Node 2");
-        nodeList.add("Node 3");
-
-        List<String> musicOnHold = new LinkedList<String>();
-        musicOnHold.add("Music 1");
-        musicOnHold.add("Music 2");
-        musicOnHold.add("Music 3");
-
-        List<String> availableAgents = null;
-        List<Agent> agentList = null;
-        try {
-            agentList = agentService.getAllAgentsByUser(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request));
-        } catch (Exception ignored) {
-            agentList = Collections.emptyList();
-        }
-
-
-        ComboBox firstRowType = new ComboBox();
-        firstRowType.setWidth(100, Sizeable.UNITS_PIXELS);
-        ComboBox firstRowSelectNode = new ComboBox();
-        firstRowSelectNode.setWidth(100, Sizeable.UNITS_PIXELS);
-
-        //second row
+        //third row
         TextField maxLengthInput = new TextField();
-        maxLengthInput.setWidth(40, Sizeable.UNITS_PIXELS);
+        maxLengthInput.setWidth(150, Sizeable.UNITS_PIXELS);
         maxLengthInput.setRequired(true);
         maxLengthInput.setRequiredError(bundle.getString("wavilon.settings.validation.form.error.empty.queues.max.length.input"));
         maxLengthInput.addValidator(new IntegerValidator(bundle.getString("wavilon.settings.validation.form.error.queues.integer.max.length.input")));
-        ComboBox secondRowType = new ComboBox();
-        secondRowType.setWidth(100, Sizeable.UNITS_PIXELS);
-        ComboBox secondRowSelectNode = new ComboBox();
-        secondRowSelectNode.setWidth(100, Sizeable.UNITS_PIXELS);
 
-        //third row
-        ComboBox hold = new ComboBox();
-        hold.setWidth(100, Sizeable.UNITS_PIXELS);
+        //fourth
+        ComboBox extensionOnMaxTimeInput = new ComboBox();
+        extensionOnMaxTimeInput.setWidth(230, Sizeable.UNITS_PIXELS);
+        extensionOnMaxTimeInput.setRequired(true);
+        extensionOnMaxTimeInput.setRequiredError("Empty field \"Extension on Max. time\"");
 
-        TextField title = new TextField();
-        title.setWidth(120, Sizeable.UNITS_PIXELS);
-        title.setRequired(true);
-        title.setRequiredError(bundle.getString("wavilon.settings.validation.form.error.empty.queues.title"));
+        //fifth
+        ComboBox extensionOnMaxLengthInput = new ComboBox();
+        extensionOnMaxLengthInput.setWidth(230, Sizeable.UNITS_PIXELS);
+        extensionOnMaxLengthInput.setRequired(true);
+        extensionOnMaxLengthInput.setRequiredError("Empty field \"Extension on Max. length\"");
+        //sixth
+        ComboBox musicOnHold = new ComboBox();
+        musicOnHold.setWidth(230, Sizeable.UNITS_PIXELS);
+        musicOnHold.setRequired(true);
+        musicOnHold.setRequiredError("Empty field \"Music on hold\"");
 
 
-        //twin col select
-        TwinColSelect agents = new TwinColSelect();
-        agents.setHeight(120, Sizeable.UNITS_PIXELS);
-        agents.setNullSelectionAllowed(true);
-        agents.setMultiSelect(true);
-        agents.setImmediate(true);
-        agents.setLeftColumnCaption("Available agents");
-        agents.setRightColumnCaption("Agents In Queue");
+        List<String> extensionList = new LinkedList<String>();
+        extensionList.add("Extension 1");
+        extensionList.add("Extension 2");
+        extensionList.add("Extension 3");
+        extensionList.add(0, "Select . . .");
+
+        List<String> musicOnHoldList = new LinkedList<String>();
+        musicOnHoldList.add("Music 1");
+        musicOnHoldList.add("Music 2");
+        musicOnHoldList.add("Music 3");
+        musicOnHoldList.add(0, "Select . . .");
+
 
         if (null != queue.getRevision()) {
-            title.setValue(queue.getTitle());
+            name.setValue(queue.getName());
             maxTimeInput.setValue(queue.getMaxTime());
             maxLengthInput.setValue(queue.getMaxLength());
-
-            if (null != queue.getAgents()) {
-                availableAgents = queue.getAgents();
-            } else {
-                availableAgents = Collections.emptyList();
-            }
         }
-        for (String s : typeList) {
-            secondRowType.addItem(s);
-            firstRowType.addItem(s);
+        for (String e : extensionList) {
+            extensionOnMaxTimeInput.addItem(e);
+            extensionOnMaxLengthInput.addItem(e);
 
             if (null != queue.getRevision()) {
-                if (null != queue.getDistinctionMaxTimeType() && queue.getDistinctionMaxTimeType().equals(s)) {
-                    firstRowType.setValue(s);
+                if (null != queue.getExtensionOnMaxTime() && queue.getExtensionOnMaxTime().equals(e)) {
+                    extensionOnMaxTimeInput.setValue(e);
                 }
-                if (null != queue.getDistinctionFullType() && queue.getDistinctionFullType().equals(s)) {
-                    secondRowType.setValue(s);
+                if (null != queue.getExtensionOnMaxLength() && queue.getExtensionOnMaxLength().equals(e)) {
+                    extensionOnMaxLengthInput.setValue(e);
                 }
             }
 
         }
-        for (String s : nodeList) {
-            firstRowSelectNode.addItem(s);
-            secondRowSelectNode.addItem(s);
 
-            if (null != queue.getRevision()) {
-                if (null != queue.getDistinctionMaxTimeNode() && queue.getDistinctionMaxTimeNode().equals(s)) {
-                    firstRowSelectNode.setValue(s);
-                }
-                if (null != queue.getDistinctionFullNode() && queue.getDistinctionFullNode().equals(s)) {
-                    secondRowSelectNode.setValue(s);
-                }
-            }
-        }
-        for (String s : musicOnHold) {
-            hold.addItem(s);
+        for (String s : musicOnHoldList) {
+            musicOnHold.addItem(s);
 
             if (null != queue.getRevision()) {
                 if (null != queue.getMusicOnHold() && queue.getMusicOnHold().equals(s)) {
-                    hold.setValue(s);
+                    musicOnHold.setValue(s);
                 }
             }
         }
 
-        List<Agent> selectedAgents = new ArrayList<Agent>();
-        for (Agent agent : agentList) {
-            agents.addItem(agent);
-            if (null != queue.getRevision() && queue.getAgents() != null) {
-                for (String agentId : queue.getAgents()) {
-                    if (agent.getId().equals(agentId)) {
-                        selectedAgents.add(agent);
-                    }
-                }
-            }
-        }
 
-        //set selected agent
-        agents.setValue(Collections.unmodifiableCollection(selectedAgents));
+        queuesForm.addField("name", name);
+        queuesForm.addField("maxTimeInput", maxTimeInput);
+        queuesForm.addField("maxLengthInput", maxLengthInput);
 
-        queueForm.addField("maxTimeInput", maxTimeInput);
-        queueForm.addField("firstRowType", firstRowType);
-        queueForm.addField("firstRowSelectNode", firstRowSelectNode);
+        queuesForm.addField("extensionOnMaxTimeInput", extensionOnMaxTimeInput);
+        extensionOnMaxTimeInput.setNullSelectionAllowed(false);
+        extensionOnMaxTimeInput.setNullSelectionItemId("Select . . .");
 
-        queueForm.addField("maxLengthInput", maxLengthInput);
-        queueForm.addField("secondRowType", secondRowType);
-        queueForm.addField("secondRowSelectNode", secondRowSelectNode);
+        queuesForm.addField("extensionOnMaxLengthInput", extensionOnMaxLengthInput);
+        extensionOnMaxLengthInput.setNullSelectionAllowed(false);
+        extensionOnMaxLengthInput.setNullSelectionItemId("Select . . .");
 
-        queueForm.addField("hold", hold);
-        queueForm.addField("title", title);
+        queuesForm.addField("musicOnHold", musicOnHold);
+        musicOnHold.setNullSelectionAllowed(false);
+        musicOnHold.setNullSelectionItemId("Select . . .");
 
-        queueForm.addField("agents", agents);
-
-        Button apply = new Button(bundle.getString("wavilon.settings.validation.form.button.save"), new Button.ClickListener() {
-            public void buttonClick(Button.ClickEvent event) {
-                try {
-                    queueForm.commit();
-
-
-                    if (null == queue.getRevision()) {
-                        queue.setId(UUID.randomUUID().toString());
-                        PortletRequest request = ((GenericPortletApplication) getApplication()).getPortletRequest();
-                        queue.setLiferayUserId(PortalUtil.getUserId(request));
-                        queue.setLiferayOrganizationId(PortalUtil.getScopeGroupId(request));
-                        queue.setLiferayPortalId(PortalUtil.getCompany(request).getWebId());
-                    } else {
-                        queuesComboBox.removeItem(queue);
-                    }
-
-                    queue.setMaxTime(NumberUtils.toInt((String) queueForm.getField("maxTimeInput").getValue().toString()));
-                    queue.setMaxLength(NumberUtils.toInt((String) queueForm.getField("maxLengthInput").getValue().toString()));
-                    queue.setDistinctionMaxTimeType((String) queueForm.getField("firstRowType").getValue());
-                    queue.setDistinctionMaxTimeNode((String) queueForm.getField("firstRowSelectNode").getValue());
-                    queue.setDistinctionFullType((String) queueForm.getField("secondRowType").getValue());
-                    queue.setDistinctionFullNode((String) queueForm.getField("secondRowSelectNode").getValue());
-                    queue.setMusicOnHold((String) queueForm.getField("hold").getValue());
-                    queue.setTitle((String) queueForm.getField("title").getValue());
-
-
-                    Set set = (Set) queueForm.getField("agents").getValue();
-                    List<String> agentIDS = new LinkedList<String>();
-                    for (Object o : set) {
-                        Agent agent = (Agent) o;
-                        agentIDS.add(agent.getId());
-                    }
-                    queue.setAgents(agentIDS);
-
-                    service.addQueue(queue);
-                    queuesFormLayout.removeAllComponents();
-
-                    queuesComboBox.addItem(queue);
-                    getWindow().showNotification("Well done");
-                } catch (Exception e) {
-                    e.getMessage();
-                }
-            }
-        });
-
-        addComponent(queueForm);
-
-        HorizontalLayout buttons = new HorizontalLayout();
-
-        addComponent(buttons);
-        setComponentAlignment(buttons, Alignment.BOTTOM_RIGHT);
-        setComponentAlignment(buttons, Alignment.BOTTOM_RIGHT);
-
-        if (null != queue.getRevision()) {
-            remove = new Button("Remove", new Button.ClickListener() {
-                public void buttonClick(Button.ClickEvent event) {
-                    queuesComboBox.removeItem(queue);
-                    try {
-                        service.removeQueue(queueId);
-                    } catch (IOException ignored) {
-                    }
-                    queuesFormLayout.removeAllComponents();
-                }
-            });
-            buttons.addComponent(remove);
-        }
-        buttons.addComponent(apply);
+        return queuesForm;
     }
 
-    private Queue getQueue(String queueId) {
-        if ("-1".equals(queueId)) {
-            return new Queue();
-        }
-        try {
-            return service.getQueue(queueId);
-        } catch (IOException e) {
-            return new Queue();
-        }
+    private Label createHeader(String id, Queue queue) {
+        Label headerForm = new Label("-1".equals(id) ? "New Queue" : queue.getName());
+
+        headerForm.setHeight(27, Sizeable.UNITS_PIXELS);
+        headerForm.setWidth("100%");
+        headerForm.addStyleName("headerForm");
+
+        return headerForm;
+    }
+
+    private HorizontalLayout createButtons(VerticalLayout content) {
+        HorizontalLayout buttons = new HorizontalLayout();
+        content.addComponent(buttons);
+        buttons.addStyleName("buttonsPanel");
+        content.setComponentAlignment(buttons, Alignment.BOTTOM_RIGHT);
+
+        return buttons;
     }
 
     private static class QueuesFormLayout extends Form {
         private GridLayout layout;
 
         QueuesFormLayout() {
-            layout = new GridLayout(41, 4);
+            layout = new GridLayout(3, 6);
             layout.setMargin(true, false, false, true);
             layout.setSpacing(true);
 
-
             setLayout(layout);
 
-            Label maxTime = new Label("Queue Max Time");
-            layout.addComponent(maxTime, 0, 0, 9, 0);
+            layout.addComponent(new Label("Name"), 0, 0);
+            layout.addComponent(new Label("Max. time"), 0, 1);
 
-            Label seconds = new Label("seconds");
-            layout.addComponent(seconds, 13, 0, 17, 0);
-
-            Label firstRowSeparator = new Label("");
-            firstRowSeparator.setWidth(20, Sizeable.UNITS_PIXELS);
-            layout.addComponent(firstRowSeparator, 18, 0);
-
-            Label firstRowDistinction = new Label("Distinction on Max Time");
-            layout.addComponent(firstRowDistinction, 19, 0, 32, 0);
-
-
-            Label maxLength = new Label("Queue Max Length");
-            layout.addComponent(maxLength, 0, 1, 9, 1);
+            Label sec = new Label("seconds");
+            sec.setWidth(60, Sizeable.UNITS_PIXELS);
+            layout.addComponent(sec, 2, 1);
+            layout.setComponentAlignment(sec, Alignment.MIDDLE_RIGHT);
+            layout.addComponent(new Label("Max. length"), 0, 2);
 
             Label calls = new Label("calls");
-            layout.addComponent(calls, 13, 1, 17, 1);
+            calls.setWidth(40, Sizeable.UNITS_PIXELS);
+            layout.addComponent(calls, 2, 2);
+            layout.setComponentAlignment(calls, Alignment.MIDDLE_RIGHT);
 
-            Label secondRowSeparator = new Label("");
-            secondRowSeparator.setWidth(20, Sizeable.UNITS_PIXELS);
-            layout.addComponent(secondRowSeparator, 18, 1);
-
-            Label secondRowDistinction = new Label("Distinction on queue full");
-            layout.addComponent(secondRowDistinction, 19, 1, 32, 1);
-
-            Label musicAnHold = new Label("Music an Hold");
-            layout.addComponent(musicAnHold, 0, 2, 7, 2);
-
-            Label title = new Label("Queues Title");
-            layout.addComponent(title, 22, 2, 29, 2);
+            layout.addComponent(new Label("Extension on Max. time"), 0, 3);
+            layout.addComponent(new Label("Extension on Max. length"), 0, 4);
+            layout.addComponent(new Label("Music on hold"), 0, 5);
         }
 
 
         @Override
         protected void attachField(Object propertyId, Field field) {
-            if (propertyId.equals("maxTimeInput")) {
-                layout.addComponent(field, 10, 0, 12, 0);
-            } else if (propertyId.equals("firstRowType")) {
-                layout.addComponent(field, 33, 0, 36, 0);
-            } else if (propertyId.equals("firstRowSelectNode")) {
-                layout.addComponent(field, 37, 0, 40, 0);
+            if (propertyId.equals("name")) {
+                layout.addComponent(field, 1, 0, 2, 0);
+            } else if (propertyId.equals("maxTimeInput")) {
+                layout.addComponent(field, 1, 1);
             } else if (propertyId.equals("maxLengthInput")) {
-                layout.addComponent(field, 10, 1, 12, 1);
-            } else if (propertyId.equals("secondRowType")) {
-                layout.addComponent(field, 33, 1, 36, 1);
-            } else if (propertyId.equals("secondRowSelectNode")) {
-                layout.addComponent(field, 37, 1, 40, 1);
-            } else if (propertyId.equals("hold")) {
-                layout.addComponent(field, 10, 2, 20, 2);
-            } else if (propertyId.equals("agents")) {
-                layout.addComponent(field, 10, 3, 30, 3);
-            } else if (propertyId.equals("title")) {
-                layout.addComponent(field, 30, 2, 40, 2);
+                layout.addComponent(field, 1, 2);
+            } else if (propertyId.equals("extensionOnMaxTimeInput")) {
+                layout.addComponent(field, 1, 3, 2, 3);
+            } else if (propertyId.equals("extensionOnMaxLengthInput")) {
+                layout.addComponent(field, 1, 4, 2, 4);
+            } else if (propertyId.equals("musicOnHold")) {
+                layout.addComponent(field, 1, 5, 2, 5);
             }
         }
 

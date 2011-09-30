@@ -4,8 +4,8 @@ import org.codehaus.jackson.annotate.JsonProperty;
 
 public class Recording extends BaseModel{
 
-    @JsonProperty("firstName")
-    private String firstName;
+    @JsonProperty("name")
+    private String name;
 
     public Recording() {
     }
@@ -15,11 +15,11 @@ public class Recording extends BaseModel{
         return "recording";
     }
 
-    public String getFirstName() {
-        return firstName;
+    public String getName() {
+        return name;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
+    public void setName(String name) {
+        this.name = name;
     }
 }

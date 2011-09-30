@@ -7,13 +7,14 @@ import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.ui.menuitems.forms.ConfirmingRemove;
 import com.aimprosoft.wavilon.ui.menuitems.forms.PhoneNumbersForm;
 import com.liferay.portal.util.PortalUtil;
+import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.IndexedContainer;
+import com.vaadin.event.ItemClickEvent;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 
 import javax.portlet.PortletRequest;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -66,21 +67,23 @@ public class PhoneNumbersContent extends VerticalLayout {
         addComponent(this.phoneNumbers);
     }
 
-    private List<String> initPhoneNumbers() {
+    private void initPhoneNumbers() {
         this.phoneNumbers.setContainerDataSource(this.tableData);
         this.phoneNumbers.setVisibleColumns(this.tableFields.toArray());
         this.phoneNumbers.setSelectable(true);
         this.phoneNumbers.setImmediate(true);
 
-        this.phoneNumbers.addListener(new Property.ValueChangeListener() {
-            public void valueChange(Property.ValueChangeEvent event) {
-                Object id = phoneNumbers.getValue();
-                if (null != id) {
-                    PhoneNumbersContent.this.getForm((String) PhoneNumbersContent.this.phoneNumbers.getItem(id).getItemProperty("id").getValue());
+        this.phoneNumbers.addListener(new ItemClickEvent.ItemClickListener() {
+            public void itemClick(ItemClickEvent event) {
+                if (event.isDoubleClick()) {
+                    Item item = event.getItem();
+                    if (null != item) {
+                        getForm((String) event.getItem().getItemProperty("id").getValue());
+                    }
                 }
             }
         });
-        return this.tableFields;
+
     }
 
     private IndexedContainer createTableData() {

@@ -7,13 +7,13 @@ import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.ui.menuitems.forms.AgentsForm;
 import com.aimprosoft.wavilon.ui.menuitems.forms.ConfirmingRemove;
 import com.liferay.portal.util.PortalUtil;
-import com.vaadin.data.Property;
+import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
+import com.vaadin.event.ItemClickEvent;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 
 import javax.portlet.PortletRequest;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -23,7 +23,6 @@ public class AgentsContent extends VerticalLayout {
     private ResourceBundle bundle;
     private AgentDatabaseService service = ObjectFactory.getBean(AgentDatabaseService.class);
     private List<String> hiddenFields;
-    private VerticalLayout right = new VerticalLayout();
     private PortletRequest request;
     private Table table = new Table();
     private List<String> tableFields;
@@ -57,22 +56,22 @@ public class AgentsContent extends VerticalLayout {
         addComponent(table);
     }
 
-    private List<String> initAgents() {
+    private void initAgents() {
         table.setContainerDataSource(this.tableData);
         table.setVisibleColumns(this.tableFields.toArray());
         table.setSelectable(true);
         table.setImmediate(true);
 
-        table.addListener(new Property.ValueChangeListener() {
-            public void valueChange(Property.ValueChangeEvent event) {
-
-                Object id = table.getValue();
-                if (null != id) {
-                    getForm((String) table.getItem(id).getItemProperty("id").getValue());
+        table.addListener(new ItemClickEvent.ItemClickListener() {
+            public void itemClick(ItemClickEvent event) {
+                if (event.isDoubleClick()) {
+                   Item item = event.getItem();
+                    if (null != item) {
+                        getForm((String) event.getItem().getItemProperty("id").getValue());
+                    }
                 }
             }
         });
-        return this.tableFields;
     }
 
     private HorizontalLayout createButtons() {

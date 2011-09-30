@@ -3,13 +3,12 @@ package com.aimprosoft.wavilon.model;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.util.List;
-import java.util.Set;
 
 //@JsonIgnoreProperties(value = {}, ignoreUnknown = true)
 public class Queue extends BaseModel {
 
-    @JsonProperty("title")
-    private String title;
+    @JsonProperty("name")
+    private String name;
 
     @JsonProperty("maxTime")
     private int maxTime;
@@ -17,17 +16,11 @@ public class Queue extends BaseModel {
     @JsonProperty("maxLength")
     private int maxLength;
 
-    @JsonProperty("distinctionMaxTimeType")
-    private String distinctionMaxTimeType;
+    @JsonProperty("extensionOnMaxTime")
+    private String extensionOnMaxTime;
 
-    @JsonProperty("distinctionMaxTimeNode")
-    private String distinctionMaxTimeNode;
-
-    @JsonProperty("distinctionFullType")
-    private String distinctionFullType;
-
-    @JsonProperty("distinctionFullNode")
-    private String distinctionFullNode;
+    @JsonProperty("extensionOnMaxLength")
+    private String extensionOnMaxLength;
 
     @JsonProperty("musicOnHold")
     private String musicOnHold;
@@ -39,17 +32,12 @@ public class Queue extends BaseModel {
     public Queue() {
     }
 
-    @Override
-    public String getEntityType() {
-        return "queue";
+    public String getName() {
+        return name;
     }
 
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public int getMaxTime() {
@@ -68,36 +56,20 @@ public class Queue extends BaseModel {
         this.maxLength = maxLength;
     }
 
-    public String getDistinctionMaxTimeType() {
-        return distinctionMaxTimeType;
+    public String getExtensionOnMaxTime() {
+        return extensionOnMaxTime;
     }
 
-    public void setDistinctionMaxTimeType(String distinctionMaxTimeType) {
-        this.distinctionMaxTimeType = distinctionMaxTimeType;
+    public void setExtensionOnMaxTime(String extensionOnMaxTime) {
+        this.extensionOnMaxTime = extensionOnMaxTime;
     }
 
-    public String getDistinctionMaxTimeNode() {
-        return distinctionMaxTimeNode;
+    public String getExtensionOnMaxLength() {
+        return extensionOnMaxLength;
     }
 
-    public void setDistinctionMaxTimeNode(String distinctionMaxTimeNode) {
-        this.distinctionMaxTimeNode = distinctionMaxTimeNode;
-    }
-
-    public String getDistinctionFullType() {
-        return distinctionFullType;
-    }
-
-    public void setDistinctionFullType(String distinctionFullType) {
-        this.distinctionFullType = distinctionFullType;
-    }
-
-    public String getDistinctionFullNode() {
-        return distinctionFullNode;
-    }
-
-    public void setDistinctionFullNode(String distinctionFullNode) {
-        this.distinctionFullNode = distinctionFullNode;
+    public void setExtensionOnMaxLength(String extensionOnMaxLength) {
+        this.extensionOnMaxLength = extensionOnMaxLength;
     }
 
     public String getMusicOnHold() {
@@ -117,10 +89,14 @@ public class Queue extends BaseModel {
     }
 
     @Override
-    public String toString() {
-        return title;
+    public String getEntityType() {
+        return "queue";
     }
 
+    @Override
+    public String toString() {
+        return name;
+    }
 
 
 }

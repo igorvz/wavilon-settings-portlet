@@ -12,6 +12,8 @@ import com.vaadin.event.ShortcutAction;
 import com.vaadin.ui.*;
 
 import javax.portlet.PortletRequest;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.UUID;
 
@@ -58,6 +60,7 @@ public class ExtensionForm extends Window {
         Button save = new Button(bundle.getString("wavilon.settings.validation.form.button.save"), new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
                 try {
+
                     form.commit();
 
                     String name = (String) form.getField("name").getValue();
@@ -104,7 +107,7 @@ public class ExtensionForm extends Window {
     }
 
     private String setDestination(String extensionType) {
-        if ("Phone number".equals(extensionType)) {
+        if ("Phone Number".equals(extensionType)) {
             return extension.getPhoneNumber();
         }
         if ("SIP".equals(extensionType)) {
@@ -138,6 +141,9 @@ public class ExtensionForm extends Window {
         }
 
         extension.setName("");
+        extension.setgTalk("");
+        extension.setSipURL("");
+        extension.setPhoneNumber("");
         return extension;
     }
 
@@ -151,20 +157,20 @@ public class ExtensionForm extends Window {
         name.setRequired(true);
         name.setRequiredError("Empty field First Name");
 
+        List<String> extensionTypeList = createExtensionType();
         ComboBox extensionType = new ComboBox("Extension type");
         extensionType.setImmediate(true);
-        String select = "Select...";
-        extensionType.addItem(select);
-        extensionType.setNullSelectionItemId(select);
-        extensionType.addItem("Phone Number");
-        extensionType.addItem("Gtalk");
-        extensionType.addItem("SIP");
+        for (String s : extensionTypeList) {
+            extensionType.addItem(s);
+            if(null != extension.getExtensionType() && extension.getExtensionType().equals(s)){
+                extensionType.setValue(s);
+            }
+        }
+        extensionType.setNullSelectionItemId("Select...");
 
-        extensionType.addListener((Property.ValueChangeListener) new ComboBox.ValueChangeListener() {
+        extensionType.addListener(new ComboBox.ValueChangeListener() {
             public void valueChange(Property.ValueChangeEvent event) {
-                Object id = event.getProperty().getValue();
-
-                String fieldName = (String) id;
+                String fieldName = (String) event.getProperty().getValue();
 
                 form.removeItemProperty("changeField");
                 final TextField changeField = new TextField();
@@ -175,8 +181,7 @@ public class ExtensionForm extends Window {
 
                     if (null != extension.getRevision() && !"".equals(extension.getRevision())) {
                         changeField.setValue(extension.getgTalk());
-                    } else changeField.setValue("");
-
+                    }
                     changeField.setRequiredError("Gtalk email must be not empty");
                     changeField.addValidator(new EmailValidator("Wrong format email address"));
                 }
@@ -187,18 +192,16 @@ public class ExtensionForm extends Window {
                     if (null != extension.getRevision() && !"".equals(extension.getRevision())) {
                         changeField.setValue(extension.getSipURL());
 
-                    } else changeField.setValue("");
-
+                    }
                     changeField.setRequiredError("SIP URI email must be not empty");
                 }
 
-                if ("Phone number".equals(fieldName)) {
+                if ("Phone Number".equals(fieldName)) {
                     changeField.setCaption("Phone number");
 
                     if (null != extension.getRevision() && !"".equals(extension.getRevision())) {
                         changeField.setValue(extension.getPhoneNumber());
-                    } else changeField.setValue("");
-
+                    }
                     changeField.setRequiredError("Phone number email must be not empty");
                     changeField.addValidator(new RegexpValidator("[+][0-9]{10}", "Phone number must begin with +..."));
                 }
@@ -215,12 +218,21 @@ public class ExtensionForm extends Window {
         } catch (Exception ignored) {
         }
 
-
         form.addField("extensionId", extensionId);
         form.addField("name", name);
         form.addField("extensionType", extensionType);
 
         return form;
+    }
+
+    private List<String> createExtensionType() {
+        List<String> extensionTypeList = new LinkedList<String>();
+        extensionTypeList.add("Phone Number");
+        extensionTypeList.add("Gtalk");
+        extensionTypeList.add("SIP");
+        extensionTypeList.add(0, "Select...");
+
+        return extensionTypeList;
     }
 
     private HorizontalLayout createButtons(VerticalLayout content) {
