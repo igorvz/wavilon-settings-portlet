@@ -2,27 +2,32 @@ package com.aimprosoft.wavilon.ui.menuitems.forms;
 
 import com.aimprosoft.wavilon.application.GenericPortletApplication;
 import com.aimprosoft.wavilon.model.Attachment;
+import com.aimprosoft.wavilon.model.Extension;
 import com.aimprosoft.wavilon.model.Recording;
+import com.aimprosoft.wavilon.service.ExtensionDatabaseService;
 import com.aimprosoft.wavilon.service.RecordingDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.liferay.portal.util.PortalUtil;
+import com.vaadin.Application;
 import com.vaadin.data.Item;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.terminal.UserError;
 import com.vaadin.ui.*;
 
 import javax.portlet.PortletRequest;
+import java.net.URLDecoder;
 import java.util.*;
 
 public class RecordingsForm extends Window {
     private ResourceBundle bundle;
     private Item item;
-    private static RecordingDatabaseService service = ObjectFactory.getBean(RecordingDatabaseService.class);
+    private RecordingDatabaseService service = ObjectFactory.getBean(RecordingDatabaseService.class);
+    private ExtensionDatabaseService extensionService = ObjectFactory.getBean(ExtensionDatabaseService.class);
     private static PortletRequest request;
-    private List<String> extensions = new LinkedList<String>();
     private Recording recording = null;
     private RecordingUploader recordingUploader = null;
     private Table table;
+    private Application application;
 
     public RecordingsForm(final ResourceBundle bundle, Table table) {
         this.bundle = bundle;
@@ -32,6 +37,7 @@ public class RecordingsForm extends Window {
     public void init(String id) {
         request = ((GenericPortletApplication) getApplication()).getPortletRequest();
         recording = createRecording(id);
+        application = (GenericPortletApplication) getApplication();
 
         VerticalLayout content = new VerticalLayout();
         content.addStyleName("formRegion");
@@ -47,16 +53,16 @@ public class RecordingsForm extends Window {
 
         } else {
             setCaption("New Recording");
-
-
-            HorizontalLayout uploadLayout = new HorizontalLayout();
-
-            recordingUploader = createRecordingUpload();
-            uploadLayout.addComponent(recordingUploader);
-
-            recordingUploader.init(recording);
-            content.addComponent(uploadLayout);
         }
+
+        HorizontalLayout uploadLayout = new HorizontalLayout();
+
+        recordingUploader = createRecordingUpload();
+        uploadLayout.addComponent(recordingUploader);
+
+        content.addComponent(uploadLayout);
+        recordingUploader.init(recording);
+
         HorizontalLayout buttons = createButtons(content);
 
         Button cancel = new Button("Cancel", new Button.ClickListener() {
@@ -72,7 +78,10 @@ public class RecordingsForm extends Window {
                     form.commit();
 
                     String name = (String) form.getField("name").getValue();
+                    Extension extension = (Extension) form.getField("extension").getValue();
+
                     recording.setName(name);
+                    recording.setExtensionId(extension.getId());
 
                     if (recording.getAttachments() == null) {
 
@@ -82,20 +91,46 @@ public class RecordingsForm extends Window {
 
                         service.addRecording(recording);
 
+                        Object object = table.addItem();
+                        Button delete = new Button("-");
+                        delete.setData(object);
+
                         if (null != recording.getRevision()) {
-                            table.removeItem(table.getValue());
+                            Integer itemId = (Integer) object;
+                            table.removeItem(itemId-1);
                             table.select(null);
                         }
 
-                        Object object = table.addItem();
                         Map<String, Attachment> attachmentMap = recording.getAttachments();
                         for (Map.Entry<String, Attachment> entry : attachmentMap.entrySet()) {
 
-                            table.getContainerProperty(object, "media file").setValue(entry.getKey());
-                            table.getContainerProperty(object, "name").setValue(recording.getName());
-                            table.getContainerProperty(object, "id").setValue(recording.getId());
-                        }
+                            String fileName = URLDecoder.decode(entry.getKey(), "UTF-8");
 
+                            table.getContainerProperty(object, "NAME").setValue(recording.getName());
+                            table.getContainerProperty(object, "FORWARD TO ON END").setValue(extension.getExtensionName());
+                            table.getContainerProperty(object, "MEDIA FILE").setValue(fileName);
+                            table.getContainerProperty(object, "id").setValue(recording.getId());
+                            table.getContainerProperty(object, "").setValue(delete);
+                            delete.addListener(new Button.ClickListener() {
+                                public void buttonClick(Button.ClickEvent event) {
+                                    String id = recording.getId();
+                                    Object object = event.getButton().getData();
+
+                                    if (null != id) {
+                                        ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
+
+                                        application.getWindow("settingWindow").addWindow(confirmingRemove);
+                                        confirmingRemove.initConfirm(id, table, object);
+                                        confirmingRemove.center();
+                                        confirmingRemove.setWidth("420px");
+                                        confirmingRemove.setHeight("180px");
+
+                                    } else {
+                                        getWindow().showNotification("Select Recording");
+                                    }
+                                }
+                            });
+                        }
                         getWindow().showNotification("Well done");
                         close();
                     }
@@ -124,11 +159,24 @@ public class RecordingsForm extends Window {
         name.setRequired(true);
         name.setRequiredError("Name must be not empty");
 
+        form.addField("name", name);
+
+        List<Extension> extensions = getExtensions();
+        final ComboBox extensionCombo = new ComboBox("Forward to");
+        extensionCombo.addItem("Select . . .");
+        for (Extension extension : extensions) {
+            extensionCombo.addItem(extension);
+        }
+        extensionCombo.setImmediate(true);
+        extensionCombo.setNullSelectionAllowed(false);
+        extensionCombo.setNullSelectionItemId("Select . . .");
+        extensionCombo.setRequired(true);
+        extensionCombo.setRequiredError("Select Extension");
+        form.addField("extension", extensionCombo);
+
         if (null != recording.getRevision() && !"".equals(recording.getRevision())) {
             name.setValue(recording.getName());
         }
-        form.addField("name", name);
-
         return form;
     }
 
@@ -165,4 +213,11 @@ public class RecordingsForm extends Window {
         return recording;
     }
 
+    private List<Extension> getExtensions() {
+        try {
+            return extensionService.getAllExtensionByUserId(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request));
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
+    }
 }

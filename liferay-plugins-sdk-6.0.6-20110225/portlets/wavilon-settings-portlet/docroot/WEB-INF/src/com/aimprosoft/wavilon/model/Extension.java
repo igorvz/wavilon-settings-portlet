@@ -4,23 +4,14 @@ import org.codehaus.jackson.annotate.JsonProperty;
 
 public class Extension extends BaseModel{
 
-    @JsonProperty("name")
-    private String name;
+    @JsonProperty("extensionName")
+    private String extensionName;
 
     @JsonProperty("extensionType")
     private String extensionType;
 
-    @JsonProperty("extensionId")
-    private int extensionId;
-
-    @JsonProperty("phoneNumber")
-    private String phoneNumber;
-
-    @JsonProperty("sipURL")
-    private String sipURL;
-
-    @JsonProperty("gTalk")
-    private String gTalk;
+    @JsonProperty("extensionDestination")
+    private String extensionDestination;
 
     public Extension(){
     }
@@ -30,12 +21,12 @@ public class Extension extends BaseModel{
         return "extension";
     }
 
-    public String getName() {
-        return name;
+    public String getExtensionName() {
+        return extensionName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setExtensionName(String extensionName) {
+        this.extensionName = extensionName;
     }
 
     public String getExtensionType() {
@@ -46,35 +37,16 @@ public class Extension extends BaseModel{
         this.extensionType = extensionType;
     }
 
-    public int getExtensionId() {
-        return extensionId;
+    public String getExtensionDestination() {
+        return extensionDestination;
     }
 
-    public void setExtensionId(int extensionId) {
-        this.extensionId = extensionId;
+    public void setExtensionDestination(String extensionDestination) {
+        this.extensionDestination = extensionDestination;
     }
 
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
-    public String getSipURL() {
-        return sipURL;
-    }
-
-    public void setSipURL(String sipURL) {
-        this.sipURL = sipURL;
-    }
-
-    public String getgTalk() {
-        return gTalk;
-    }
-
-    public void setgTalk(String gTalk) {
-        this.gTalk = gTalk;
+    @Override
+    public String toString() {
+        return getExtensionName();
     }
 }

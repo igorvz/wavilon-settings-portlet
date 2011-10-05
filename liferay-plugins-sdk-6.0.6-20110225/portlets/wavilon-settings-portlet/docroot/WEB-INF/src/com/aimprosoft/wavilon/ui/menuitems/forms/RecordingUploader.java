@@ -1,5 +1,6 @@
 package com.aimprosoft.wavilon.ui.menuitems.forms;
 
+import com.aimprosoft.wavilon.application.GenericPortletApplication;
 import com.aimprosoft.wavilon.model.Attachment;
 import com.aimprosoft.wavilon.model.Recording;
 import com.vaadin.terminal.Sizeable;
@@ -7,27 +8,30 @@ import com.vaadin.ui.*;
 import com.vaadin.ui.Upload.Receiver;
 import org.apache.commons.io.FileUtils;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
+import javax.portlet.PortletRequest;
+import java.io.*;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
 public class RecordingUploader extends VerticalLayout {
+    private static PortletRequest request;
 
     private ProgressIndicator pi = new ProgressIndicator();
-
     private UploadReceiver receiver = new UploadReceiver();
-
     private Upload upload = new Upload(null, receiver);
+    private File file;
+
+    private Recording recording;
 
     public RecordingUploader() {
     }
 
     public void init(final Recording recording) {
+        request = ((GenericPortletApplication) getApplication()).getPortletRequest();
+        this.recording = recording;
         setSpacing(true);
 
-        receiver.setSlow(true);
         upload.setImmediate(false);
 
         HorizontalLayout uploadLabel = new HorizontalLayout();
@@ -99,6 +103,10 @@ public class RecordingUploader extends VerticalLayout {
             public void updateProgress(long readBytes, long contentLength) {
                 // This method gets called several times during the update
                 pi.setValue(new Float(readBytes / (float) contentLength));
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException ignore) {
+                }
             }
         });
 
@@ -116,55 +124,33 @@ public class RecordingUploader extends VerticalLayout {
                 Attachment attachment = new Attachment();
                 attachment.setContentType(event.getMIMEType());
 
-                File file = new File(event.getFilename());
+                file = new File(event.getFilename());
                 try {
                     attachment.setData(FileUtils.readFileToByteArray(file));
                 } catch (IOException e) {
                 }
+                String fileName = "";
+                try {
+                    fileName = URLEncoder.encode(event.getFilename(), "UTF-8");
 
+                } catch (UnsupportedEncodingException ignore) {
+                }
                 Map<String, Attachment> data = new HashMap<String, Attachment>();
-                data.put(event.getFilename(), attachment);
+                data.put(fileName, attachment);
+
                 recording.setAttachments(data);
             }
         });
     }
 
-    public static class UploadReceiver implements Receiver {
-
-        private String fileName;
-        private String mtype;
-        private boolean sleep;
-        private int total = 0;
-
+    public class UploadReceiver implements Receiver {
         public OutputStream receiveUpload(String filename, String mimetype) {
-            fileName = filename;
-            mtype = mimetype;
-            return new OutputStream() {
-                @Override
-                public void write(int b) throws IOException {
-                    total++;
-                    if (sleep && total % 10000 == 0) {
-                        try {
-                            Thread.sleep(100);
-                        } catch (InterruptedException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            };
-        }
-
-        public String getFileName() {
-            return fileName;
-        }
-
-        public String getMimeType() {
-            return mtype;
-        }
-
-        public void setSlow(boolean value) {
-            sleep = value;
+            FileOutputStream fileOutputStream = null;
+            try {
+                fileOutputStream = new FileOutputStream(filename);
+            } catch (FileNotFoundException ignore) {
+            }
+            return fileOutputStream;
         }
     }
 };

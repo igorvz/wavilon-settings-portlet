@@ -21,6 +21,7 @@ public abstract class GenericPortletApplication extends Application implements P
         }
 
         Window window = new Window();
+        window.setName("settingWindow");
         setMainWindow(window);
     }
 

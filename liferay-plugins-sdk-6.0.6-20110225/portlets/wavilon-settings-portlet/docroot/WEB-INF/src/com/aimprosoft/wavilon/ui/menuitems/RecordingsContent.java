@@ -2,7 +2,9 @@ package com.aimprosoft.wavilon.ui.menuitems;
 
 import com.aimprosoft.wavilon.application.GenericPortletApplication;
 import com.aimprosoft.wavilon.model.Attachment;
+import com.aimprosoft.wavilon.model.Extension;
 import com.aimprosoft.wavilon.model.Recording;
+import com.aimprosoft.wavilon.service.ExtensionDatabaseService;
 import com.aimprosoft.wavilon.service.RecordingDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.ui.menuitems.forms.ConfirmingRemove;
@@ -15,18 +17,22 @@ import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 
 import javax.portlet.PortletRequest;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.*;
 
 public class RecordingsContent extends VerticalLayout {
     private ResourceBundle bundle;
     private static PortletRequest request;
     private RecordingDatabaseService service = ObjectFactory.getBean(RecordingDatabaseService.class);
+    private ExtensionDatabaseService serviceExtension = ObjectFactory.getBean(ExtensionDatabaseService.class);
     private List<String> hiddenFields;
     private RecordingsForm recordingsForm;
 
     private Table table = new Table();
     private List<String> tableFields;
     private IndexedContainer tableData;
+    private Extension extension = null;
 
     public RecordingsContent(ResourceBundle bundle) {
         this.bundle = bundle;
@@ -81,38 +87,13 @@ public class RecordingsContent extends VerticalLayout {
                 getForm("-1");
             }
         }));
-        addRemoveButtons.addComponent(new Button("-", new Button.ClickListener() {
-            public void buttonClick(Button.ClickEvent event) {
-                Object id = table.getValue();
-                if (null != id) {
-                    String recordingID = (String) table.getItem(id).getItemProperty("id").getValue();
-
-                    ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
-                    getWindow().addWindow(confirmingRemove);
-                    confirmingRemove.init(recordingID, table);
-                    confirmingRemove.center();
-                    confirmingRemove.setWidth("420px");
-                    confirmingRemove.setHeight("180px");
-                } else {
-                    getWindow().showNotification("Select Recording");
-                }
-            }
-        }));
-
         return addRemoveButtons;
     }
 
     private void getForm(String id) {
         recordingsForm = new RecordingsForm(bundle, table);
         recordingsForm.setWidth(410.0F, 0);
-
-        if ("-1".equals(id)) {
-            recordingsForm.setHeight(350.0F, 0);
-
-        } else {
-            recordingsForm.setHeight(220.0F, 0);
-
-        }
+        recordingsForm.setHeight(350.0F, 0);
         recordingsForm.center();
         recordingsForm.setModal(true);
 
@@ -135,7 +116,6 @@ public class RecordingsContent extends VerticalLayout {
                         getForm((String) event.getItem().getItemProperty("id").getValue());
                     }
                 }
-
             }
         });
     }
@@ -143,8 +123,10 @@ public class RecordingsContent extends VerticalLayout {
     private LinkedList<String> fillFields() {
         LinkedList<String> tableFields = new LinkedList<String>();
 
-        tableFields.add("name");
-        tableFields.add("media file");
+        tableFields.add("NAME");
+        tableFields.add("FORWARD TO ON END");
+        tableFields.add("MEDIA FILE");
+        tableFields.add("");
         tableFields.add("id");
 
         return tableFields;
@@ -156,22 +138,66 @@ public class RecordingsContent extends VerticalLayout {
         List<Recording> recordings = getRecordings();
 
         for (String field : tableFields) {
+            if ("".equals(field)) {
+                ic.addContainerProperty(field, Component.class, "");
+            }
             ic.addContainerProperty(field, String.class, "");
         }
 
         if (!recordings.isEmpty()) {
+
             for (Recording recording : recordings) {
-                Object object = ic.addItem();
+                final Object object = ic.addItem();
                 String fileName = "";
 
                 Map<String, Attachment> attachmentMap = recording.getAttachments();
                 for (Map.Entry<String, Attachment> entry : attachmentMap.entrySet()) {
-                    fileName = entry.getKey();
+
+                    try {
+                        fileName = URLDecoder.decode(entry.getKey(), "UTF-8");
+                    } catch (UnsupportedEncodingException ignore) {
+                    }
+                }
+                Map<String, Object> param = new HashMap<String, Object>();
+                param.put("id", recording.getId());
+                param.put("object", object);
+                Button delete = new Button("-");
+                delete.setData(param);
+
+                try {
+
+                    extension = serviceExtension.getExtension(recording.getExtensionId());
+
+                } catch (Exception ignore) {
+                    extension = new Extension();
+                    extension.setExtensionName("");
                 }
 
-                ic.getContainerProperty(object, "name").setValue(recording.getName());
-                ic.getContainerProperty(object, "media file").setValue(fileName);
+                ic.getContainerProperty(object, "NAME").setValue(recording.getName());
+                ic.getContainerProperty(object, "FORWARD TO ON END").setValue(extension.getExtensionName());
+                ic.getContainerProperty(object, "MEDIA FILE").setValue(fileName);
                 ic.getContainerProperty(object, "id").setValue(recording.getId());
+                ic.getContainerProperty(object, "").setValue(delete);
+
+                delete.addListener(new Button.ClickListener() {
+                    public void buttonClick(Button.ClickEvent event) {
+                        Map<String, Object> paramMap = (Map<String, Object>) event.getButton().getData();
+                        String id = (String) paramMap.get("id");
+                        Object object = paramMap.get("object");
+
+                        if (null != id) {
+
+                            ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
+                            getWindow().addWindow(confirmingRemove);
+                            confirmingRemove.initConfirm(id, table, object);
+                            confirmingRemove.center();
+                            confirmingRemove.setWidth("420px");
+                            confirmingRemove.setHeight("180px");
+                        } else {
+                            getWindow().showNotification("Select Recording");
+                        }
+                    }
+                });
             }
         }
         return ic;
@@ -188,10 +214,11 @@ public class RecordingsContent extends VerticalLayout {
     private List<String> fillHiddenFields() {
         LinkedList<String> tableFields = new LinkedList<String>();
 
-        tableFields.add("name");
-        tableFields.add("media file");
+        tableFields.add("NAME");
+        tableFields.add("FORWARD TO ON END");
+        tableFields.add("MEDIA FILE");
+        tableFields.add("");
 
         return tableFields;
     }
-
 }

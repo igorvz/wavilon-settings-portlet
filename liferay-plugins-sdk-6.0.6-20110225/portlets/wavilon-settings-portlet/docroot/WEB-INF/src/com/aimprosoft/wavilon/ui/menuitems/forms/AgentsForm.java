@@ -144,7 +144,7 @@ public class AgentsForm extends Window {
 
         List<Extension> extensionList = getExtensions();
         for (Extension extension : extensionList) {
-            extensions.add(extension.getName());
+            extensions.add(extension.getExtensionName());
         }
         Collections.sort(extensions);
         extensions.add(0,"Select . . .");

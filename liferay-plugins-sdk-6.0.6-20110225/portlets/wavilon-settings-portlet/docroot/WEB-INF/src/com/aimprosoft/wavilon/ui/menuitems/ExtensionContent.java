@@ -8,27 +8,25 @@ import com.aimprosoft.wavilon.ui.menuitems.forms.ConfirmingRemove;
 import com.aimprosoft.wavilon.ui.menuitems.forms.ExtensionForm;
 import com.liferay.portal.util.PortalUtil;
 import com.vaadin.data.Item;
+import com.vaadin.data.Property;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 
 import javax.portlet.PortletRequest;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class ExtensionContent extends VerticalLayout {
     private ResourceBundle bundle;
     private static PortletRequest request;
     private ExtensionDatabaseService extensionService = ObjectFactory.getBean(ExtensionDatabaseService.class);
     private List<String> hiddenFields;
-    private ExtensionForm extensionForm;
 
     private Table table = new Table();
     private List<String> tableFields;
     private IndexedContainer tableData;
+    private Object item;
 
     public ExtensionContent(ResourceBundle bundle) {
         this.bundle = bundle;
@@ -70,7 +68,7 @@ public class ExtensionContent extends VerticalLayout {
         headLabel.addStyleName("tableHeader");
         headLabel.addStyleName("extensionHeader");
 
-        HorizontalLayout addRemoveButtons = createButtons();
+        HorizontalLayout addRemoveButtons = createButton();
         head.addComponent(addRemoveButtons);
 
         head.setComponentAlignment(headLabel, Alignment.TOP_LEFT);
@@ -79,31 +77,14 @@ public class ExtensionContent extends VerticalLayout {
         return head;
     }
 
-    private HorizontalLayout createButtons() {
-        HorizontalLayout addRemoveButtons = new HorizontalLayout();
-        addRemoveButtons.addComponent(new Button("+", new Button.ClickListener() {
+    private HorizontalLayout createButton() {
+        HorizontalLayout addButton = new HorizontalLayout();
+        addButton.addComponent(new Button("+", new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
                 getForm("-1");
             }
         }));
-        addRemoveButtons.addComponent(new Button("-", new Button.ClickListener() {
-            public void buttonClick(Button.ClickEvent event) {
-                Object id = table.getValue();
-                if (null != id) {
-                    String extensionID = (String) table.getItem(id).getItemProperty("extensionIdBase").getValue();
-
-                    ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
-                    getWindow().addWindow(confirmingRemove);
-                    confirmingRemove.init(extensionID, table);
-                    confirmingRemove.center();
-                    confirmingRemove.setWidth("420px");
-                    confirmingRemove.setHeight("180px");
-                } else {
-                    getWindow().showNotification("Select Extension");
-                }
-            }
-        }));
-        return addRemoveButtons;
+        return addButton;
     }
 
     private void initExtension() {
@@ -118,58 +99,71 @@ public class ExtensionContent extends VerticalLayout {
                 if (event.isDoubleClick()) {
                     Item item = event.getItem();
                     if (null != item) {
-                        getForm((String) event.getItem().getItemProperty("extensionIdBase").getValue());
+                        getForm((String) event.getItem().getItemProperty("extensionId").getValue());
                     }
                 }
             }
         });
-    }
-
-    private LinkedList<String> fillFields() {
-        LinkedList<String> tableFields = new LinkedList<String>();
-
-        tableFields.add("id");
-        tableFields.add("name");
-        tableFields.add("extension type");
-        tableFields.add("destination");
-        tableFields.add("extensionIdBase");
-
-        return tableFields;
+        table.addListener(new Property.ValueChangeListener() {
+            public void valueChange(Property.ValueChangeEvent event) {
+                if (null != event.getProperty().getValue()) {
+                    item = event.getProperty().getValue();
+                }
+            }
+        });
     }
 
     private IndexedContainer createTableData() {
         IndexedContainer ic = new IndexedContainer();
         List<Extension> extensions = getExtension();
 
-        for (String field : tableFields) {
-            if ("id".equals(field)) {
-                ic.addContainerProperty(field, Integer.class, "");
+        for (String field : hiddenFields) {
+            if ("".equals(field)) {
 
-            } else {
-                ic.addContainerProperty(field, String.class, "");
+                ic.addContainerProperty(field, Button.class, "");
             }
+            ic.addContainerProperty(field, String.class, "");
         }
 
         if (!extensions.isEmpty()) {
 
             for (Extension extension : extensions) {
                 Object object = ic.addItem();
-                ic.getContainerProperty(object, "extensionIdBase").setValue(extension.getId());
-                ic.getContainerProperty(object, "id").setValue(extension.getLiferayOrganizationId());
-                ic.getContainerProperty(object, "name").setValue(extension.getName());
-                ic.getContainerProperty(object, "extension type").setValue(extension.getExtensionType());
 
-                String extensionType = extension.getExtensionType();
+                Button delete = new Button("-");
 
-                if ("Phone Number".equals(extensionType)) {
-                    ic.getContainerProperty(object, "destination").setValue(extension.getPhoneNumber());
+                Map<String, Object> param = new HashMap<String, Object>();
+                param.put("id", extension.getId());
+                param.put("object", object);
 
-                } else if ("SIP".equals(extensionType)) {
-                    ic.getContainerProperty(object, "destination").setValue(extension.getSipURL());
+                delete.setData(param);
 
-                } else if ("Gtalk".equals(extensionType)) {
-                    ic.getContainerProperty(object, "destination").setValue(extension.getgTalk());
-                }
+                ic.getContainerProperty(object, "extensionId").setValue(extension.getId());
+                ic.getContainerProperty(object, "ID").setValue(extension.getLiferayOrganizationId());
+                ic.getContainerProperty(object, "NAME").setValue(extension.getExtensionName());
+                ic.getContainerProperty(object, "EXTENSION TYPE").setValue(extension.getExtensionType());
+                ic.getContainerProperty(object, "DESTINATION").setValue(extension.getExtensionDestination());
+                ic.getContainerProperty(object, "").setValue(delete);
+
+                delete.addListener(new Button.ClickListener() {
+                    public void buttonClick(Button.ClickEvent event) {
+                        Map<String, Object> paramMap = (Map<String, Object>) event.getButton().getData();
+                        String id = (String) paramMap.get("id");
+                        Object object = paramMap.get("object");
+
+                        if (null != id) {
+
+                            ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
+                            getWindow().addWindow(confirmingRemove);
+                            confirmingRemove.initConfirm(id, table, object);
+                            confirmingRemove.center();
+                            confirmingRemove.setWidth("420px");
+                            confirmingRemove.setHeight("180px");
+                        } else {
+                            getWindow().showNotification("Select Recording");
+                        }
+                    }
+                });
             }
         }
         return ic;
@@ -183,19 +177,9 @@ public class ExtensionContent extends VerticalLayout {
         }
     }
 
-    private List<String> fillHiddenFields() {
-        LinkedList<String> tableFields = new LinkedList<String>();
-
-        tableFields.add("id");
-        tableFields.add("name");
-        tableFields.add("extension type");
-        tableFields.add("destination");
-
-        return tableFields;
-    }
-
     private void getForm(String id) {
-        extensionForm = new ExtensionForm(bundle, table);
+        ExtensionForm extensionForm = new ExtensionForm(bundle, this.table);
+        extensionForm.setItem(this.item);
         extensionForm.setWidth("400px");
         extensionForm.setHeight("300px");
         extensionForm.center();
@@ -203,5 +187,30 @@ public class ExtensionContent extends VerticalLayout {
 
         getWindow().addWindow(extensionForm);
         extensionForm.init(id);
+    }
+
+    private List<String> fillHiddenFields() {
+        LinkedList<String> tableFields = new LinkedList<String>();
+
+        tableFields.add("extensionId");
+        tableFields.add("ID");
+        tableFields.add("NAME");
+        tableFields.add("EXTENSION TYPE");
+        tableFields.add("DESTINATION");
+        tableFields.add("");
+
+        return tableFields;
+    }
+
+    private LinkedList<String> fillFields() {
+        LinkedList<String> tableFields = new LinkedList<String>();
+
+        tableFields.add("ID");
+        tableFields.add("NAME");
+        tableFields.add("EXTENSION TYPE");
+        tableFields.add("DESTINATION");
+        tableFields.add("");
+
+        return tableFields;
     }
 }
