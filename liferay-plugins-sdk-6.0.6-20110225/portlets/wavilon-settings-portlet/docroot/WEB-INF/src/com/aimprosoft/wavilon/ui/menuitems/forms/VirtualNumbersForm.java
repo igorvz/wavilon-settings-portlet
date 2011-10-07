@@ -1,24 +1,32 @@
 package com.aimprosoft.wavilon.ui.menuitems.forms;
 
 import com.aimprosoft.wavilon.application.GenericPortletApplication;
+import com.aimprosoft.wavilon.couch.CouchModel;
+import com.aimprosoft.wavilon.couch.CouchModelLite;
+import com.aimprosoft.wavilon.couch.CouchTypes;
 import com.aimprosoft.wavilon.model.VirtualNumber;
+import com.aimprosoft.wavilon.service.CouchModelLiteDatabaseService;
 import com.aimprosoft.wavilon.service.VirtualNumberDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
+import com.aimprosoft.wavilon.util.CouchModelUtil;
 import com.liferay.portal.util.PortalUtil;
+import com.vaadin.Application;
 import com.vaadin.data.validator.RegexpValidator;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 
 import javax.portlet.PortletRequest;
-import java.util.ResourceBundle;
-import java.util.UUID;
+import java.util.*;
 
 public class VirtualNumbersForm extends Window {
     private VirtualNumberDatabaseService service = ObjectFactory.getBean(VirtualNumberDatabaseService.class);
+    CouchModelLiteDatabaseService modelLiteDatabaseService = ObjectFactory.getBean(CouchModelLiteDatabaseService.class);
     private ResourceBundle bundle;
     private PortletRequest request;
     private Table table;
     private VirtualNumber virtualNumber;
+    private Application application;
+    private CouchModel model;
 
 
     public VirtualNumbersForm(ResourceBundle bundle, Table table) {
@@ -26,9 +34,12 @@ public class VirtualNumbersForm extends Window {
         this.table = table;
     }
 
-    public void init(String id) {
+    public void init(String id, final Object itemId) {
         request = ((GenericPortletApplication) getApplication()).getPortletRequest();
-        virtualNumber = createVirtualNumber(id);
+        virtualNumber = new VirtualNumber();
+        model = createModel(id);
+
+        application = getApplication();
 
         if ("-1".equals(id)) {
             setCaption("New Virtual Number");
@@ -64,22 +75,45 @@ public class VirtualNumbersForm extends Window {
                     form.commit();
 
                     String name = (String) form.getField("name").getValue();
-                    String number = (String)  form.getField("number").getValue();
-
+                    String number = (String) form.getField("number").getValue();
+                    CouchModel forwardCallTo = (CouchModel) form.getField("forwardCallTo").getValue();
                     virtualNumber.setName(name);
-                    virtualNumber.setNumber(number);
+                    virtualNumber.setLocator(number);
 
-                    service.addVirtualNumber(virtualNumber);
+                    model.setType(CouchTypes.startnode);
 
-                    if (null != virtualNumber.getRevision()) {
-                        table.removeItem(table.getValue());
+                    Map<String, Object> extensionOut = new HashMap<String, Object>();
+                    extensionOut.put("extension", forwardCallTo.getId());
+
+                    model.setOutputs(extensionOut);
+                    service.addVirtualNumber(virtualNumber, model);
+
+                    if (null != model.getRevision()) {
+                        table.removeItem(itemId);
                         table.select(null);
                     }
 
-                    Object object = table.addItem();
-                    table.getContainerProperty(object, "NUMBER").setValue(virtualNumber.getNumber());
+                    final Object object = table.addItem();
+
+                    Button.ClickListener listener = new Button.ClickListener() {
+                        public void buttonClick(Button.ClickEvent event) {
+                            table.select(object);
+                            String phoneNumbersID = (String) table.getItem(object).getItemProperty("id").getValue();
+                            ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
+                            application.getMainWindow().addWindow(confirmingRemove);
+                            confirmingRemove.init(phoneNumbersID, table);
+                            confirmingRemove.center();
+                            confirmingRemove.setWidth("300px");
+                            confirmingRemove.setHeight("180px");
+                        }
+                    };
+
+                    table.getContainerProperty(object, "NUMBER").setValue(model.getProperties().get("locator"));
                     table.getContainerProperty(object, "NAME").setValue(virtualNumber.getName());
-                    table.getContainerProperty(object, "id").setValue(virtualNumber.getId());
+                    table.getContainerProperty(object, "id").setValue(model.getId());
+                    table.getContainerProperty(object, "FORWARD CALLS TO").setValue(forwardCallTo.getProperties().get("name"));
+                    table.getContainerProperty(object, "").setValue(new Button("-", listener));
+
 
                     getWindow().showNotification("Well done");
                     close();
@@ -90,32 +124,12 @@ public class VirtualNumbersForm extends Window {
         buttons.addComponent(save);
     }
 
-    private VirtualNumber createVirtualNumber(String id) {
-        if ("-1".equals(id)) {
-            return newVirtualNumber();
-        }
+    private CouchModel createModel(String id) {
         try {
-            return service.getVirtualNumber(id);
+            return service.getModel(id);
         } catch (Exception e) {
-            return newVirtualNumber();
+            return CouchModelUtil.newCouchModel(request, CouchTypes.startnode);
         }
-
-    }
-
-    private VirtualNumber newVirtualNumber() {
-        VirtualNumber newVirtualNumber = new VirtualNumber();
-
-        try {
-            newVirtualNumber.setId(UUID.randomUUID().toString());
-            newVirtualNumber.setLiferayUserId(PortalUtil.getUserId(request));
-            newVirtualNumber.setLiferayOrganizationId(PortalUtil.getScopeGroupId(request));
-            newVirtualNumber.setLiferayPortalId(PortalUtil.getCompany(request).getWebId());
-        } catch (Exception ignored) {
-        }
-
-        newVirtualNumber.setName("");
-        newVirtualNumber.setNumber("");
-        return newVirtualNumber;
     }
 
     private Form createForm() {
@@ -132,12 +146,25 @@ public class VirtualNumbersForm extends Window {
         number.addValidator(new RegexpValidator("[+][0-9]{10}", "<div align=\"center\">Number must be numeric, begin with + <br/>and consist of 10 digit</div>"));
 
 
-        if (null != virtualNumber.getRevision() && !"".equals(virtualNumber.getRevision())) {
-            name.setValue(virtualNumber.getName());
-            number.setValue(virtualNumber.getNumber());
+        List<CouchModelLite> forwards = getExtensions();
+        ComboBox forwardCallTo = new ComboBox("Forward calls to");
+        forwardCallTo.addItem("Select . . .");
+        for (CouchModelLite forward : forwards) {
+            forwardCallTo.addItem(forward);
+        }
+        forwardCallTo.setImmediate(true);
+        forwardCallTo.setNullSelectionItemId("Select . . .");
+        forwardCallTo.setRequired(true);
+        name.setRequiredError("Empty field \"Forward calls to\"");
+
+        if (null != model.getRevision() && !"".equals(model.getRevision())) {
+            name.setValue(model.getProperties().get("name"));
+            number.setValue(model.getProperties().get("locator"));
+            number.setReadOnly(true);
         }
         form.addField("name", name);
         form.addField("number", number);
+        form.addField("forwardCallTo", forwardCallTo);
 
         return form;
     }
@@ -159,6 +186,16 @@ public class VirtualNumbersForm extends Window {
         content.setComponentAlignment(buttons, Alignment.BOTTOM_RIGHT);
 
         return buttons;
+    }
+
+    private List<CouchModelLite> getExtensions() {
+
+        try {
+
+            return modelLiteDatabaseService.getAllCouchModelsLite(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request), CouchTypes.extension);
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
     }
 
 }

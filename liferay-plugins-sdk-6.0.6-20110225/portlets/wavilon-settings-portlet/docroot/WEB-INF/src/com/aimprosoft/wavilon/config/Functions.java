@@ -25,7 +25,6 @@ public class Functions {
     @Value("${fetch.all.phone.numbers}")
     private String allPhoneNumbers;
 
-
     @Value("${fetch.all.extensions.gtalk}")
     private String allExtensionGtalkFunction;
 
@@ -37,6 +36,12 @@ public class Functions {
 
     @Value("${fetch.all.virtual.numbers}")
     private String allVirtualNumbers;
+
+    @Value("${fetch.all.couch.model.lite.name}")
+    private String couchModelLiteName;
+
+    @Value("${fetch.all.couch.model.lite}")
+    private String allCouchModelLite;
 
     public String getAllDocumentFunction() {
         return allDocumentFunction;
@@ -82,4 +87,11 @@ public class Functions {
        return allVirtualNumbers;
     }
 
+    public String getCouchModelLiteName() {
+        return couchModelLiteName;
+    }
+
+    public String getAllCouchModelLite() {
+        return allCouchModelLite;
+    }
 }

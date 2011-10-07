@@ -1,44 +1,43 @@
 package com.aimprosoft.wavilon.service.impl;
 
+import com.aimprosoft.wavilon.couch.CouchModel;
 import com.aimprosoft.wavilon.model.Recording;
 import com.aimprosoft.wavilon.service.RecordingDatabaseService;
 import com.aimprosoft.wavilon.util.FormatUtil;
 import com.fourspaces.couchdb.Document;
 import com.fourspaces.couchdb.ViewResults;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
-public class RecordingCouchDBServiceImpl extends AbstractCouchDBService implements RecordingDatabaseService {
+@Service
+public class RecordingCouchDBServiceImpl implements RecordingDatabaseService {
+    @Autowired
+    private CouchDBService couchDBService;
 
-    public void addRecording(Recording recording) throws IOException {
-        updateRecording(recording);
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    private Recording getRecording(String id) throws IOException {
+        CouchModel model = getModel(id);
+        return objectMapper.convertValue(model.getProperties(), Recording.class);
     }
 
-    public Recording getRecording(String id) throws IOException {
-        return (Recording) getModelById(id, true);
+    public Recording getRecording(CouchModel model) throws IOException {
+        return objectMapper.convertValue(model.getProperties(), Recording.class);
     }
 
-    public List<Recording> getAllRecordings() throws IOException {
-        ViewResults viewResults = database.adhoc(functions.getAllRecordingFunction());
-
-        List<Recording> recordingList = new LinkedList<Recording>();
-
-        for (Document doc : viewResults.getResults()) {
-            Recording recording = getRecording(doc.getId());
-
-            recordingList.add(recording);
-        }
-
-        return recordingList;
+    public CouchModel getModel(String id) throws IOException {
+        return couchDBService.getModelById(id, true);
     }
 
-    public List<Recording> getAllRecordingsByUserId(Long userId, Long organizationId) throws IOException {
-        String formattedFunction = FormatUtil.formatFunction(functions.getBaseModelsByUserAndTypeFunction(), "recording", userId, organizationId);
-
-        ViewResults viewResults = database.adhoc(formattedFunction);
-
+    public List<Recording> getAllRecording() throws IOException {
+        ViewResults viewResults = couchDBService.database.adhoc(couchDBService.functions.getAllRecordingFunction());
         List<Recording> recordingList = new LinkedList<Recording>();
 
         for (Document doc : viewResults.getResults()) {
@@ -50,16 +49,39 @@ public class RecordingCouchDBServiceImpl extends AbstractCouchDBService implemen
         return recordingList;
     }
 
-    public void removeRecording(Recording recording) throws IOException {
-        removeModel(recording);
+    public void updateRecording(Recording recording, CouchModel model) throws IOException {
+        Map<String, Object> properties = objectMapper.convertValue(recording, Map.class);
+
+        model.setProperties(properties);
+
+        couchDBService.updateModel(model);
+    }
+
+    public List<CouchModel> getAllUsersCouchModelToRecording(Long userId, Long organizationId) throws IOException {
+        String formattedFunction = FormatUtil.formatFunction(couchDBService.functions.getBaseModelsByUserAndTypeFunction(), "recording", userId, organizationId);
+
+        ViewResults viewResults = couchDBService.database.adhoc(formattedFunction);
+
+        List<CouchModel> modelList = new LinkedList<CouchModel>();
+
+        for (Document doc : viewResults.getResults()) {
+
+            CouchModel model = getModel(doc.getId());
+
+            modelList.add(model);
+        }
+        return modelList;
+    }
+
+    public void addRecording(Recording recording, CouchModel model) throws IOException {
+        updateRecording(recording, model);
+    }
+
+    public void removeRecording(CouchModel model) throws IOException {
+        couchDBService.removeModel(model);
     }
 
     public void removeRecording(String id) throws IOException {
-        removeModelById(id);
-    }
-
-    @SuppressWarnings("unchecked")
-    public void updateRecording(Recording recording) throws IOException {
-        updateModel(recording);
+        couchDBService.removeModelById(id);
     }
 }

@@ -1,6 +1,6 @@
 package com.aimprosoft.wavilon.ui.menuitems.forms;
 
-import com.aimprosoft.wavilon.service.PhoneNumberDatabaseService;
+import com.aimprosoft.wavilon.service.ExtensionDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
@@ -8,7 +8,7 @@ import com.vaadin.ui.*;
 import java.util.ResourceBundle;
 
 public class ConfirmingRemove extends Window {
-    private PhoneNumberDatabaseService service = (PhoneNumberDatabaseService) ObjectFactory.getBean(PhoneNumberDatabaseService.class);
+    private ExtensionDatabaseService service = ObjectFactory.getBean(ExtensionDatabaseService.class);
     ResourceBundle bundle;
     public ConfirmingRemove(ResourceBundle bundle) {
         this.bundle = bundle;
@@ -51,7 +51,7 @@ public class ConfirmingRemove extends Window {
         ok.addListener(new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
                 try {
-                    service.removePhoneNumber(id);
+                    service.removeExtension(id);
                 } catch (Exception ignored) {
                 }
 
@@ -82,7 +82,7 @@ public class ConfirmingRemove extends Window {
         ok.addListener(new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
                 try {
-                    service.removePhoneNumber(id);
+                    service.removeExtension(id);
                 } catch (Exception ignored) {
                 }
 

@@ -1,7 +1,10 @@
 package com.aimprosoft.wavilon.ui.menuitems;
 
 import com.aimprosoft.wavilon.application.GenericPortletApplication;
+import com.aimprosoft.wavilon.couch.CouchModel;
+import com.aimprosoft.wavilon.couch.CouchModelLite;
 import com.aimprosoft.wavilon.model.Queue;
+import com.aimprosoft.wavilon.service.CouchModelLiteDatabaseService;
 import com.aimprosoft.wavilon.service.QueueDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.ui.menuitems.forms.ConfirmingRemove;
@@ -16,6 +19,7 @@ import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 
 import javax.portlet.PortletRequest;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,6 +33,7 @@ public class QueuesContent extends VerticalLayout {
     private List<String> hiddenFields;
     private Table queuesTable = new Table();
     private QueueDatabaseService service = ObjectFactory.getBean(QueueDatabaseService.class);
+    private CouchModelLiteDatabaseService modelLiteService = ObjectFactory.getBean(CouchModelLiteDatabaseService.class);
     private QueuesForm queuesForm;
     private VerticalLayout bottom;
 
@@ -46,16 +51,6 @@ public class QueuesContent extends VerticalLayout {
         setSizeUndefined();
         initLayout();
         initQueuesTable();
-    }
-
-    private List<String> fillFields() {
-        List<String> tableFields = new LinkedList<String>();
-
-        tableFields.add("NAME");
-        tableFields.add("EXTENSION ON MAX. TIME");
-        tableFields.add("EXTENSION ON MAX. LENGTH");
-
-        return tableFields;
     }
 
     private void initLayout() {
@@ -102,7 +97,7 @@ public class QueuesContent extends VerticalLayout {
                     String queueId = (String) queuesTable.getItem(id).getItemProperty("id").getValue();
                     getAgentsTwinColumns(queueId);
                 } else {
-                  bottom.removeAllComponents();
+                    bottom.removeAllComponents();
                 }
             }
         });
@@ -125,29 +120,67 @@ public class QueuesContent extends VerticalLayout {
 
     private IndexedContainer createTableData() {
         IndexedContainer ic = new IndexedContainer();
-        List<Queue> numbers = getQueues();
 
-        for (String field : this.hiddenFields) {
-            ic.addContainerProperty(field, String.class, "");
+        List<CouchModel> couchModels = getCouchModels();
+
+        for (String field : hiddenFields) {
+            if ("".equals(field)) {
+                ic.addContainerProperty(field, Button.class, "");
+            } else {
+                ic.addContainerProperty(field, String.class, "");
+            }
         }
 
-        for (Queue queue : numbers) {
-            Object object = ic.addItem();
-            ic.getContainerProperty(object, "NAME").setValue(queue.getName());
-            ic.getContainerProperty(object, "EXTENSION ON MAX. TIME").setValue(queue.getExtensionOnMaxTime());
-            ic.getContainerProperty(object, "EXTENSION ON MAX. LENGTH").setValue(queue.getExtensionOnMaxLength());
-            ic.getContainerProperty(object, "id").setValue(queue.getId());
-        }
+        if (!couchModels.isEmpty()) {
 
+            for (final CouchModel couchModel : couchModels) {
+                Queue queue = getQueue(couchModel);
+                CouchModelLite forwardToOnMaxLength = getCouchModelLite(queue.getForwardToOnMaxLength());
+                CouchModelLite forwardToOnMaxTime = getCouchModelLite(queue.getForwardToOnMaxTime());
+                final Object object = ic.addItem();
+                ic.getContainerProperty(object, "NAME").setValue(queue.getName());
+                ic.getContainerProperty(object, "FORWARD TO ON MAX. TIME").setValue(forwardToOnMaxTime);
+                ic.getContainerProperty(object, "FORWARD TO ON MAX. LENGTH").setValue(forwardToOnMaxLength);
+                ic.getContainerProperty(object, "id").setValue(couchModel.getId());
+                ic.getContainerProperty(object, "").setValue(new Button("-", new Button.ClickListener() {
+                    public void buttonClick(Button.ClickEvent event) {
+                        queuesTable.select(object);
+                        ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
+                        getWindow().addWindow(confirmingRemove);
+                        confirmingRemove.init(couchModel.getId(), queuesTable);
+                        confirmingRemove.center();
+                        confirmingRemove.setWidth("300px");
+                        confirmingRemove.setHeight("180px");
+                    }
+                }));
+
+            }
+        }
         return ic;
     }
 
-    private List<Queue> getQueues() {
+    private CouchModelLite getCouchModelLite(String id) {
         try {
-            return service.getAllQueuesByUser(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request));
-        } catch (Exception ignored) {
+            return modelLiteService.getCouchLiteModel(id);
+        } catch (IOException e) {
+            return new CouchModelLite();
         }
-        return Collections.emptyList();
+    }
+
+    private Queue getQueue(CouchModel couchModel) {
+        try {
+            return service.getQueue(couchModel);
+        } catch (IOException e) {
+        return new Queue();
+        }
+    }
+
+    private List<CouchModel> getCouchModels() {
+        try {
+            return service.getAllUsersCouchModelQueue(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request));
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
     }
 
     public HorizontalLayout createHead() {
@@ -221,11 +254,23 @@ public class QueuesContent extends VerticalLayout {
         List<String> hiddenFields = new LinkedList<String>();
 
         hiddenFields.add("NAME");
-        hiddenFields.add("EXTENSION ON MAX. TIME");
-        hiddenFields.add("EXTENSION ON MAX. LENGTH");
+        hiddenFields.add("FORWARD TO ON MAX. TIME");
+        hiddenFields.add("FORWARD TO ON MAX. LENGTH");
         hiddenFields.add("id");
+        hiddenFields.add("");
 
         return hiddenFields;
+    }
+
+    private List<String> fillFields() {
+        List<String> tableFields = new LinkedList<String>();
+
+        tableFields.add("NAME");
+        tableFields.add("FORWARD TO ON MAX. TIME");
+        tableFields.add("FORWARD TO ON MAX. LENGTH");
+        tableFields.add("");
+
+        return tableFields;
     }
 
 

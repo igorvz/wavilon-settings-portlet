@@ -1,5 +1,6 @@
 package com.aimprosoft.wavilon.service;
 
+import com.aimprosoft.wavilon.couch.CouchModel;
 import com.aimprosoft.wavilon.model.Recording;
 
 import java.io.IOException;
@@ -7,17 +8,19 @@ import java.util.List;
 
 public interface RecordingDatabaseService {
 
-    void addRecording(Recording recording) throws IOException;
+    Recording getRecording(CouchModel model) throws IOException;
 
-    Recording getRecording(String id) throws IOException;
+    CouchModel getModel(String id) throws IOException;
 
-    List<Recording> getAllRecordings() throws IOException;
+    List<Recording> getAllRecording() throws IOException;
 
-    List<Recording> getAllRecordingsByUserId(Long userId, Long organizationId) throws IOException;
+    void updateRecording(Recording recording, CouchModel model) throws IOException;
 
-    void removeRecording(Recording recording) throws IOException;
+    List<CouchModel> getAllUsersCouchModelToRecording(Long userId, Long organizationId) throws IOException;
+
+    void addRecording(Recording recording, CouchModel model) throws IOException;
+
+    void removeRecording(CouchModel model) throws IOException;
 
     void removeRecording(String id) throws IOException;
-
-    void updateRecording(Recording recording) throws IOException;
 }

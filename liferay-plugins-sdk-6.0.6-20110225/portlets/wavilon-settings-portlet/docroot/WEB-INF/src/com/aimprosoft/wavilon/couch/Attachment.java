@@ -1,10 +1,10 @@
-package com.aimprosoft.wavilon.model;
+package com.aimprosoft.wavilon.couch;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.annotate.JsonRawValue;
 
-@JsonIgnoreProperties(value = {"id", "liferayUserId", "liferayOrganizationId", "liferayPortalId", "revision"}, ignoreUnknown = true)
+@JsonIgnoreProperties(value = {"contentType"}, ignoreUnknown = true)
 public class Attachment {
 
     @JsonProperty("content_type")

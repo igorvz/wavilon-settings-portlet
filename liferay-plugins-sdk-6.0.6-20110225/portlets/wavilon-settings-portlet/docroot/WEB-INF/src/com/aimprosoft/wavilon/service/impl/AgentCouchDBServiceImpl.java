@@ -1,65 +1,95 @@
 package com.aimprosoft.wavilon.service.impl;
 
+import com.aimprosoft.wavilon.couch.CouchModel;
+import com.aimprosoft.wavilon.couch.CouchTypes;
 import com.aimprosoft.wavilon.model.Agent;
 import com.aimprosoft.wavilon.service.AgentDatabaseService;
 import com.aimprosoft.wavilon.util.FormatUtil;
 import com.fourspaces.couchdb.Document;
 import com.fourspaces.couchdb.ViewResults;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
-public class AgentCouchDBServiceImpl extends AbstractCouchDBService implements AgentDatabaseService {
+@Service
+public class AgentCouchDBServiceImpl implements AgentDatabaseService {
+    @Autowired
+    private CouchDBService couchDBService;
 
-    public void addAgent(Agent agent) throws IOException {
-        updateAgent(agent);
-    }
+    @Autowired
+    private ObjectMapper objectMapper;
+
 
     public Agent getAgent(String id) throws IOException {
-        return (Agent) getModelById(id);
+        CouchModel model = getModel(id);
+        return objectMapper.convertValue(model.getProperties(), Agent.class);
     }
 
-    public List<Agent> getAllAgents() throws IOException {
-        ViewResults viewResults = database.adhoc(functions.getAllAgentFunction());
+    public Agent getAgent(CouchModel model) throws IOException {
+        return objectMapper.convertValue(model.getProperties(), Agent.class);
+    }
 
-        List<Agent> agentList = new LinkedList<Agent>();
+    public CouchModel getModel(String id) throws IOException {
+        return couchDBService.getModelById(id);
+    }
+
+    public List<Agent> getAllAgent() throws IOException {
+
+        ViewResults viewResults = couchDBService.database.adhoc(couchDBService.functions.getAllAgentFunction());
+        List<Agent> extensionList = new LinkedList<Agent>();
 
         for (Document doc : viewResults.getResults()) {
-            Agent agent = getAgent(doc.getId());
 
-            agentList.add(agent);
+            Agent extension = getAgent(doc.getId());
+
+            extensionList.add(extension);
         }
-
-        return agentList;
+        return extensionList;
     }
 
-    public void removeAgent(Agent agent) throws IOException {
-        removeModel(agent);
+    public void updateAgent(Agent agent, CouchModel model, String extension) throws IOException {
+        Map<String, Object> properties = objectMapper.convertValue(agent, Map.class);
+        Map<String, Object> outputs = new HashMap<String, Object>();
+        outputs.put("extension", extension);
+
+        model.setProperties(properties);
+        model.setOutputs(outputs);
+
+        couchDBService.updateModel(model);
+    }
+
+    public List<CouchModel> getAllUsersCouchModelAgent(Long userId, Long organizationId) throws IOException {
+
+        String formattedFunction = FormatUtil.formatFunction(couchDBService.functions.getBaseModelsByUserAndTypeFunction(), CouchTypes.agent, userId, organizationId);
+
+        ViewResults viewResults = couchDBService.database.adhoc(formattedFunction);
+
+        List<CouchModel> modelList = new LinkedList<CouchModel>();
+
+        for (Document doc : viewResults.getResults()) {
+
+            CouchModel model = getModel(doc.getId());
+
+            modelList.add(model);
+        }
+        return modelList;
+    }
+
+    public void addAgent(Agent agent, CouchModel model, String extension) throws IOException {
+        updateAgent(agent, model, extension);
+    }
+
+    public void removeAgent(CouchModel model) throws IOException {
+        couchDBService.removeModel(model);
     }
 
     public void removeAgent(String id) throws IOException {
-        removeModelById(id);
+        couchDBService.removeModelById(id);
     }
-
-    public void updateAgent(Agent agent) throws IOException {
-        updateModel(agent);
-    }
-
-    public List<Agent> getAllAgentsByUser(Long userId, Long organizationId) throws IOException {
-        String formattedFunction = FormatUtil.formatFunction(functions.getBaseModelsByUserAndTypeFunction(), "agent", userId, organizationId);
-
-       ViewResults viewResults = database.adhoc(formattedFunction);
-
-        List<Agent> agentList = new LinkedList<Agent>();
-
-        for (Document doc : viewResults.getResults()) {
-            Agent agent = getAgent(doc.getId());
-
-            agentList.add(agent);
-        }
-
-        return agentList;
-    }
-
 }

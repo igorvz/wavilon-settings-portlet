@@ -1,8 +1,8 @@
 package com.aimprosoft.wavilon.ui.menuitems.forms;
 
 import com.aimprosoft.wavilon.application.GenericPortletApplication;
-import com.aimprosoft.wavilon.model.Attachment;
-import com.aimprosoft.wavilon.model.Recording;
+import com.aimprosoft.wavilon.couch.Attachment;
+import com.aimprosoft.wavilon.couch.CouchModel;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 import com.vaadin.ui.Upload.Receiver;
@@ -22,14 +22,11 @@ public class RecordingUploader extends VerticalLayout {
     private Upload upload = new Upload(null, receiver);
     private File file;
 
-    private Recording recording;
-
     public RecordingUploader() {
     }
 
-    public void init(final Recording recording) {
+    public void init(final CouchModel model) {
         request = ((GenericPortletApplication) getApplication()).getPortletRequest();
-        this.recording = recording;
         setSpacing(true);
 
         upload.setImmediate(false);
@@ -138,7 +135,7 @@ public class RecordingUploader extends VerticalLayout {
                 Map<String, Attachment> data = new HashMap<String, Attachment>();
                 data.put(fileName, attachment);
 
-                recording.setAttachments(data);
+                model.setAttachments(data);
             }
         });
     }

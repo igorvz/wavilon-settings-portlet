@@ -1,11 +1,15 @@
 package com.aimprosoft.wavilon.ui.menuitems.forms;
 
 import com.aimprosoft.wavilon.application.GenericPortletApplication;
-import com.aimprosoft.wavilon.model.Agent;
+import com.aimprosoft.wavilon.couch.CouchModel;
+import com.aimprosoft.wavilon.couch.CouchModelLite;
+import com.aimprosoft.wavilon.couch.CouchTypes;
 import com.aimprosoft.wavilon.model.Queue;
 import com.aimprosoft.wavilon.service.AgentDatabaseService;
+import com.aimprosoft.wavilon.service.CouchModelLiteDatabaseService;
 import com.aimprosoft.wavilon.service.QueueDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
+import com.aimprosoft.wavilon.util.CouchModelUtil;
 import com.liferay.portal.util.PortalUtil;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
@@ -20,17 +24,21 @@ import com.vaadin.ui.*;
 
 import javax.portlet.PortletRequest;
 import java.io.IOException;
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ResourceBundle;
 
 public class QueuesDragAndDropAgents extends HorizontalLayout {
 
 
     private QueueDatabaseService queuesService = ObjectFactory.getBean(QueueDatabaseService.class);
-    private AgentDatabaseService agentsService = ObjectFactory.getBean(AgentDatabaseService.class);
+    private CouchModelLiteDatabaseService modelLiteService = ObjectFactory.getBean(CouchModelLiteDatabaseService.class);
+    private AgentDatabaseService agentService =  ObjectFactory.getBean(AgentDatabaseService.class);
     private ResourceBundle bundle;
     private PortletRequest request;
+    private CouchModel model;
     private Queue queue;
-
 
     public QueuesDragAndDropAgents(ResourceBundle bundle) {
         this.bundle = bundle;
@@ -38,7 +46,9 @@ public class QueuesDragAndDropAgents extends HorizontalLayout {
 
     public void init(String id) {
         request = ((GenericPortletApplication) getApplication()).getPortletRequest();
-        createQueue(id);
+        model = createModel(id);
+        queue = createQueue(model);
+
         initLayout();
     }
 
@@ -46,13 +56,13 @@ public class QueuesDragAndDropAgents extends HorizontalLayout {
         setWidth(100, Sizeable.UNITS_PERCENTAGE);
         setHeight(250, Sizeable.UNITS_PIXELS);
 
-        List<Agent> availableAgentList = Collections.emptyList();
+        List<CouchModel> availableAgentList = Collections.emptyList();
         try {
-            availableAgentList = agentsService.getAllAgentsByUser(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request));
+            availableAgentList = agentService.getAllUsersCouchModelAgent(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request));
         } catch (Exception ignored) {
         }
 
-        final List<Agent> agentsInQueueList = getQueuesAgents();
+        final List<CouchModel> agentsInQueueList = getQueuesAgents();
         availableAgentList.removeAll(agentsInQueueList);
 
         final List<String> tableVisibleFields = createVisible();
@@ -94,12 +104,11 @@ public class QueuesDragAndDropAgents extends HorizontalLayout {
                 Object object = agentsInQueue.addItem();
                 Item item = t.getSourceContainer().getItem(sourceItemId);
 
-                List<String> queuesAgents = queue.getAgents();
+                List<String> queuesAgents = (List<String>) model.getOutputs().get("agents");
                 queuesAgents.add(item.getItemProperty("id").getValue().toString());
-                queue.setAgents(queuesAgents);
                 try {
-                    queuesService.updateQueue(queue);
-                    queue = queuesService.getQueue(queue.getId());
+                    queuesService.updateQueue(queue, model, queuesAgents);
+                    model = queuesService.getModel(model.getId());
                 } catch (IOException ignored) {
                 }
 
@@ -125,12 +134,11 @@ public class QueuesDragAndDropAgents extends HorizontalLayout {
                 Item item = t.getSourceContainer().getItem(sourceItemId);
 
 
-                List<String> queuesAgents = queue.getAgents();
+                List<String> queuesAgents = (List<String>) model.getOutputs().get("agents");
                 queuesAgents.remove(item.getItemProperty("id").getValue().toString());
-                queue.setAgents(queuesAgents);
                 try {
-                    queuesService.updateQueue(queue);
-                    queue = queuesService.getQueue(queue.getId());
+                    queuesService.updateQueue(queue, model, queuesAgents);
+                    model = queuesService.getModel(model.getId());
                 } catch (IOException ignored) {
                 }
 
@@ -148,12 +156,13 @@ public class QueuesDragAndDropAgents extends HorizontalLayout {
         });
     }
 
-    private List<Agent> getQueuesAgents() {
-        List<Agent> agentsInQueueList = new ArrayList<Agent>();
-        if (queue.getAgents() != null) {
-            for (String agentId : queue.getAgents()) {
+    private List<CouchModel> getQueuesAgents() {
+        List<CouchModel> agentsInQueueList = new LinkedList<CouchModel>();
+        if (null  != model.getOutputs()) {
+            List<String> agents = (List) model.getOutputs().get("agents");
+            for (String agentId : agents) {
                 try {
-                    Agent agent = agentsService.getAgent(agentId);
+                    CouchModel agent = agentService.getModel(agentId);
                     agentsInQueueList.add(agent);
                 } catch (IOException ignored) {
                 }
@@ -177,14 +186,16 @@ public class QueuesDragAndDropAgents extends HorizontalLayout {
         return tableVisibleFields;
     }
 
-    private void createQueue(String id) {
+    private Queue createQueue(CouchModel model) {
         try {
-            this.queue = queuesService.getQueue(id);
-        } catch (IOException ignored) {
+            return queuesService.getQueue(model);
+        } catch (Exception e) {
+            return new Queue();
         }
+
     }
 
-    private Table fillTable(List<Agent> agentList, List<String> tableVisibleFields, List<String> tableHiddenFields) {
+    private Table fillTable(List<CouchModel> agentList, List<String> tableVisibleFields, List<String> tableHiddenFields) {
         Table table = new Table();
         IndexedContainer tableData = createTableData(agentList, tableHiddenFields);
 
@@ -197,22 +208,34 @@ public class QueuesDragAndDropAgents extends HorizontalLayout {
         return table;
     }
 
-    private IndexedContainer createTableData(List<Agent> agentList, List<String> tableHiddenFields) {
+    private IndexedContainer createTableData(List<CouchModel> agentList, List<String> tableHiddenFields) {
         IndexedContainer ic = new IndexedContainer();
 
         for (String field : tableHiddenFields) {
             ic.addContainerProperty(field, String.class, "");
         }
 
-        for (Agent agent : agentList) {
+        for (CouchModel agent : agentList) {
             Object object = ic.addItem();
-            ic.getContainerProperty(object, "NAME").setValue(agent.getName());
-            ic.getContainerProperty(object, "CURRENT EXTENSION").setValue(agent.getCurrentExtension());
+            ic.getContainerProperty(object, "NAME").setValue(agent.getProperties().get("name"));
+            CouchModelLite extension = null;
+            try {
+                extension = modelLiteService.getCouchLiteModel((String) agent.getOutputs().get("extension"));
+            } catch (IOException ignored) {
+            }
+            ic.getContainerProperty(object, "CURRENT EXTENSION").setValue(extension);
             ic.getContainerProperty(object, "id").setValue(agent.getId());
         }
 
         return ic;
     }
 
+    private CouchModel createModel(String id) {
+        try {
+            return queuesService.getModel(id);
+        } catch (Exception e) {
+            return CouchModelUtil.newCouchModel(request, CouchTypes.agent);
+        }
+    }
 
 }

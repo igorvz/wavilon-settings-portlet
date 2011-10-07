@@ -1,7 +1,9 @@
 package com.aimprosoft.wavilon.ui.menuitems;
 
 import com.aimprosoft.wavilon.application.GenericPortletApplication;
+import com.aimprosoft.wavilon.couch.CouchModel;
 import com.aimprosoft.wavilon.model.Extension;
+import com.aimprosoft.wavilon.service.CouchModelLiteDatabaseService;
 import com.aimprosoft.wavilon.service.ExtensionDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.ui.menuitems.forms.ConfirmingRemove;
@@ -21,6 +23,7 @@ public class ExtensionContent extends VerticalLayout {
     private ResourceBundle bundle;
     private static PortletRequest request;
     private ExtensionDatabaseService extensionService = ObjectFactory.getBean(ExtensionDatabaseService.class);
+    private CouchModelLiteDatabaseService modelLiteService = ObjectFactory.getBean(CouchModelLiteDatabaseService.class);
     private List<String> hiddenFields;
 
     private Table table = new Table();
@@ -79,7 +82,7 @@ public class ExtensionContent extends VerticalLayout {
 
     private HorizontalLayout createButton() {
         HorizontalLayout addButton = new HorizontalLayout();
-        addButton.addComponent(new Button("+", new Button.ClickListener() {
+        addButton.addComponent(new Button("Add", new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
                 getForm("-1");
             }
@@ -115,63 +118,55 @@ public class ExtensionContent extends VerticalLayout {
 
     private IndexedContainer createTableData() {
         IndexedContainer ic = new IndexedContainer();
-        List<Extension> extensions = getExtension();
+        List<CouchModel> couchModels = getCouchModels();
 
         for (String field : hiddenFields) {
             if ("".equals(field)) {
-
                 ic.addContainerProperty(field, Button.class, "");
+            } else {
+                ic.addContainerProperty(field, String.class, "");
             }
-            ic.addContainerProperty(field, String.class, "");
         }
 
-        if (!extensions.isEmpty()) {
+        if (!couchModels.isEmpty()) {
 
-            for (Extension extension : extensions) {
-                Object object = ic.addItem();
+            for (final CouchModel couchModel : couchModels) {
+                Extension extension = getExtension(couchModel);
+                final Object object = ic.addItem();
 
-                Button delete = new Button("-");
-
-                Map<String, Object> param = new HashMap<String, Object>();
-                param.put("id", extension.getId());
-                param.put("object", object);
-
-                delete.setData(param);
-
-                ic.getContainerProperty(object, "extensionId").setValue(extension.getId());
-                ic.getContainerProperty(object, "ID").setValue(extension.getLiferayOrganizationId());
-                ic.getContainerProperty(object, "NAME").setValue(extension.getExtensionName());
-                ic.getContainerProperty(object, "EXTENSION TYPE").setValue(extension.getExtensionType());
-                ic.getContainerProperty(object, "DESTINATION").setValue(extension.getExtensionDestination());
-                ic.getContainerProperty(object, "").setValue(delete);
-
-                delete.addListener(new Button.ClickListener() {
+                ic.getContainerProperty(object, "extensionId").setValue(couchModel.getId());
+                ic.getContainerProperty(object, "ID").setValue(couchModel.getLiferayOrganizationId());
+                ic.getContainerProperty(object, "NAME").setValue(extension.getName());
+                ic.getContainerProperty(object, "EXTENSION TYPE").setValue(extension.getChannel());
+                ic.getContainerProperty(object, "DESTINATION").setValue(extension.getDestination());
+                ic.getContainerProperty(object, "").setValue(new Button("-", new Button.ClickListener() {
                     public void buttonClick(Button.ClickEvent event) {
-                        Map<String, Object> paramMap = (Map<String, Object>) event.getButton().getData();
-                        String id = (String) paramMap.get("id");
-                        Object object = paramMap.get("object");
-
-                        if (null != id) {
-
-                            ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
-                            getWindow().addWindow(confirmingRemove);
-                            confirmingRemove.initConfirm(id, table, object);
-                            confirmingRemove.center();
-                            confirmingRemove.setWidth("420px");
-                            confirmingRemove.setHeight("180px");
-                        } else {
-                            getWindow().showNotification("Select Recording");
-                        }
+                        table.select(object);
+                        ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
+                        getWindow().addWindow(confirmingRemove);
+                        confirmingRemove.init(couchModel.getId(), table);
+                        confirmingRemove.center();
+                        confirmingRemove.setWidth("300px");
+                        confirmingRemove.setHeight("180px");
                     }
-                });
+                }));
+
             }
         }
         return ic;
     }
 
-    private List<Extension> getExtension() {
+    private Extension getExtension(CouchModel couchModel) {
         try {
-            return extensionService.getAllExtensionByUserId(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request));
+            return extensionService.getExtension(couchModel);
+        } catch (Exception e) {
+            return new Extension();
+        }
+    }
+
+    private List<CouchModel> getCouchModels() {
+        try {
+            return extensionService.getAllUsersCouchModelToExtension(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request));
         } catch (Exception e) {
             return Collections.emptyList();
         }

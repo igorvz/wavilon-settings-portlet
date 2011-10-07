@@ -1,14 +1,15 @@
 package com.aimprosoft.wavilon.ui.menuitems;
 
 import com.aimprosoft.wavilon.application.GenericPortletApplication;
-import com.aimprosoft.wavilon.model.PhoneNumber;
+import com.aimprosoft.wavilon.couch.CouchModel;
+import com.aimprosoft.wavilon.couch.CouchModelLite;
+import com.aimprosoft.wavilon.service.CouchModelLiteDatabaseService;
 import com.aimprosoft.wavilon.service.PhoneNumberDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.ui.menuitems.forms.ConfirmingRemove;
 import com.aimprosoft.wavilon.ui.menuitems.forms.PhoneNumbersForm;
 import com.liferay.portal.util.PortalUtil;
 import com.vaadin.data.Item;
-import com.vaadin.data.Property;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.terminal.Sizeable;
@@ -27,8 +28,8 @@ public class PhoneNumbersContent extends VerticalLayout {
     private Table phoneNumbers = new Table();
     private PortletRequest request;
     private PhoneNumberDatabaseService service = (PhoneNumberDatabaseService) ObjectFactory.getBean(PhoneNumberDatabaseService.class);
+    private CouchModelLiteDatabaseService liteService = ObjectFactory.getBean(CouchModelLiteDatabaseService.class);
     private List<String> hiddenFields;
-    private PhoneNumbersForm phoneNumbersForm;
 
     public PhoneNumbersContent(ResourceBundle bundle) {
         this.bundle = bundle;
@@ -46,15 +47,6 @@ public class PhoneNumbersContent extends VerticalLayout {
         initPhoneNumbers();
     }
 
-    private List<String> fillFields() {
-        List<String> tableFields = new LinkedList<String>();
-
-        tableFields.add("NUMBER");
-        tableFields.add("NAME");
-
-        return tableFields;
-    }
-
     private void initLayout() {
         HorizontalLayout head = createHead();
         setWidth(100, Sizeable.UNITS_PERCENTAGE);
@@ -68,7 +60,6 @@ public class PhoneNumbersContent extends VerticalLayout {
     }
 
     private void initPhoneNumbers() {
-        this.phoneNumbers.setContainerDataSource(this.tableData);
         this.phoneNumbers.setVisibleColumns(this.tableFields.toArray());
         this.phoneNumbers.setSelectable(true);
         this.phoneNumbers.setImmediate(true);
@@ -78,7 +69,7 @@ public class PhoneNumbersContent extends VerticalLayout {
                 if (event.isDoubleClick()) {
                     Item item = event.getItem();
                     if (null != item) {
-                        getForm((String) event.getItem().getItemProperty("id").getValue());
+                        getForm((String) event.getItem().getItemProperty("id").getValue(), event.getItemId());
                     }
                 }
             }
@@ -88,28 +79,49 @@ public class PhoneNumbersContent extends VerticalLayout {
 
     private IndexedContainer createTableData() {
         IndexedContainer ic = new IndexedContainer();
-        List<PhoneNumber> numbers = getNumbers();
+        List<CouchModel> couchModels = getCouchModels();
 
-        for (String field : this.hiddenFields) {
-            ic.addContainerProperty(field, String.class, "");
+        for (String field : hiddenFields) {
+            if ("".equals(field)) {
+                ic.addContainerProperty(field, Button.class, "");
+            } else {
+                ic.addContainerProperty(field, String.class, "");
+            }
         }
 
-        for (PhoneNumber number : numbers) {
-            Object object = ic.addItem();
-            ic.getContainerProperty(object, "NUMBER").setValue(number.getNumber());
-            ic.getContainerProperty(object, "NAME").setValue(number.getName());
-            ic.getContainerProperty(object, "id").setValue(number.getId());
-        }
+        if (!couchModels.isEmpty()) {
 
+            for (final CouchModel couchModel : couchModels) {
+                final Object object = ic.addItem();
+
+                CouchModelLite extensionModel = getExtension((String) couchModel.getOutputs().get("extension"));
+
+                ic.getContainerProperty(object, "NUMBER").setValue(couchModel.getProperties().get("locator"));
+                ic.getContainerProperty(object, "NAME").setValue(couchModel.getProperties().get("name"));
+                ic.getContainerProperty(object, "id").setValue(couchModel.getId());
+                ic.getContainerProperty(object, "FORWARD CALLS TO").setValue(extensionModel.getName());
+                ic.getContainerProperty(object, "").setValue(new Button("-", new Button.ClickListener() {
+                    public void buttonClick(Button.ClickEvent event) {
+                        phoneNumbers.select(object);
+                        ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
+                        getWindow().addWindow(confirmingRemove);
+                        confirmingRemove.init(couchModel.getId(), phoneNumbers);
+                        confirmingRemove.center();
+                        confirmingRemove.setWidth("300px");
+                        confirmingRemove.setHeight("180px");
+                    }
+                }));
+            }
+        }
         return ic;
     }
 
-    private List<PhoneNumber> getNumbers() {
+    private CouchModelLite getExtension(String id) {
         try {
-            return service.getAllPhoneNumbersByUser(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request));
-        } catch (Exception ignored) {
+            return liteService.getCouchLiteModel(id);
+        } catch (Exception e) {
+            return (CouchModelLite) Collections.emptyList();
         }
-        return Collections.emptyList();
     }
 
     public HorizontalLayout createHead() {
@@ -133,40 +145,23 @@ public class PhoneNumbersContent extends VerticalLayout {
 
     private HorizontalLayout createButtons() {
         HorizontalLayout addRemoveButtons = new HorizontalLayout();
-        addRemoveButtons.addComponent(new Button("+", new Button.ClickListener() {
+        addRemoveButtons.addComponent(new Button("Add", new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
-                PhoneNumbersContent.this.getForm("-1");
-            }
-        }));
-        addRemoveButtons.addComponent(new Button("-", new Button.ClickListener() {
-            public void buttonClick(Button.ClickEvent event) {
-                Object id = PhoneNumbersContent.this.phoneNumbers.getValue();
-                if (null != id) {
-                    String phoneNumbersID = (String) PhoneNumbersContent.this.phoneNumbers.getItem(id).getItemProperty("id").getValue();
-
-                    ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
-                    getWindow().addWindow(confirmingRemove);
-                    confirmingRemove.init(phoneNumbersID, phoneNumbers);
-                    confirmingRemove.center();
-                    confirmingRemove.setWidth("300px");
-                    confirmingRemove.setHeight("180px");
-                } else {
-                    PhoneNumbersContent.this.getWindow().showNotification("Select Phone Number");
-                }
+                PhoneNumbersContent.this.getForm("-1", "-1");
             }
         }));
         return addRemoveButtons;
     }
 
-    private void getForm(String id) {
-        phoneNumbersForm = new PhoneNumbersForm(this.bundle, this.phoneNumbers);
+    private void getForm(String id, Object itemId) {
+        PhoneNumbersForm phoneNumbersForm = new PhoneNumbersForm(this.bundle, this.phoneNumbers);
         phoneNumbersForm.setWidth("400px");
         phoneNumbersForm.setHeight("300px");
         phoneNumbersForm.center();
         phoneNumbersForm.setModal(true);
 
         getWindow().addWindow(phoneNumbersForm);
-        phoneNumbersForm.init(id);
+        phoneNumbersForm.init(id, itemId);
     }
 
     private List<String> fillHiddenFields() {
@@ -175,7 +170,29 @@ public class PhoneNumbersContent extends VerticalLayout {
         hiddenFields.add("NUMBER");
         hiddenFields.add("NAME");
         hiddenFields.add("id");
+        hiddenFields.add("FORWARD CALLS TO");
+        hiddenFields.add("");
 
         return hiddenFields;
     }
+
+    private List<String> fillFields() {
+        List<String> tableFields = new LinkedList<String>();
+
+        tableFields.add("NUMBER");
+        tableFields.add("NAME");
+        tableFields.add("FORWARD CALLS TO");
+        tableFields.add("");
+
+        return tableFields;
+    }
+
+    private List<CouchModel> getCouchModels() {
+        try {
+            return service.getAllUsersCouchModelToPhoneNumber(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request));
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
+    }
+
 }

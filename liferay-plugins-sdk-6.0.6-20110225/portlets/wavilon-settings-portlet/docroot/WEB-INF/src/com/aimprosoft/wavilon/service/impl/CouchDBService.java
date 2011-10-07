@@ -1,9 +1,9 @@
 package com.aimprosoft.wavilon.service.impl;
 
 import com.aimprosoft.wavilon.config.Functions;
+import com.aimprosoft.wavilon.couch.Attachment;
+import com.aimprosoft.wavilon.couch.CouchModel;
 import com.aimprosoft.wavilon.model.Agent;
-import com.aimprosoft.wavilon.model.Attachment;
-import com.aimprosoft.wavilon.model.BaseModel;
 import com.aimprosoft.wavilon.service.SerializeService;
 import com.fourspaces.couchdb.Database;
 import com.fourspaces.couchdb.Document;
@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public abstract class AbstractCouchDBService {
+public class CouchDBService {
     protected Database database;
 
     protected ObjectReader objectReader;
@@ -46,17 +46,17 @@ public abstract class AbstractCouchDBService {
         this.serializeService = serializeService;
     }
 
-    protected void addModel(BaseModel model) throws IOException {
+    protected void addModel(CouchModel model) throws IOException {
         updateModel(model);
     }
 
     @SuppressWarnings("unchecked")
-    protected void updateModel(BaseModel model) throws IOException {
+    protected void updateModel(CouchModel model) throws IOException {
         Document document = serializeService.toDocument(model);
         database.saveDocument(document);
     }
 
-    protected void removeModel(BaseModel model) throws IOException {
+    protected void removeModel(CouchModel model) throws IOException {
         removeModelById(model.getId());
     }
 
@@ -65,13 +65,13 @@ public abstract class AbstractCouchDBService {
         database.deleteDocument(document);
     }
 
-    protected BaseModel getModelById(String documentId) throws IOException {
+    protected CouchModel getModelById(String documentId) throws IOException {
         return getModelById(documentId, false);
     }
 
-    protected BaseModel getModelById(String documentId, boolean includeAttachments) throws IOException {
+    protected CouchModel getModelById(String documentId, boolean includeAttachments) throws IOException {
         Document document = database.getDocument(documentId);
-        BaseModel model = objectReader.readValue(document.toString());
+        CouchModel model = objectReader.readValue(document.toString());
 
         if (includeAttachments) {
             Map<String, byte[]> attachmentsContent = getAttachmentsContent(document);
@@ -116,7 +116,7 @@ public abstract class AbstractCouchDBService {
         return raw;
     }
 
-    protected void mergeAttachments(BaseModel model, Map<String, byte[]> attachmentsContent) {
+    protected void mergeAttachments(CouchModel model, Map<String, byte[]> attachmentsContent) {
         //check if empty
         if (attachmentsContent.isEmpty()) {
             return;

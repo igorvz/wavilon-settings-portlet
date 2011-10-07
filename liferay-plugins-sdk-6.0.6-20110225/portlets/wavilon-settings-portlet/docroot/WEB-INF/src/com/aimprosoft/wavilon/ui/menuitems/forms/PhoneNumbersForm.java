@@ -1,12 +1,16 @@
 package com.aimprosoft.wavilon.ui.menuitems.forms;
 
 import com.aimprosoft.wavilon.application.GenericPortletApplication;
+import com.aimprosoft.wavilon.couch.CouchModel;
+import com.aimprosoft.wavilon.couch.CouchTypes;
 import com.aimprosoft.wavilon.model.PhoneNumber;
-import com.aimprosoft.wavilon.model.VirtualNumber;
+import com.aimprosoft.wavilon.service.ExtensionDatabaseService;
 import com.aimprosoft.wavilon.service.PhoneNumberDatabaseService;
 import com.aimprosoft.wavilon.service.VirtualNumberDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
+import com.aimprosoft.wavilon.util.CouchModelUtil;
 import com.liferay.portal.util.PortalUtil;
+import com.vaadin.Application;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 
@@ -15,11 +19,14 @@ import java.util.*;
 
 public class PhoneNumbersForm extends Window {
     private PhoneNumberDatabaseService service = ObjectFactory.getBean(PhoneNumberDatabaseService.class);
-    private VirtualNumberDatabaseService VNService = ObjectFactory.getBean(VirtualNumberDatabaseService.class);
+    private VirtualNumberDatabaseService virtualNumberService = ObjectFactory.getBean(VirtualNumberDatabaseService.class);
+    private ExtensionDatabaseService extensionService = ObjectFactory.getBean(ExtensionDatabaseService.class);
     private ResourceBundle bundle;
     private PortletRequest request;
     private Table table;
     private PhoneNumber phoneNumber;
+    private Application application;
+    private CouchModel model;
 
 
     public PhoneNumbersForm(ResourceBundle bundle, Table table) {
@@ -27,10 +34,11 @@ public class PhoneNumbersForm extends Window {
         this.table = table;
     }
 
-    public void init(String id) {
+    public void init(String id, final Object itemId) {
         request = ((GenericPortletApplication) getApplication()).getPortletRequest();
-        phoneNumber = createPhoneNumber(id);
-
+        application = getApplication();
+        model = createModel(id);
+        phoneNumber = new PhoneNumber();
         if ("-1".equals(id)) {
             setCaption("New Phone Number");
         } else {
@@ -49,9 +57,7 @@ public class PhoneNumbersForm extends Window {
         final Form form = createForm();
         content.addComponent(form);
 
-
         HorizontalLayout buttons = createButtons(content);
-
 
         Button cancel = new Button("Cancel", new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
@@ -66,58 +72,56 @@ public class PhoneNumbersForm extends Window {
                     form.commit();
 
                     String name = (String) form.getField("name").getValue();
+                    CouchModel forwardCallTo = ((CouchModel) form.getField("forwardCallTo").getValue());
+                    CouchModel virtualNumber = ((CouchModel) form.getField("numbers").getValue());
 
-
-                    if (null != phoneNumber.getRevision()) {
-                        table.removeItem(table.getValue());
+                    if (null != model.getRevision()) {
+                        table.removeItem(itemId);
                         table.select(null);
-                    }   else {
-                        String number = (String) form.getField("numbers").getValue();
-                        phoneNumber.setNumber(number);
                     }
 
+                    Map<String, Object> extensionOut = new HashMap<String, Object>();
+                    extensionOut.put("extension", forwardCallTo.getId());
+
+                    phoneNumber.setLocator((String) virtualNumber.getProperties().get("locator"));
                     phoneNumber.setName(name);
-                    service.addPhoneNumber(phoneNumber);
-                    Object object = table.addItem();
-                    table.getContainerProperty(object, "NUMBER").setValue(phoneNumber.getNumber());
+
+                    model.setType(CouchTypes.service);
+                    model.setOutputs(extensionOut);
+
+                    service.addPhoneNumber(phoneNumber, model);
+
+                    final Object object = table.addItem();
+
+                    Button.ClickListener listener = new Button.ClickListener() {
+                        public void buttonClick(Button.ClickEvent event) {
+
+                            table.select(object);
+                            String phoneNumbersID = (String) table.getItem(object).getItemProperty("id").getValue();
+                            ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
+                            application.getMainWindow().addWindow(confirmingRemove);
+                            confirmingRemove.init(phoneNumbersID, table);
+                            confirmingRemove.center();
+                            confirmingRemove.setWidth("300px");
+                            confirmingRemove.setHeight("180px");
+                        }
+                    };
+
+                    table.getContainerProperty(object, "NUMBER").setValue(phoneNumber.getLocator());
                     table.getContainerProperty(object, "NAME").setValue(phoneNumber.getName());
-                    table.getContainerProperty(object, "id").setValue(phoneNumber.getId());
+                    table.getContainerProperty(object, "FORWARD CALLS TO").setValue(forwardCallTo.getProperties().get("name"));
+                    table.getContainerProperty(object, "id").setValue(model.getId());
+                    table.getContainerProperty(object, "").setValue(new Button("-", listener));
 
                     getWindow().showNotification("Well done");
                     close();
                 } catch (Exception ignored) {
                 }
             }
-        });
+        }
+
+        );
         buttons.addComponent(save);
-    }
-
-    private PhoneNumber createPhoneNumber(String id) {
-        if ("-1".equals(id)) {
-            return newPhoneNumber();
-        }
-        try {
-            return service.getPhoneNumber(id);
-        } catch (Exception e) {
-            return newPhoneNumber();
-        }
-
-    }
-
-    private PhoneNumber newPhoneNumber() {
-        PhoneNumber newPhoneNumber = new PhoneNumber();
-
-        try {
-            newPhoneNumber.setId(UUID.randomUUID().toString());
-            newPhoneNumber.setLiferayUserId(PortalUtil.getUserId(request));
-            newPhoneNumber.setLiferayOrganizationId(PortalUtil.getScopeGroupId(request));
-            newPhoneNumber.setLiferayPortalId(PortalUtil.getCompany(request).getWebId());
-        } catch (Exception ignored) {
-        }
-
-        newPhoneNumber.setName("");
-        newPhoneNumber.setNumber("");
-        return newPhoneNumber;
     }
 
     private Form createForm() {
@@ -129,21 +133,31 @@ public class PhoneNumbersForm extends Window {
         name.setRequiredError("Empty field name");
         form.addField("name", name);
 
-        if (null != this.phoneNumber.getRevision() && !"".equals(this.phoneNumber.getRevision())) {
-            name.setValue(phoneNumber.getName());
+
+        List<CouchModel> forwards = createExtensions();
+        ComboBox forwardCallTo = new ComboBox("Forward calls to");
+        forwardCallTo.addItem("Select . . .");
+        for (CouchModel forward : forwards) {
+            forwardCallTo.addItem(forward);
+        }
+        forwardCallTo.setImmediate(true);
+        forwardCallTo.setNullSelectionItemId("Select . . .");
+        forwardCallTo.setRequired(true);
+        name.setRequiredError("Empty field \"Forward calls to\"");
+
+        if (null != this.model.getRevision() && !"".equals(this.model.getRevision())) {
+            name.setValue(model.getProperties().get("name"));
 
             TextField number = new TextField("Number");
-            number.setValue(this.phoneNumber.getNumber());
+            number.setValue(model.getProperties().get("locator"));
             number.setReadOnly(true);
 
             form.addField("phoneNumber", number);
 
-
-
-
+            form.addField("forwardCallTo", forwardCallTo);
 
         } else {
-            List<String> virtualNumbers = createVirtualNumbers();
+            List<CouchModel> virtualNumbers = createVirtualNumbers();
             ComboBox numbers = new ComboBox("Number", virtualNumbers);
             numbers.setImmediate(true);
             numbers.setNullSelectionAllowed(false);
@@ -153,6 +167,7 @@ public class PhoneNumbersForm extends Window {
 
             form.addField("numbers", numbers);
 
+            form.addField("forwardCallTo", forwardCallTo);
 
 
             String noteString = "The selected phone number has a" +
@@ -169,27 +184,13 @@ public class PhoneNumbersForm extends Window {
         return form;
     }
 
-    private List<String> createVirtualNumbers() {
-        List<String> numbers = new LinkedList<String>();
-        List<VirtualNumber> virtualNumbers = getVirtualNumbers();
+    private List<CouchModel> createVirtualNumbers() {
 
-        if(!virtualNumbers.isEmpty()){
-            for (VirtualNumber virtualNumber : virtualNumbers) {
-                numbers.add(virtualNumber.getNumber());
-            }
-        }
-        Collections.sort(numbers);
-        numbers.add(0, "Select . . .");
-        return numbers;
+        return getVirtualNumbers();
     }
 
-    private List<VirtualNumber> getVirtualNumbers() {
-        try {
-            return VNService.getAllVirtualNumbersByUser(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request));
-        } catch (Exception e) {
-            return Collections.emptyList();
-        }
-
+    private List<CouchModel> createExtensions() {
+        return getExtensions();
     }
 
     private Label createHeader(String id, PhoneNumber phoneNumber) {
@@ -211,4 +212,29 @@ public class PhoneNumbersForm extends Window {
         return buttons;
     }
 
+    private CouchModel createModel(String id) {
+        try {
+            return service.getModel(id);
+        } catch (Exception e) {
+            return CouchModelUtil.newCouchModel(request, CouchTypes.service);
+        }
+    }
+
+    private List<CouchModel> getExtensions() {
+        try {
+
+            return extensionService.getAllUsersCouchModelToExtension(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request));
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
+    }
+
+    private List<CouchModel> getVirtualNumbers() {
+        try {
+
+            return virtualNumberService.getAllUsersCouchModelToVirtualNumber(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request));
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
+    }
 }

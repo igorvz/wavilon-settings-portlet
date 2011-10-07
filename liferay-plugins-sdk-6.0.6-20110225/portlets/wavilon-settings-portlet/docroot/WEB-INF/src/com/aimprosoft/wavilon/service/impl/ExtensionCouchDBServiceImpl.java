@@ -1,24 +1,45 @@
 package com.aimprosoft.wavilon.service.impl;
 
+import com.aimprosoft.wavilon.couch.CouchModel;
 import com.aimprosoft.wavilon.model.Extension;
 import com.aimprosoft.wavilon.service.ExtensionDatabaseService;
 import com.aimprosoft.wavilon.util.FormatUtil;
 import com.fourspaces.couchdb.Document;
 import com.fourspaces.couchdb.ViewResults;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
-public class ExtensionCouchDBServiceImpl extends AbstractCouchDBService implements ExtensionDatabaseService {
+@Service
+public class ExtensionCouchDBServiceImpl implements ExtensionDatabaseService {
+    @Autowired
+    private CouchDBService couchDBService;
 
-    public Extension getExtension(String id) throws IOException {
-        return (Extension) getModelById(id);
+    @Autowired
+    private ObjectMapper objectMapper;
+
+
+    private Extension getExtension(String id) throws IOException {
+        CouchModel model = getModel(id);
+        return objectMapper.convertValue(model.getProperties(), Extension.class);
+    }
+
+    public Extension getExtension(CouchModel model) throws IOException {
+        return objectMapper.convertValue(model.getProperties(), Extension.class);
+    }
+
+    public CouchModel getModel(String id) throws IOException {
+        return couchDBService.getModelById(id);
     }
 
     public List<Extension> getAllExtension() throws IOException {
 
-        ViewResults viewResults = database.adhoc(functions.getAllExtensionFunction());
+        ViewResults viewResults = couchDBService.database.adhoc(couchDBService.functions.getAllExtensionFunction());
         List<Extension> extensionList = new LinkedList<Extension>();
 
         for (Document doc : viewResults.getResults()) {
@@ -30,36 +51,40 @@ public class ExtensionCouchDBServiceImpl extends AbstractCouchDBService implemen
         return extensionList;
     }
 
-    public void updateExtension(Extension extension) throws IOException {
-        updateModel(extension);
+    public void updateExtension(Extension extension, CouchModel model) throws IOException {
+        Map<String, Object> properties = objectMapper.convertValue(extension, Map.class);
+
+        model.setProperties(properties);
+
+        couchDBService.updateModel(model);
     }
 
-    public List<Extension> getAllExtensionByUserId(Long userId, Long organizationId) throws IOException {
+    public List<CouchModel> getAllUsersCouchModelToExtension(Long userId, Long organizationId) throws IOException {
 
-        String formattedFunction = FormatUtil.formatFunction(functions.getBaseModelsByUserAndTypeFunction(), "extension", userId, organizationId);
+        String formattedFunction = FormatUtil.formatFunction(couchDBService.functions.getBaseModelsByUserAndTypeFunction(), "extension", userId, organizationId);
 
-        ViewResults viewResults = database.adhoc(formattedFunction);
+        ViewResults viewResults = couchDBService.database.adhoc(formattedFunction);
 
-        List<Extension> extensionList = new LinkedList<Extension>();
+        List<CouchModel> modelList = new LinkedList<CouchModel>();
 
         for (Document doc : viewResults.getResults()) {
 
-            Extension extension = getExtension(doc.getId());
+            CouchModel model = getModel(doc.getId());
 
-            extensionList.add(extension);
+            modelList.add(model);
         }
-        return extensionList;
+        return modelList;
     }
 
-    public void addExtension(Extension extension) throws IOException {
-        updateExtension(extension);
+    public void addExtension(Extension extension, CouchModel model) throws IOException {
+        updateExtension(extension, model);
     }
 
-    public void removeExtension(Extension extension) throws IOException {
-        removeModel(extension);
+    public void removeExtension(CouchModel model) throws IOException {
+        couchDBService.removeModel(model);
     }
 
     public void removeExtension(String id) throws IOException {
-        removeModelById(id);
+        couchDBService.removeModelById(id);
     }
 }

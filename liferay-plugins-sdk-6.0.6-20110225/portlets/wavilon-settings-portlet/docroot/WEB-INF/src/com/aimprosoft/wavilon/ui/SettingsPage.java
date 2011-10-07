@@ -11,16 +11,13 @@ import java.util.ResourceBundle;
 public class SettingsPage extends VerticalLayout {
     private ResourceBundle bundle;
     private VerticalLayout leftColumn;
-    private VerticalLayout rightColumn;
     private VerticalLayout detailsContent;
-    private Long userId;
 
     public SettingsPage(final ResourceBundle bundle) {
         this.bundle = bundle;
     }
 
-    public void init(Long userId) {
-        this.userId = userId;
+    public void init() {
 
         addStyleName("settingsPanel");
 
@@ -36,9 +33,9 @@ public class SettingsPage extends VerticalLayout {
         leftColumn.setStyleName("leftcolumn");
         panel.setFirstComponent(leftColumn);
 
-        rightColumn = new VerticalLayout();
+        VerticalLayout rightColumn = new VerticalLayout();
         rightColumn.setStyleName("rightcolumn");
-        rightColumn.setMargin(true);
+        rightColumn.setMargin(false);
         rightColumn.setSizeFull();
         panel.setSecondComponent(rightColumn);
 
@@ -56,9 +53,9 @@ public class SettingsPage extends VerticalLayout {
         addButtons();
 
         detailsContent.removeAllComponents();
-        PhoneNumbersContent phoneNumbersContent = new PhoneNumbersContent(bundle);
-        detailsContent.addComponent(phoneNumbersContent);
-        phoneNumbersContent.init();
+        ExtensionContent extensionContent = new ExtensionContent(bundle);
+        detailsContent.addComponent(extensionContent);
+        extensionContent.init();
 
         setExpandRatio(panel, 0);
     }
@@ -92,7 +89,7 @@ public class SettingsPage extends VerticalLayout {
                 virtualNumbersContent.init();
             }
         });
-
+        
         Button queues = new NativeButton(bundle.getString("wavilon.settings.queues"));
         queues.addStyleName("label");
         queues.addListener(new Button.ClickListener() {
@@ -107,6 +104,22 @@ public class SettingsPage extends VerticalLayout {
                 queuesContent.init();
             }
         });
+
+//
+//        Button virtualNumbers = new NativeButton(bundle.getString("wavilon.settings.services.virtualNumbers"));
+//        virtualNumbers.addStyleName("label");
+//        virtualNumbers.addListener(new Button.ClickListener() {
+//            public void buttonClick(Button.ClickEvent event) {
+//                Button button = event.getButton();
+//
+//                assignActiveButton(button);
+//                detailsContent.removeAllComponents();
+//                VirtualNumbersContent virtualNumbersContent = new VirtualNumbersContent(bundle);
+//                detailsContent.addComponent(virtualNumbersContent);
+//                virtualNumbersContent.init();
+//            }
+//        });
+
 
         Button agents = new NativeButton(bundle.getString("wavilon.settings.agents"));
         agents.addStyleName("label");

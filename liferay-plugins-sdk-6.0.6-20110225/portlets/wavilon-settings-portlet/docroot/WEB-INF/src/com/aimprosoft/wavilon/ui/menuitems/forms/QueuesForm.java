@@ -1,24 +1,36 @@
 package com.aimprosoft.wavilon.ui.menuitems.forms;
 
 import com.aimprosoft.wavilon.application.GenericPortletApplication;
+import com.aimprosoft.wavilon.couch.CouchModel;
+import com.aimprosoft.wavilon.couch.CouchModelLite;
+import com.aimprosoft.wavilon.couch.CouchTypes;
 import com.aimprosoft.wavilon.model.Queue;
+import com.aimprosoft.wavilon.service.CouchModelLiteDatabaseService;
 import com.aimprosoft.wavilon.service.QueueDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
+import com.aimprosoft.wavilon.util.CouchModelUtil;
 import com.liferay.portal.util.PortalUtil;
+import com.vaadin.Application;
 import com.vaadin.data.validator.IntegerValidator;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 import org.apache.commons.lang.math.NumberUtils;
 
 import javax.portlet.PortletRequest;
-import java.util.*;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ResourceBundle;
 
 public class QueuesForm extends Window {
 
+    private CouchModelLiteDatabaseService modelLiteService = ObjectFactory.getBean(CouchModelLiteDatabaseService.class);
     private QueueDatabaseService service = ObjectFactory.getBean(QueueDatabaseService.class);
     private ResourceBundle bundle;
     private PortletRequest request;
     private Table table;
+    private CouchModel model;
     private Queue queue;
 
 
@@ -28,8 +40,10 @@ public class QueuesForm extends Window {
     }
 
     public void init(String id) {
-        request = ((GenericPortletApplication) getApplication()).getPortletRequest();
-        queue = createQueue(id);
+        final Application application = getApplication();
+        request = ((GenericPortletApplication) application).getPortletRequest();
+        model = createModel(id);
+        queue = createQueue(model);
 
         if ("-1".equals(id)) {
             setCaption("New Queue");
@@ -40,6 +54,7 @@ public class QueuesForm extends Window {
         VerticalLayout content = new VerticalLayout();
         content.addStyleName("formRegion");
         content.setSizeFull();
+
         addComponent(content);
 
         Label headerForm = createHeader(id, queue);
@@ -67,12 +82,12 @@ public class QueuesForm extends Window {
                     String name = (String) form.getField("name").getValue();
                     String maxTimeInput = form.getField("maxTimeInput").getValue().toString();
                     String maxLengthInput = form.getField("maxLengthInput").getValue().toString();
-                    String extensionOnMaxTimeInput = (String) form.getField("extensionOnMaxTimeInput").getValue();
-                    String extensionOnMaxLengthInput = (String) form.getField("extensionOnMaxLengthInput").getValue();
+                    String forwardToOnMaxTimeInput = ((CouchModelLite) form.getField("forwardToOnMaxTimeInput").getValue()).getId();
+                    String forwardToOnMaxLengthInput = ((CouchModelLite) form.getField("forwardToOnMaxLengthInput").getValue()).getId();
                     String musicOnHold = (String) form.getField("musicOnHold").getValue();
 
 
-                    if (null != queue.getRevision()) {
+                    if (null != model.getRevision()) {
                         table.removeItem(table.getValue());
                         table.select(null);
                     }
@@ -80,16 +95,34 @@ public class QueuesForm extends Window {
                     queue.setName(name);
                     queue.setMaxTime(NumberUtils.toInt(maxTimeInput));
                     queue.setMaxLength(NumberUtils.toInt(maxLengthInput));
-                    queue.setExtensionOnMaxTime(extensionOnMaxTimeInput);
-                    queue.setExtensionOnMaxLength(extensionOnMaxLengthInput);
+                    queue.setForwardToOnMaxTime(forwardToOnMaxTimeInput);
+                    queue.setForwardToOnMaxLength(forwardToOnMaxLengthInput);
                     queue.setMusicOnHold(musicOnHold);
 
-                    service.addQueue(queue);
-                    Object object = table.addItem();
+                    service.addQueue(queue, model, Collections.<String>emptyList());
+
+                    final Object object = table.addItem();
+
+                    Button.ClickListener listener = new Button.ClickListener() {
+                        public void buttonClick(Button.ClickEvent event) {
+
+                            table.select(object);
+                            String phoneNumbersID = (String) table.getItem(object).getItemProperty("id").getValue();
+                            ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
+                            application.getMainWindow().addWindow(confirmingRemove);
+                            confirmingRemove.init(phoneNumbersID, table);
+                            confirmingRemove.center();
+                            confirmingRemove.setWidth("300px");
+                            confirmingRemove.setHeight("180px");
+                        }
+                    };
+
+
                     table.getContainerProperty(object, "NAME").setValue(queue.getName());
-                    table.getContainerProperty(object, "EXTENSION ON MAX. TIME").setValue(queue.getExtensionOnMaxTime());
-                    table.getContainerProperty(object, "EXTENSION ON MAX. LENGTH").setValue(queue.getExtensionOnMaxLength());
-                    table.getContainerProperty(object, "id").setValue(queue.getId());
+                    table.getContainerProperty(object, "FORWARD TO ON MAX. TIME").setValue(getForward(queue.getForwardToOnMaxTime()));
+                    table.getContainerProperty(object, "FORWARD TO ON MAX. LENGTH").setValue(getForward(queue.getForwardToOnMaxLength()));
+                    table.getContainerProperty(object, "id").setValue(model.getId());
+                    table.getContainerProperty(object, "").setValue(new Button("-", listener));
 
                     getWindow().showNotification("Well done");
                     close();
@@ -100,12 +133,20 @@ public class QueuesForm extends Window {
         buttons.addComponent(save);
     }
 
-    private Queue createQueue(String id) {
-        if ("-1".equals(id)) {
+    private Object getForward(String id) {
+        try {
+            return modelLiteService.getCouchLiteModel(id);
+        } catch (IOException e) {
+            return new Object();
+        }
+    }
+
+    private Queue createQueue(CouchModel model) {
+        if (null == model.getRevision()) {
             return newQueue();
         }
         try {
-            return service.getQueue(id);
+            return service.getQueue(model);
         } catch (Exception e) {
             return newQueue();
         }
@@ -115,21 +156,16 @@ public class QueuesForm extends Window {
     private Queue newQueue() {
         Queue newQueue = new Queue();
 
-        try {
-            newQueue.setId(UUID.randomUUID().toString());
-            newQueue.setLiferayUserId(PortalUtil.getUserId(request));
-            newQueue.setLiferayOrganizationId(PortalUtil.getScopeGroupId(request));
-            newQueue.setLiferayPortalId(PortalUtil.getCompany(request).getWebId());
-            newQueue.setAgents(Collections.<String>emptyList());
-        } catch (Exception ignored) {
-        }
-
         newQueue.setName("");
+        newQueue.setForwardToOnMaxLength("");
+        newQueue.setForwardToOnMaxTime("");
+
         return newQueue;
     }
 
     private Form createForm() {
-        Form queuesForm = new QueuesFormLayout();
+        Form form = new QueuesFormLayout();
+        form.addStyleName("labelField");
 
         //first row
         TextField name = new TextField();
@@ -151,29 +187,27 @@ public class QueuesForm extends Window {
         maxLengthInput.setRequiredError(bundle.getString("wavilon.settings.validation.form.error.empty.queues.max.length.input"));
         maxLengthInput.addValidator(new IntegerValidator(bundle.getString("wavilon.settings.validation.form.error.queues.integer.max.length.input")));
 
+
+        List<CouchModelLite> forwards = getForwards();
+
+
         //fourth
-        ComboBox extensionOnMaxTimeInput = new ComboBox();
-        extensionOnMaxTimeInput.setWidth(230, Sizeable.UNITS_PIXELS);
-        extensionOnMaxTimeInput.setRequired(true);
-        extensionOnMaxTimeInput.setRequiredError("Empty field \"Extension on Max. time\"");
+        ComboBox forwardToOnMaxTimeInput = new ComboBox("Forward To On Max Time");
+        fillForward(forwards, forwardToOnMaxTimeInput);
+        forwardToOnMaxTimeInput.setRequiredError("Empty field \"Extension on Max. time\"");
 
         //fifth
-        ComboBox extensionOnMaxLengthInput = new ComboBox();
-        extensionOnMaxLengthInput.setWidth(230, Sizeable.UNITS_PIXELS);
-        extensionOnMaxLengthInput.setRequired(true);
-        extensionOnMaxLengthInput.setRequiredError("Empty field \"Extension on Max. length\"");
+        ComboBox forwardToOnMaxLengthInput = new ComboBox("Forward To On Max Length");
+        fillForward(forwards, forwardToOnMaxLengthInput);
+        forwardToOnMaxLengthInput.setRequiredError("Empty field \"Extension on Max. length\"");
+
         //sixth
         ComboBox musicOnHold = new ComboBox();
         musicOnHold.setWidth(230, Sizeable.UNITS_PIXELS);
         musicOnHold.setRequired(true);
         musicOnHold.setRequiredError("Empty field \"Music on hold\"");
+        musicOnHold.setNullSelectionItemId("Select . . .");
 
-
-        List<String> extensionList = new LinkedList<String>();
-        extensionList.add("Extension 1");
-        extensionList.add("Extension 2");
-        extensionList.add("Extension 3");
-        extensionList.add(0, "Select . . .");
 
         List<String> musicOnHoldList = new LinkedList<String>();
         musicOnHoldList.add("Music 1");
@@ -181,31 +215,10 @@ public class QueuesForm extends Window {
         musicOnHoldList.add("Music 3");
         musicOnHoldList.add(0, "Select . . .");
 
-
-        if (null != queue.getRevision()) {
-            name.setValue(queue.getName());
-            maxTimeInput.setValue(queue.getMaxTime());
-            maxLengthInput.setValue(queue.getMaxLength());
-        }
-        for (String e : extensionList) {
-            extensionOnMaxTimeInput.addItem(e);
-            extensionOnMaxLengthInput.addItem(e);
-
-            if (null != queue.getRevision()) {
-                if (null != queue.getExtensionOnMaxTime() && queue.getExtensionOnMaxTime().equals(e)) {
-                    extensionOnMaxTimeInput.setValue(e);
-                }
-                if (null != queue.getExtensionOnMaxLength() && queue.getExtensionOnMaxLength().equals(e)) {
-                    extensionOnMaxLengthInput.setValue(e);
-                }
-            }
-
-        }
-
         for (String s : musicOnHoldList) {
             musicOnHold.addItem(s);
 
-            if (null != queue.getRevision()) {
+            if (null != model.getRevision()) {
                 if (null != queue.getMusicOnHold() && queue.getMusicOnHold().equals(s)) {
                     musicOnHold.setValue(s);
                 }
@@ -213,23 +226,31 @@ public class QueuesForm extends Window {
         }
 
 
-        queuesForm.addField("name", name);
-        queuesForm.addField("maxTimeInput", maxTimeInput);
-        queuesForm.addField("maxLengthInput", maxLengthInput);
+        if (null != model.getRevision()) {
+            name.setValue(queue.getName());
+            maxTimeInput.setValue(queue.getMaxTime());
+            maxLengthInput.setValue(queue.getMaxLength());
+            musicOnHold.setValue(queue.getMusicOnHold());
+        }
 
-        queuesForm.addField("extensionOnMaxTimeInput", extensionOnMaxTimeInput);
-        extensionOnMaxTimeInput.setNullSelectionAllowed(false);
-        extensionOnMaxTimeInput.setNullSelectionItemId("Select . . .");
+        form.addField("name", name);
+        form.addField("maxTimeInput", maxTimeInput);
+        form.addField("maxLengthInput", maxLengthInput);
+        form.addField("forwardToOnMaxTimeInput", forwardToOnMaxTimeInput);
+        form.addField("forwardToOnMaxLengthInput", forwardToOnMaxLengthInput);
+        form.addField("musicOnHold", musicOnHold);
 
-        queuesForm.addField("extensionOnMaxLengthInput", extensionOnMaxLengthInput);
-        extensionOnMaxLengthInput.setNullSelectionAllowed(false);
-        extensionOnMaxLengthInput.setNullSelectionItemId("Select . . .");
+        return form;
+    }
 
-        queuesForm.addField("musicOnHold", musicOnHold);
-        musicOnHold.setNullSelectionAllowed(false);
-        musicOnHold.setNullSelectionItemId("Select . . .");
-
-        return queuesForm;
+    private void fillForward(List<CouchModelLite> forwards, ComboBox forwardTo) {
+        forwardTo.addItem("Select . . .");
+        for (CouchModelLite forward : forwards) {
+            forwardTo.addItem(forward);
+        }
+        forwardTo.setWidth(230, Sizeable.UNITS_PIXELS);
+        forwardTo.setRequired(true);
+        forwardTo.setNullSelectionItemId("Select . . .");
     }
 
     private Label createHeader(String id, Queue queue) {
@@ -249,6 +270,20 @@ public class QueuesForm extends Window {
         content.setComponentAlignment(buttons, Alignment.BOTTOM_RIGHT);
 
         return buttons;
+    }
+
+    private List<CouchModelLite> getForwards() {
+        List<CouchModelLite> modelLiteList = new LinkedList<CouchModelLite>();
+        try {
+            modelLiteList.addAll(modelLiteService.getAllCouchModelsLite(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request), CouchTypes.queue));
+            modelLiteList.addAll(modelLiteService.getAllCouchModelsLite(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request), CouchTypes.agent));
+            modelLiteList.addAll(modelLiteService.getAllCouchModelsLite(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request), CouchTypes.extension));
+            modelLiteList.addAll(modelLiteService.getAllCouchModelsLite(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request), CouchTypes.recording));
+        } catch (Exception e) {
+            Collections.emptyList();
+        }
+
+        return modelLiteList;
     }
 
     private static class QueuesFormLayout extends Form {
@@ -289,9 +324,9 @@ public class QueuesForm extends Window {
                 layout.addComponent(field, 1, 1);
             } else if (propertyId.equals("maxLengthInput")) {
                 layout.addComponent(field, 1, 2);
-            } else if (propertyId.equals("extensionOnMaxTimeInput")) {
+            } else if (propertyId.equals("forwardToOnMaxTimeInput")) {
                 layout.addComponent(field, 1, 3, 2, 3);
-            } else if (propertyId.equals("extensionOnMaxLengthInput")) {
+            } else if (propertyId.equals("forwardToOnMaxLengthInput")) {
                 layout.addComponent(field, 1, 4, 2, 4);
             } else if (propertyId.equals("musicOnHold")) {
                 layout.addComponent(field, 1, 5, 2, 5);
@@ -300,4 +335,13 @@ public class QueuesForm extends Window {
 
 
     }
+
+    private CouchModel createModel(String id) {
+        try {
+            return service.getModel(id);
+        } catch (Exception e) {
+            return CouchModelUtil.newCouchModel(request, CouchTypes.queue);
+        }
+    }
+
 }

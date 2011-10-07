@@ -4,49 +4,28 @@ import org.codehaus.jackson.annotate.JsonProperty;
 
 public class Extension extends BaseModel{
 
-    @JsonProperty("extensionName")
-    private String extensionName;
+    @JsonProperty("channel")
+    private String channel;
 
-    @JsonProperty("extensionType")
-    private String extensionType;
-
-    @JsonProperty("extensionDestination")
-    private String extensionDestination;
+    @JsonProperty("destination")
+    private String destination;
 
     public Extension(){
     }
 
-    @Override
-    public String getEntityType() {
-        return "extension";
+    public String getChannel() {
+        return channel;
     }
 
-    public String getExtensionName() {
-        return extensionName;
+    public void setChannel(String channel) {
+        this.channel = channel;
     }
 
-    public void setExtensionName(String extensionName) {
-        this.extensionName = extensionName;
+    public String getDestination() {
+        return destination;
     }
 
-    public String getExtensionType() {
-        return extensionType;
-    }
-
-    public void setExtensionType(String extensionType) {
-        this.extensionType = extensionType;
-    }
-
-    public String getExtensionDestination() {
-        return extensionDestination;
-    }
-
-    public void setExtensionDestination(String extensionDestination) {
-        this.extensionDestination = extensionDestination;
-    }
-
-    @Override
-    public String toString() {
-        return getExtensionName();
+    public void setDestination(String destination) {
+        this.destination = destination;
     }
 }

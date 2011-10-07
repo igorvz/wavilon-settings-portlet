@@ -1,5 +1,6 @@
 package com.aimprosoft.wavilon.service;
 
+import com.aimprosoft.wavilon.couch.CouchModel;
 import com.aimprosoft.wavilon.model.Agent;
 
 import java.io.IOException;
@@ -7,18 +8,21 @@ import java.util.List;
 
 public interface AgentDatabaseService {
 
-    void addAgent(Agent agent) throws IOException;
+    Agent getAgent(CouchModel model) throws IOException;
 
     Agent getAgent(String id) throws IOException;
 
-    List<Agent> getAllAgents() throws IOException;
+    CouchModel getModel(String id) throws IOException;
 
-    List<Agent> getAllAgentsByUser(Long id, Long organizationId) throws IOException;
+    List<Agent> getAllAgent() throws IOException;
 
-    void removeAgent(Agent agent) throws IOException;
+    void updateAgent(Agent agent, CouchModel model, String extension) throws IOException;
+
+    List<CouchModel> getAllUsersCouchModelAgent(Long userId, Long organizationId) throws IOException;
+
+    void addAgent(Agent agent, CouchModel model, String extension) throws IOException;
+
+    void removeAgent(CouchModel model) throws IOException;
 
     void removeAgent(String id) throws IOException;
-
-    void updateAgent(Agent agent) throws IOException;
-
 }

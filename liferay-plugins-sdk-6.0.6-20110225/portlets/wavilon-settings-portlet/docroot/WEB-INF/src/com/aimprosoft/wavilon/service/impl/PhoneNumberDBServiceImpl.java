@@ -1,65 +1,89 @@
 package com.aimprosoft.wavilon.service.impl;
 
+import com.aimprosoft.wavilon.couch.CouchModel;
 import com.aimprosoft.wavilon.model.PhoneNumber;
 import com.aimprosoft.wavilon.service.PhoneNumberDatabaseService;
 import com.aimprosoft.wavilon.util.FormatUtil;
 import com.fourspaces.couchdb.Document;
 import com.fourspaces.couchdb.ViewResults;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
-public class PhoneNumberDBServiceImpl extends AbstractCouchDBService implements PhoneNumberDatabaseService {
+@Service
+public class PhoneNumberDBServiceImpl implements PhoneNumberDatabaseService {
+    @Autowired
+    private CouchDBService couchDBService;
 
-    public void addPhoneNumber(PhoneNumber phoneNumber) throws IOException {
-        updatePhoneNumber(phoneNumber);
+    @Autowired
+    private ObjectMapper objectMapper;
+
+
+    private PhoneNumber getVirtualNumber(String id) throws IOException {
+        CouchModel model = getModel(id);
+        return objectMapper.convertValue(model.getProperties(), PhoneNumber.class);
     }
 
-    public PhoneNumber getPhoneNumber(String id) throws IOException {
-        return (PhoneNumber) getModelById(id);
+
+    public PhoneNumber getPhoneNumber(CouchModel model) throws IOException {
+        return objectMapper.convertValue(model.getProperties(), PhoneNumber.class);
     }
 
-    public List<PhoneNumber> getAllPhoneNumbers() throws IOException {
-        ViewResults viewResults = database.adhoc(functions.getAllPhoneNumbersFunction());
+    public CouchModel getModel(String id) throws IOException {
+        return couchDBService.getModelById(id);
+    }
 
-        List<PhoneNumber> phoneNumberList = new LinkedList<PhoneNumber>();
+    public List<PhoneNumber> getAllPhoneNumber() throws IOException {
+        ViewResults viewResults = couchDBService.database.adhoc(couchDBService.functions.getAllPhoneNumbersFunction());
+        List<PhoneNumber> numberList = new LinkedList<PhoneNumber>();
 
         for (Document doc : viewResults.getResults()) {
-            PhoneNumber phoneNumber = getPhoneNumber(doc.getId());
 
-            phoneNumberList.add(phoneNumber);
+            PhoneNumber number = getVirtualNumber(doc.getId());
+
+            numberList.add(number);
         }
-
-        return phoneNumberList;
+        return numberList;
     }
 
-    public void removePhoneNumber(PhoneNumber phoneNumber) throws IOException {
-        removeModel(phoneNumber);
+    public void updatePhoneNumber(PhoneNumber number, CouchModel model) throws IOException {
+        Map<String, Object> properties = objectMapper.convertValue(number, Map.class);
+
+        model.setProperties(properties);
+
+        couchDBService.updateModel(model);
+    }
+
+    public List<CouchModel> getAllUsersCouchModelToPhoneNumber(Long userId, Long organizationId) throws IOException {
+        String formattedFunction = FormatUtil.formatFunction(couchDBService.functions.getBaseModelsByUserAndTypeFunction(), "service", userId, organizationId);
+
+        ViewResults viewResults = couchDBService.database.adhoc(formattedFunction);
+
+        List<CouchModel> modelList = new LinkedList<CouchModel>();
+
+        for (Document doc : viewResults.getResults()) {
+
+            CouchModel model = getModel(doc.getId());
+
+            modelList.add(model);
+        }
+        return modelList;
+    }
+
+    public void addPhoneNumber(PhoneNumber number, CouchModel model) throws IOException {
+        updatePhoneNumber(number, model);
+    }
+
+    public void removePhoneNumber(CouchModel model) throws IOException {
+        couchDBService.removeModel(model);
     }
 
     public void removePhoneNumber(String id) throws IOException {
-        removeModelById(id);
+        couchDBService.removeModelById(id);
     }
-
-    public void updatePhoneNumber(PhoneNumber phoneNumber) throws IOException {
-        updateModel(phoneNumber);
-    }
-
-    public List<PhoneNumber> getAllPhoneNumbersByUser(Long userId, Long organizationId) throws IOException {
-        String formattedFunction = FormatUtil.formatFunction(functions.getBaseModelsByUserAndTypeFunction(), "phoneNumber", userId, organizationId);
-
-       ViewResults viewResults = database.adhoc(formattedFunction);
-
-        List<PhoneNumber> phoneNumberList = new LinkedList<PhoneNumber>();
-
-        for (Document doc : viewResults.getResults()) {
-            PhoneNumber phoneNumber = getPhoneNumber(doc.getId());
-
-            phoneNumberList.add(phoneNumber);
-        }
-
-        return phoneNumberList;
-    }
-
 }

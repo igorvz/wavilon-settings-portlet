@@ -1,12 +1,15 @@
 package com.aimprosoft.wavilon.ui.menuitems.forms;
 
 import com.aimprosoft.wavilon.application.GenericPortletApplication;
-import com.aimprosoft.wavilon.model.Attachment;
-import com.aimprosoft.wavilon.model.Extension;
+import com.aimprosoft.wavilon.couch.Attachment;
+import com.aimprosoft.wavilon.couch.CouchModel;
+import com.aimprosoft.wavilon.couch.CouchModelLite;
+import com.aimprosoft.wavilon.couch.CouchTypes;
 import com.aimprosoft.wavilon.model.Recording;
-import com.aimprosoft.wavilon.service.ExtensionDatabaseService;
+import com.aimprosoft.wavilon.service.CouchModelLiteDatabaseService;
 import com.aimprosoft.wavilon.service.RecordingDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
+import com.aimprosoft.wavilon.util.CouchModelUtil;
 import com.liferay.portal.util.PortalUtil;
 import com.vaadin.Application;
 import com.vaadin.data.Item;
@@ -20,11 +23,13 @@ import java.util.*;
 
 public class RecordingsForm extends Window {
     private ResourceBundle bundle;
-    private Item item;
+
     private RecordingDatabaseService service = ObjectFactory.getBean(RecordingDatabaseService.class);
-    private ExtensionDatabaseService extensionService = ObjectFactory.getBean(ExtensionDatabaseService.class);
+    private CouchModelLiteDatabaseService modelLiteService = ObjectFactory.getBean(CouchModelLiteDatabaseService.class);
+
     private static PortletRequest request;
     private Recording recording = null;
+    private CouchModel model = null;
     private RecordingUploader recordingUploader = null;
     private Table table;
     private Application application;
@@ -34,10 +39,12 @@ public class RecordingsForm extends Window {
         this.table = table;
     }
 
-    public void init(String id) {
+    public void init(String id, final Object itemId) {
         request = ((GenericPortletApplication) getApplication()).getPortletRequest();
-        recording = createRecording(id);
-        application = (GenericPortletApplication) getApplication();
+        application = getApplication();
+
+        model = createCouchModel(id);
+        recording = new Recording();
 
         VerticalLayout content = new VerticalLayout();
         content.addStyleName("formRegion");
@@ -48,7 +55,7 @@ public class RecordingsForm extends Window {
         content.addComponent(form);
 
 
-        if (!"".equals(recording.getName())) {
+        if (model.getRevision() != null) {
             setCaption("Edit Recording");
 
         } else {
@@ -61,7 +68,7 @@ public class RecordingsForm extends Window {
         uploadLayout.addComponent(recordingUploader);
 
         content.addComponent(uploadLayout);
-        recordingUploader.init(recording);
+        recordingUploader.init(model);
 
         HorizontalLayout buttons = createButtons(content);
 
@@ -72,48 +79,54 @@ public class RecordingsForm extends Window {
         });
         buttons.addComponent(cancel);
 
-        Button save = new Button(bundle.getString("wavilon.settings.validation.form.button.save"), new Button.ClickListener() {
+        Button save = new Button(bundle.getString("wavilon.settings.validation.form.button.save"));
+        save.addListener(new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
                 try {
                     form.commit();
 
                     String name = (String) form.getField("name").getValue();
-                    Extension extension = (Extension) form.getField("extension").getValue();
+                    CouchModelLite extensionModel = (CouchModelLite) form.getField("extension").getValue();
 
+                    model.setType(CouchTypes.recording);
+
+                    Map<String, Object> extensionOut = new HashMap<String, Object>();
+                    extensionOut.put("extension", extensionModel.getId());
+
+                    model.setType(CouchTypes.recording);
+                    model.setOutputs(extensionOut);
                     recording.setName(name);
-                    recording.setExtensionId(extension.getId());
 
-                    if (recording.getAttachments() == null) {
+                    if (model.getAttachments() == null) {
 
                         UserError userError = new UserError("You must select file");
                         form.setComponentError(userError);
                     } else {
 
-                        service.addRecording(recording);
+                        service.addRecording(recording, model);
 
                         Object object = table.addItem();
                         Button delete = new Button("-");
                         delete.setData(object);
 
-                        if (null != recording.getRevision()) {
-                            Integer itemId = (Integer) object;
-                            table.removeItem(itemId-1);
+                        if (null != model.getRevision()) {
+                            table.removeItem(itemId);
                             table.select(null);
                         }
 
-                        Map<String, Attachment> attachmentMap = recording.getAttachments();
+                        Map<String, Attachment> attachmentMap = model.getAttachments();
                         for (Map.Entry<String, Attachment> entry : attachmentMap.entrySet()) {
 
                             String fileName = URLDecoder.decode(entry.getKey(), "UTF-8");
 
                             table.getContainerProperty(object, "NAME").setValue(recording.getName());
-                            table.getContainerProperty(object, "FORWARD TO ON END").setValue(extension.getExtensionName());
+                            table.getContainerProperty(object, "FORWARD TO ON END").setValue(extensionModel.getName());
                             table.getContainerProperty(object, "MEDIA FILE").setValue(fileName);
-                            table.getContainerProperty(object, "id").setValue(recording.getId());
+                            table.getContainerProperty(object, "id").setValue(model.getId());
                             table.getContainerProperty(object, "").setValue(delete);
                             delete.addListener(new Button.ClickListener() {
                                 public void buttonClick(Button.ClickEvent event) {
-                                    String id = recording.getId();
+                                    String id = model.getId();
                                     Object object = event.getButton().getData();
 
                                     if (null != id) {
@@ -158,13 +171,14 @@ public class RecordingsForm extends Window {
         TextField name = new TextField("Name");
         name.setRequired(true);
         name.setRequiredError("Name must be not empty");
-
         form.addField("name", name);
 
-        List<Extension> extensions = getExtensions();
+        List<CouchModelLite> extensionsLites = getLiteExtensions();
+
         final ComboBox extensionCombo = new ComboBox("Forward to");
         extensionCombo.addItem("Select . . .");
-        for (Extension extension : extensions) {
+
+        for (CouchModelLite extension : extensionsLites) {
             extensionCombo.addItem(extension);
         }
         extensionCombo.setImmediate(true);
@@ -174,8 +188,8 @@ public class RecordingsForm extends Window {
         extensionCombo.setRequiredError("Select Extension");
         form.addField("extension", extensionCombo);
 
-        if (null != recording.getRevision() && !"".equals(recording.getRevision())) {
-            name.setValue(recording.getName());
+        if (null != model.getRevision() && !"".equals(model.getRevision())) {
+            name.setValue(model.getProperties().get("name"));
         }
         return form;
     }
@@ -187,35 +201,20 @@ public class RecordingsForm extends Window {
         return recordingUploader;
     }
 
-    private Recording createRecording(String id) {
+    private CouchModel createCouchModel(String id) {
         if ("-1".equals(id)) {
-            return newRecording();
+            return CouchModelUtil.newCouchModel(request, CouchTypes.recording);
         }
         try {
-            return service.getRecording(id);
+            return service.getModel(id);
         } catch (Exception e) {
-            return newRecording();
+            return CouchModelUtil.newCouchModel(request, CouchTypes.recording);
         }
     }
 
-    private Recording newRecording() {
-        Recording recording = new Recording();
-
+    private List<CouchModelLite> getLiteExtensions() {
         try {
-            recording.setId(UUID.randomUUID().toString());
-            recording.setLiferayUserId(PortalUtil.getUserId(request));
-            recording.setLiferayOrganizationId(PortalUtil.getScopeGroupId(request));
-            recording.setLiferayPortalId(PortalUtil.getCompany(request).getWebId());
-        } catch (Exception ignored) {
-        }
-
-        recording.setName("");
-        return recording;
-    }
-
-    private List<Extension> getExtensions() {
-        try {
-            return extensionService.getAllExtensionByUserId(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request));
+            return modelLiteService.getAllCouchModelsLite(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request), CouchTypes.extension);
         } catch (Exception e) {
             return Collections.emptyList();
         }

@@ -1,10 +1,11 @@
 package com.aimprosoft.wavilon.ui.menuitems;
 
 import com.aimprosoft.wavilon.application.GenericPortletApplication;
-import com.aimprosoft.wavilon.model.Attachment;
-import com.aimprosoft.wavilon.model.Extension;
+import com.aimprosoft.wavilon.couch.Attachment;
+import com.aimprosoft.wavilon.couch.CouchModel;
+import com.aimprosoft.wavilon.couch.CouchModelLite;
 import com.aimprosoft.wavilon.model.Recording;
-import com.aimprosoft.wavilon.service.ExtensionDatabaseService;
+import com.aimprosoft.wavilon.service.CouchModelLiteDatabaseService;
 import com.aimprosoft.wavilon.service.RecordingDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.ui.menuitems.forms.ConfirmingRemove;
@@ -25,14 +26,14 @@ public class RecordingsContent extends VerticalLayout {
     private ResourceBundle bundle;
     private static PortletRequest request;
     private RecordingDatabaseService service = ObjectFactory.getBean(RecordingDatabaseService.class);
-    private ExtensionDatabaseService serviceExtension = ObjectFactory.getBean(ExtensionDatabaseService.class);
+    private CouchModelLiteDatabaseService liteService = ObjectFactory.getBean(CouchModelLiteDatabaseService.class);
+
     private List<String> hiddenFields;
     private RecordingsForm recordingsForm;
 
     private Table table = new Table();
     private List<String> tableFields;
     private IndexedContainer tableData;
-    private Extension extension = null;
 
     public RecordingsContent(ResourceBundle bundle) {
         this.bundle = bundle;
@@ -40,6 +41,7 @@ public class RecordingsContent extends VerticalLayout {
 
     public void init() {
         request = ((GenericPortletApplication) getApplication()).getPortletRequest();
+
         tableFields = fillFields();
         hiddenFields = fillHiddenFields();
         tableData = createTableData();
@@ -82,15 +84,15 @@ public class RecordingsContent extends VerticalLayout {
     private HorizontalLayout createButtons() {
 
         HorizontalLayout addRemoveButtons = new HorizontalLayout();
-        addRemoveButtons.addComponent(new Button("+", new Button.ClickListener() {
+        addRemoveButtons.addComponent(new Button("Add", new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
-                getForm("-1");
+                getForm("-1", "-1");
             }
         }));
         return addRemoveButtons;
     }
 
-    private void getForm(String id) {
+    private void getForm(String id, Object itemId) {
         recordingsForm = new RecordingsForm(bundle, table);
         recordingsForm.setWidth(410.0F, 0);
         recordingsForm.setHeight(350.0F, 0);
@@ -98,7 +100,7 @@ public class RecordingsContent extends VerticalLayout {
         recordingsForm.setModal(true);
 
         getWindow().addWindow(recordingsForm);
-        recordingsForm.init(id);
+        recordingsForm.init(id, itemId);
     }
 
     private void initRecording() {
@@ -113,7 +115,7 @@ public class RecordingsContent extends VerticalLayout {
                 if (event.isDoubleClick()) {
                     Item item = event.getItem();
                     if (null != item) {
-                        getForm((String) event.getItem().getItemProperty("id").getValue());
+                        getForm((String) event.getItem().getItemProperty("id").getValue(), event.getItemId());
                     }
                 }
             }
@@ -134,23 +136,24 @@ public class RecordingsContent extends VerticalLayout {
 
     private IndexedContainer createTableData() {
         IndexedContainer ic = new IndexedContainer();
-
-        List<Recording> recordings = getRecordings();
+        List<CouchModel> couchModels = getCouchModels();
 
         for (String field : tableFields) {
             if ("".equals(field)) {
-                ic.addContainerProperty(field, Component.class, "");
+                ic.addContainerProperty(field, Component.class, null);
             }
             ic.addContainerProperty(field, String.class, "");
         }
 
-        if (!recordings.isEmpty()) {
+        if (!couchModels.isEmpty()) {
 
-            for (Recording recording : recordings) {
+            for (final CouchModel couchModel : couchModels) {
+                Recording recording = getRecording(couchModel);
+
                 final Object object = ic.addItem();
                 String fileName = "";
 
-                Map<String, Attachment> attachmentMap = recording.getAttachments();
+                Map<String, Attachment> attachmentMap = couchModel.getAttachments();
                 for (Map.Entry<String, Attachment> entry : attachmentMap.entrySet()) {
 
                     try {
@@ -159,24 +162,18 @@ public class RecordingsContent extends VerticalLayout {
                     }
                 }
                 Map<String, Object> param = new HashMap<String, Object>();
-                param.put("id", recording.getId());
+
+                param.put("id", couchModel.getId());
                 param.put("object", object);
                 Button delete = new Button("-");
                 delete.setData(param);
 
-                try {
-
-                    extension = serviceExtension.getExtension(recording.getExtensionId());
-
-                } catch (Exception ignore) {
-                    extension = new Extension();
-                    extension.setExtensionName("");
-                }
+                CouchModelLite extensionModel = getExtension((String) couchModel.getOutputs().get("extension"));
 
                 ic.getContainerProperty(object, "NAME").setValue(recording.getName());
-                ic.getContainerProperty(object, "FORWARD TO ON END").setValue(extension.getExtensionName());
+                ic.getContainerProperty(object, "FORWARD TO ON END").setValue(extensionModel.getName());
                 ic.getContainerProperty(object, "MEDIA FILE").setValue(fileName);
-                ic.getContainerProperty(object, "id").setValue(recording.getId());
+                ic.getContainerProperty(object, "id").setValue(couchModel.getId());
                 ic.getContainerProperty(object, "").setValue(delete);
 
                 delete.addListener(new Button.ClickListener() {
@@ -203,9 +200,17 @@ public class RecordingsContent extends VerticalLayout {
         return ic;
     }
 
-    private List<Recording> getRecordings() {
+    private Recording getRecording(CouchModel couchModel) {
         try {
-            return service.getAllRecordingsByUserId(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request));
+            return service.getRecording(couchModel);
+        } catch (Exception e) {
+            return new Recording();
+        }
+    }
+
+    private List<CouchModel> getCouchModels() {
+        try {
+            return service.getAllUsersCouchModelToRecording(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request));
         } catch (Exception e) {
             return Collections.emptyList();
         }
@@ -220,5 +225,13 @@ public class RecordingsContent extends VerticalLayout {
         tableFields.add("");
 
         return tableFields;
+    }
+
+    private CouchModelLite getExtension(String id) {
+        try {
+            return liteService.getCouchLiteModel(id);
+        } catch (Exception e) {
+            return (CouchModelLite) Collections.emptyList();
+        }
     }
 }

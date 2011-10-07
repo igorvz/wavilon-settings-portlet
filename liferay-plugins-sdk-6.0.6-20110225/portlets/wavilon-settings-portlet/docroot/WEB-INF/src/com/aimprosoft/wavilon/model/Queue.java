@@ -1,43 +1,26 @@
 package com.aimprosoft.wavilon.model;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 
-import java.util.List;
-
-//@JsonIgnoreProperties(value = {}, ignoreUnknown = true)
+@JsonIgnoreProperties(value = {"maxTime", "maxLength", "forwardToOnMaxTime", "forwardToOnMaxLength", "musicOnHold"}, ignoreUnknown = true)
 public class Queue extends BaseModel {
-
-    @JsonProperty("name")
-    private String name;
-
-    @JsonProperty("maxTime")
+    @JsonProperty("max_time")
     private int maxTime;
 
-    @JsonProperty("maxLength")
+    @JsonProperty("max_tength")
     private int maxLength;
 
-    @JsonProperty("extensionOnMaxTime")
-    private String extensionOnMaxTime;
+    @JsonProperty("forward_to_on_max_time")
+    private String forwardToOnMaxTime;
 
-    @JsonProperty("extensionOnMaxLength")
-    private String extensionOnMaxLength;
+    @JsonProperty("forward_to_on_max_length")
+    private String forwardToOnMaxLength;
 
-    @JsonProperty("musicOnHold")
+    @JsonProperty("music_on_hold")
     private String musicOnHold;
 
-    @JsonProperty("agents")
-    private List<String> agents;
-
-
     public Queue() {
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public int getMaxTime() {
@@ -56,20 +39,20 @@ public class Queue extends BaseModel {
         this.maxLength = maxLength;
     }
 
-    public String getExtensionOnMaxTime() {
-        return extensionOnMaxTime;
+    public String getForwardToOnMaxTime() {
+        return forwardToOnMaxTime;
     }
 
-    public void setExtensionOnMaxTime(String extensionOnMaxTime) {
-        this.extensionOnMaxTime = extensionOnMaxTime;
+    public void setForwardToOnMaxTime(String forwardToOnMaxTime) {
+        this.forwardToOnMaxTime = forwardToOnMaxTime;
     }
 
-    public String getExtensionOnMaxLength() {
-        return extensionOnMaxLength;
+    public String getForwardToOnMaxLength() {
+        return forwardToOnMaxLength;
     }
 
-    public void setExtensionOnMaxLength(String extensionOnMaxLength) {
-        this.extensionOnMaxLength = extensionOnMaxLength;
+    public void setForwardToOnMaxLength(String forwardToOnMaxLength) {
+        this.forwardToOnMaxLength = forwardToOnMaxLength;
     }
 
     public String getMusicOnHold() {
@@ -79,26 +62,6 @@ public class Queue extends BaseModel {
     public void setMusicOnHold(String musicOnHold) {
         this.musicOnHold = musicOnHold;
     }
-
-    public List<String> getAgents() {
-        return agents;
-    }
-
-    public void setAgents(List<String> agents) {
-        this.agents = agents;
-    }
-
-    @Override
-    public String getEntityType() {
-        return "queue";
-    }
-
-    @Override
-    public String toString() {
-        return name;
-    }
-
-
 }
 
 

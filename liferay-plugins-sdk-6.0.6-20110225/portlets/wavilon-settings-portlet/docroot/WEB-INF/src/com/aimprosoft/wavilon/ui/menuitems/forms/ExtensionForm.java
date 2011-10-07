@@ -1,10 +1,12 @@
 package com.aimprosoft.wavilon.ui.menuitems.forms;
 
 import com.aimprosoft.wavilon.application.GenericPortletApplication;
+import com.aimprosoft.wavilon.couch.CouchModel;
+import com.aimprosoft.wavilon.couch.CouchTypes;
 import com.aimprosoft.wavilon.model.Extension;
 import com.aimprosoft.wavilon.service.ExtensionDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
-import com.liferay.portal.util.PortalUtil;
+import com.aimprosoft.wavilon.util.CouchModelUtil;
 import com.vaadin.Application;
 import com.vaadin.data.Property;
 import com.vaadin.data.Validator;
@@ -17,7 +19,6 @@ import javax.portlet.PortletRequest;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.UUID;
 
 public class ExtensionForm extends Window {
     private ExtensionDatabaseService service = ObjectFactory.getBean(ExtensionDatabaseService.class);
@@ -28,21 +29,24 @@ public class ExtensionForm extends Window {
     private Validator mobileValidator = new RegexpValidator("[+][0-9]{10}", "<div align=\"center\">Phone Number must be numeric, begin with + <br/>and consist of 10 digit</div>");
     private Validator emailValidator = new EmailValidator("Wrong format email address");
     private Application application;
+
+    private CouchModel model;
     private Extension extension;
 
     public ExtensionForm(ResourceBundle bundle, Table table) {
         this.bundle = bundle;
         this.table = table;
-
     }
 
     public void init(String id) {
+        application = getApplication();
+        request = ((GenericPortletApplication) application).getPortletRequest();
 
-        request = ((GenericPortletApplication) getApplication()).getPortletRequest();
-        application = (GenericPortletApplication) getApplication();
-        extension = createExtension(id);
+        model = createModel(id);
+        extension = createExtension(model);
 
-        if (!"".equals(extension.getExtensionName())) {
+
+        if (!"".equals(extension.getName())) {
             setCaption("Edit Extension");
         } else {
             setCaption("New Extension");
@@ -74,46 +78,42 @@ public class ExtensionForm extends Window {
                     String extensionType = (String) form.getField("extensionType").getValue();
                     String destination = (String) form.getField("destination").getValue();
 
-                    Object object = table.addItem();
+                    final Object object = table.addItem();
 
-                    Button delete = new Button("-");
-                    delete.setData(object);
-                    extension.setExtensionType(extensionType);
-                    extension.setExtensionName(name);
-                    extension.setExtensionDestination(destination);
-                    service.addExtension(extension);
+                    Button.ClickListener listener = new Button.ClickListener() {
+                        public void buttonClick(Button.ClickEvent event) {
 
-                    if (null != extension.getRevision()) {
+                            table.select(object);
+                            String phoneNumbersID = (String) table.getItem(object).getItemProperty("id").getValue();
+                            ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
+                            application.getMainWindow().addWindow(confirmingRemove);
+                            confirmingRemove.init(phoneNumbersID, table);
+                            confirmingRemove.center();
+                            confirmingRemove.setWidth("300px");
+                            confirmingRemove.setHeight("180px");
+                        }
+                    };
+
+                    extension.setChannel(extensionType);
+                    extension.setName(name);
+                    extension.setDestination(destination);
+
+                    service.addExtension(extension, model);
+
+                    if (null != model.getRevision()) {
                         table.removeItem(item);
                         table.select(null);
                     }
 
-                    table.getContainerProperty(object, "extensionId").setValue(extension.getId());
-                    table.getContainerProperty(object, "ID").setValue(extension.getLiferayOrganizationId());
-                    table.getContainerProperty(object, "NAME").setValue(extension.getExtensionName());
-                    table.getContainerProperty(object, "EXTENSION TYPE").setValue(extension.getExtensionType());
-                    table.getContainerProperty(object, "DESTINATION").setValue(extension.getExtensionDestination());
-                    table.getContainerProperty(object, "").setValue(delete);
+                    table.getContainerProperty(object, "extensionId").setValue(model.getId());
+                    table.getContainerProperty(object, "ID").setValue(model.getLiferayOrganizationId());
+                    table.getContainerProperty(object, "NAME").setValue(extension.getName());
+                    table.getContainerProperty(object, "EXTENSION TYPE").setValue(extension.getChannel());
+                    table.getContainerProperty(object, "DESTINATION").setValue(extension.getDestination());
+                    table.getContainerProperty(object, "").setValue(new Button("-", listener));
 
-                    delete.addListener(new Button.ClickListener() {
-                                public void buttonClick(Button.ClickEvent event) {
-                                    String id = extension.getId();
-                                    Object object = event.getButton().getData();
 
-                                    if (null != id) {
-                                        ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
 
-                                        application.getWindow("settingWindow").addWindow(confirmingRemove);
-                                        confirmingRemove.initConfirm(id, table, object);
-                                        confirmingRemove.center();
-                                        confirmingRemove.setWidth("420px");
-                                        confirmingRemove.setHeight("180px");
-
-                                    } else {
-                                        getWindow().showNotification("Select Recording");
-                                    }
-                                }
-                            });
                     getWindow().showNotification("Well done");
                     close();
                 } catch (Exception ignored) {
@@ -124,12 +124,20 @@ public class ExtensionForm extends Window {
         buttons.addComponent(save);
     }
 
-    private Extension createExtension(String id) {
-        if ("-1".equals(id)) {
+    private CouchModel createModel(String id) {
+        try {
+            return service.getModel(id);
+        } catch (Exception e) {
+            return CouchModelUtil.newCouchModel(request, CouchTypes.extension);
+        }
+    }
+
+    private Extension createExtension(CouchModel model) {
+        if (null == model.getRevision()) {
             return newExtension();
         }
         try {
-            return service.getExtension(id);
+            return service.getExtension(model);
         } catch (Exception e) {
             return newExtension();
         }
@@ -138,17 +146,10 @@ public class ExtensionForm extends Window {
     private Extension newExtension() {
         Extension extension = new Extension();
 
-        try {
-            extension.setId(UUID.randomUUID().toString());
-            extension.setLiferayUserId(PortalUtil.getUserId(request));
-            extension.setLiferayOrganizationId(PortalUtil.getScopeGroupId(request));
-            extension.setLiferayPortalId(PortalUtil.getCompany(request).getWebId());
-        } catch (Exception ignored) {
-        }
+        extension.setName("");
+        extension.setChannel("");
+        extension.setDestination("");
 
-        extension.setExtensionName("");
-        extension.setExtensionType("");
-        extension.setExtensionDestination("");
         return extension;
     }
 
@@ -157,7 +158,7 @@ public class ExtensionForm extends Window {
         form.addStyleName("labelField");
 
         TextField extensionId = new TextField("Extension id");
-        extensionId.setValue(extension.getLiferayOrganizationId());
+        extensionId.setValue(model.getLiferayOrganizationId());
         extensionId.setReadOnly(true);
 
 
@@ -176,7 +177,7 @@ public class ExtensionForm extends Window {
         extensionType.setImmediate(true);
         for (String s : extensionTypeList) {
             extensionType.addItem(s);
-            if (null != extension.getExtensionType() && extension.getExtensionType().equals(s)) {
+            if (null != extension.getChannel() && extension.getChannel().equals(s)) {
                 extensionType.setValue(s);
             }
         }
@@ -188,10 +189,10 @@ public class ExtensionForm extends Window {
             }
         });
 
-        if (null != extension.getRevision() && !"".equals(extension.getRevision())) {
-            name.setValue(extension.getExtensionName());
-            destination.setValue(extension.getExtensionDestination());
-            changeDestinationValidator(extension.getExtensionType(), destination, form);
+        if (null != model.getRevision() && !"".equals(model.getRevision())) {
+            name.setValue(extension.getName());
+            destination.setValue(extension.getDestination());
+            changeDestinationValidator(extension.getChannel(), destination, form);
         }
 
         form.addField("extensionId", extensionId);

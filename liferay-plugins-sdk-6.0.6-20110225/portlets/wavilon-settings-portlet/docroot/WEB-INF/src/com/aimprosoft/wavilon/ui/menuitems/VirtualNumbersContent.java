@@ -1,7 +1,9 @@
 package com.aimprosoft.wavilon.ui.menuitems;
 
 import com.aimprosoft.wavilon.application.GenericPortletApplication;
-import com.aimprosoft.wavilon.model.VirtualNumber;
+import com.aimprosoft.wavilon.couch.CouchModel;
+import com.aimprosoft.wavilon.couch.CouchModelLite;
+import com.aimprosoft.wavilon.service.CouchModelLiteDatabaseService;
 import com.aimprosoft.wavilon.service.VirtualNumberDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.ui.menuitems.forms.ConfirmingRemove;
@@ -20,14 +22,16 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 public class VirtualNumbersContent extends VerticalLayout {
+    private ResourceBundle bundle;
+
     private IndexedContainer tableData;
     private List<String> tableFields;
-    private ResourceBundle bundle;
+    private List<String> hiddenFields;
     private Table virtualNumbers = new Table();
+
     private PortletRequest request;
     private VirtualNumberDatabaseService service = (VirtualNumberDatabaseService) ObjectFactory.getBean(VirtualNumberDatabaseService.class);
-    private List<String> hiddenFields;
-    private VirtualNumbersForm virtualNumbersForm;
+    private CouchModelLiteDatabaseService liteService = ObjectFactory.getBean(CouchModelLiteDatabaseService.class);
 
     public VirtualNumbersContent(ResourceBundle bundle) {
         this.bundle = bundle;
@@ -35,6 +39,7 @@ public class VirtualNumbersContent extends VerticalLayout {
 
     public void init() {
         request = ((GenericPortletApplication) getApplication()).getPortletRequest();
+
         this.hiddenFields = fillHiddenFields();
         this.tableFields = fillFields();
         this.tableData = createTableData();
@@ -51,6 +56,8 @@ public class VirtualNumbersContent extends VerticalLayout {
 
         tableFields.add("NUMBER");
         tableFields.add("NAME");
+        tableFields.add("FORWARD CALLS TO");
+        tableFields.add("");
 
         return tableFields;
     }
@@ -68,7 +75,6 @@ public class VirtualNumbersContent extends VerticalLayout {
     }
 
     private void initVirtualNumbers() {
-        this.virtualNumbers.setContainerDataSource(this.tableData);
         this.virtualNumbers.setVisibleColumns(this.tableFields.toArray());
         this.virtualNumbers.setSelectable(true);
         this.virtualNumbers.setImmediate(true);
@@ -78,7 +84,7 @@ public class VirtualNumbersContent extends VerticalLayout {
                 if (event.isDoubleClick()) {
                     Item item = event.getItem();
                     if (null != item) {
-                        getForm((String) event.getItem().getItemProperty("id").getValue());
+                        getForm((String) event.getItem().getItemProperty("id").getValue(), event.getItemId());
                     }
                 }
             }
@@ -87,28 +93,57 @@ public class VirtualNumbersContent extends VerticalLayout {
 
     private IndexedContainer createTableData() {
         IndexedContainer ic = new IndexedContainer();
-        List<VirtualNumber> numbers = getNumbers();
+        List<CouchModel> couchModels = getCouchModels();
 
-        for (String field : this.hiddenFields) {
-            ic.addContainerProperty(field, String.class, "");
+        for (String field : hiddenFields) {
+            if ("".equals(field)) {
+                ic.addContainerProperty(field, Button.class, "");
+            } else {
+                ic.addContainerProperty(field, String.class, "");
+            }
         }
 
-        for (VirtualNumber number : numbers) {
-            Object object = ic.addItem();
-            ic.getContainerProperty(object, "NUMBER").setValue(number.getNumber());
-            ic.getContainerProperty(object, "NAME").setValue(number.getName());
-            ic.getContainerProperty(object, "id").setValue(number.getId());
-        }
+        if (!couchModels.isEmpty()) {
 
+            for (final CouchModel couchModel : couchModels) {
+                final Object object = ic.addItem();
+
+                CouchModelLite extensionModel = getExtension((String) couchModel.getOutputs().get("extension"));
+
+                ic.getContainerProperty(object, "NUMBER").setValue(couchModel.getProperties().get("locator"));
+                ic.getContainerProperty(object, "NAME").setValue(couchModel.getProperties().get("name"));
+                ic.getContainerProperty(object, "id").setValue(couchModel.getId());
+                ic.getContainerProperty(object, "FORWARD CALLS TO").setValue(extensionModel.getName());
+                ic.getContainerProperty(object, "").setValue(new Button("-", new Button.ClickListener() {
+                    public void buttonClick(Button.ClickEvent event) {
+                        virtualNumbers.select(object);
+                        ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
+                        getWindow().addWindow(confirmingRemove);
+                        confirmingRemove.init(couchModel.getId(), virtualNumbers);
+                        confirmingRemove.center();
+                        confirmingRemove.setWidth("300px");
+                        confirmingRemove.setHeight("180px");
+                    }
+                }));
+            }
+        }
         return ic;
     }
 
-    private List<VirtualNumber> getNumbers() {
+    private CouchModelLite getExtension(String id) {
         try {
-            return service.getAllVirtualNumbersByUser(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request));
-        } catch (Exception ignored) {
+            return liteService.getCouchLiteModel(id);
+        } catch (Exception e) {
+            return (CouchModelLite) Collections.emptyList();
         }
-        return Collections.emptyList();
+    }
+
+    private List<CouchModel> getCouchModels() {
+        try {
+            return service.getAllUsersCouchModelToVirtualNumber(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request));
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
     }
 
     public HorizontalLayout createHead() {
@@ -131,41 +166,24 @@ public class VirtualNumbersContent extends VerticalLayout {
     }
 
     private HorizontalLayout createButtons() {
-        HorizontalLayout addRemoveButtons = new HorizontalLayout();
-        addRemoveButtons.addComponent(new Button("+", new Button.ClickListener() {
+        HorizontalLayout addButton = new HorizontalLayout();
+        addButton.addComponent(new Button("Add", new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
-                VirtualNumbersContent.this.getForm("-1");
+                VirtualNumbersContent.this.getForm("-1", "-1");
             }
         }));
-        addRemoveButtons.addComponent(new Button("-", new Button.ClickListener() {
-            public void buttonClick(Button.ClickEvent event) {
-                Object id = VirtualNumbersContent.this.virtualNumbers.getValue();
-                if (null != id) {
-                    String virtualNumbersID = (String) VirtualNumbersContent.this.virtualNumbers.getItem(id).getItemProperty("id").getValue();
-
-                    ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
-                    getWindow().addWindow(confirmingRemove);
-                    confirmingRemove.init(virtualNumbersID, virtualNumbers);
-                    confirmingRemove.center();
-                    confirmingRemove.setWidth("300px");
-                    confirmingRemove.setHeight("180px");
-                } else {
-                    VirtualNumbersContent.this.getWindow().showNotification("Select Virtual Number");
-                }
-            }
-        }));
-        return addRemoveButtons;
+        return addButton;
     }
 
-    private void getForm(String id) {
-        virtualNumbersForm = new VirtualNumbersForm(this.bundle, this.virtualNumbers);
+    private void getForm(String id, Object itemId) {
+        VirtualNumbersForm virtualNumbersForm = new VirtualNumbersForm(this.bundle, this.virtualNumbers);
         virtualNumbersForm.setWidth("400px");
         virtualNumbersForm.setHeight("300px");
         virtualNumbersForm.center();
         virtualNumbersForm.setModal(true);
 
         getWindow().addWindow(virtualNumbersForm);
-        virtualNumbersForm.init(id);
+        virtualNumbersForm.init(id, itemId);
     }
 
     private List<String> fillHiddenFields() {
@@ -174,6 +192,8 @@ public class VirtualNumbersContent extends VerticalLayout {
         hiddenFields.add("NUMBER");
         hiddenFields.add("NAME");
         hiddenFields.add("id");
+        hiddenFields.add("FORWARD CALLS TO");
+        hiddenFields.add("");
 
         return hiddenFields;
     }

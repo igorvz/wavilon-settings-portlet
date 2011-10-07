@@ -1,5 +1,6 @@
 package com.aimprosoft.wavilon.service;
 
+import com.aimprosoft.wavilon.couch.CouchModel;
 import com.aimprosoft.wavilon.model.Queue;
 
 import java.io.IOException;
@@ -7,17 +8,19 @@ import java.util.List;
 
 public interface QueueDatabaseService {
 
-    void addQueue(Queue queue) throws IOException;
+    Queue getQueue(CouchModel model) throws IOException;
 
-    Queue getQueue(String id) throws IOException;
+    CouchModel getModel(String id) throws IOException;
 
-    List<Queue> getAllQueues() throws IOException;
+    List<Queue> getAllQueue() throws IOException;
 
-    List<Queue> getAllQueuesByUser(Long id, Long organizationId) throws IOException;
+    void updateQueue(Queue queue, CouchModel model, List<String> agents) throws IOException;
 
-    void removeQueue(Queue queue) throws IOException;
+    List<CouchModel> getAllUsersCouchModelQueue(Long userId, Long organizationId) throws IOException;
+
+    void addQueue(Queue queue, CouchModel model, List<String> agents) throws IOException;
+
+    void removeQueue(CouchModel model) throws IOException;
 
     void removeQueue(String id) throws IOException;
-
-    void updateQueue(Queue queue) throws IOException;
 }
