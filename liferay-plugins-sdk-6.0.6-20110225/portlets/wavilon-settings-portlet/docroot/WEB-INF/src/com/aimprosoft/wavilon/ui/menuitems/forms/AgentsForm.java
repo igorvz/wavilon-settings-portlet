@@ -35,7 +35,7 @@ public class AgentsForm extends Window {
         this.table = table;
     }
 
-    public void init(String id) {
+    public void init(String id, final Object itemId) {
         application = getApplication();
         request = ((GenericPortletApplication) application).getPortletRequest();
         model = createModel(id);
@@ -82,7 +82,7 @@ public class AgentsForm extends Window {
                     service.addAgent(agent, model, extension);
 
                     if (null != model.getRevision()) {
-                        table.removeItem(table.getValue());
+                        table.removeItem(itemId);
                         table.select(null);
                     }
 

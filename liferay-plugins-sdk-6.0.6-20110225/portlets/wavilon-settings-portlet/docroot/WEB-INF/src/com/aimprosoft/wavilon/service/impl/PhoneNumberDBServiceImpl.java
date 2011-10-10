@@ -1,6 +1,7 @@
 package com.aimprosoft.wavilon.service.impl;
 
 import com.aimprosoft.wavilon.couch.CouchModel;
+import com.aimprosoft.wavilon.couch.CouchTypes;
 import com.aimprosoft.wavilon.model.PhoneNumber;
 import com.aimprosoft.wavilon.service.PhoneNumberDatabaseService;
 import com.aimprosoft.wavilon.util.FormatUtil;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -51,16 +53,19 @@ public class PhoneNumberDBServiceImpl implements PhoneNumberDatabaseService {
         return numberList;
     }
 
-    public void updatePhoneNumber(PhoneNumber number, CouchModel model) throws IOException {
+    public void updatePhoneNumber(PhoneNumber number, CouchModel model, String forwardId) throws IOException {
         Map<String, Object> properties = objectMapper.convertValue(number, Map.class);
+        Map<String, Object> outputs = new HashMap<String, Object>();
+        outputs.put("startnode", forwardId);
 
         model.setProperties(properties);
+        model.setOutputs(outputs);
 
         couchDBService.updateModel(model);
     }
 
     public List<CouchModel> getAllUsersCouchModelToPhoneNumber(Long userId, Long organizationId) throws IOException {
-        String formattedFunction = FormatUtil.formatFunction(couchDBService.functions.getBaseModelsByUserAndTypeFunction(), "service", userId, organizationId);
+        String formattedFunction = FormatUtil.formatFunction(couchDBService.functions.getBaseModelsByUserAndTypeFunction(), CouchTypes.service, userId, organizationId);
 
         ViewResults viewResults = couchDBService.database.adhoc(formattedFunction);
 
@@ -75,8 +80,8 @@ public class PhoneNumberDBServiceImpl implements PhoneNumberDatabaseService {
         return modelList;
     }
 
-    public void addPhoneNumber(PhoneNumber number, CouchModel model) throws IOException {
-        updatePhoneNumber(number, model);
+    public void addPhoneNumber(PhoneNumber number, CouchModel model, String forwardId) throws IOException {
+        updatePhoneNumber(number, model, forwardId);
     }
 
     public void removePhoneNumber(CouchModel model) throws IOException {

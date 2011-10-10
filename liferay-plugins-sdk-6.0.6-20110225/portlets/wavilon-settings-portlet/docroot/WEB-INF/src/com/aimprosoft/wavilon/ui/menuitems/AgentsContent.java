@@ -5,10 +5,10 @@ import com.aimprosoft.wavilon.couch.CouchModel;
 import com.aimprosoft.wavilon.couch.CouchModelLite;
 import com.aimprosoft.wavilon.model.Agent;
 import com.aimprosoft.wavilon.service.AgentDatabaseService;
-import com.aimprosoft.wavilon.service.CouchModelLiteDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.ui.menuitems.forms.AgentsForm;
 import com.aimprosoft.wavilon.ui.menuitems.forms.ConfirmingRemove;
+import com.aimprosoft.wavilon.util.CouchModelUtil;
 import com.liferay.portal.util.PortalUtil;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
@@ -17,7 +17,6 @@ import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 
 import javax.portlet.PortletRequest;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,7 +25,6 @@ import java.util.ResourceBundle;
 public class AgentsContent extends VerticalLayout {
     private ResourceBundle bundle;
     private AgentDatabaseService service = ObjectFactory.getBean(AgentDatabaseService.class);
-    private CouchModelLiteDatabaseService modelLiteService = ObjectFactory.getBean(CouchModelLiteDatabaseService.class);
     private List<String> hiddenFields;
     private PortletRequest request;
     private Table table = new Table();
@@ -71,7 +69,7 @@ public class AgentsContent extends VerticalLayout {
                 if (event.isDoubleClick()) {
                     Item item = event.getItem();
                     if (null != item) {
-                        getForm((String) event.getItem().getItemProperty("id").getValue());
+                        getForm((String) event.getItem().getItemProperty("id").getValue(), event.getItemId());
                     }
                 }
             }
@@ -82,7 +80,7 @@ public class AgentsContent extends VerticalLayout {
         HorizontalLayout addButton = new HorizontalLayout();
         addButton.addComponent(new Button("Add", new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
-                getForm("-1");
+                getForm("-1", "-1");
             }
         }));
         return addButton;
@@ -105,12 +103,12 @@ public class AgentsContent extends VerticalLayout {
 
             for (final CouchModel couchModel : couchModels) {
                 Agent agent = getAgent(couchModel);
-                CouchModelLite extension = getExtension((String) couchModel.getOutputs().get("extension"));
+                CouchModelLite extension = CouchModelUtil.getCouchModelLite((String) couchModel.getOutputs().get("extension"));
                 final Object object = ic.addItem();
                 ic.getContainerProperty(object, "NAME").setValue(agent.getName());
                 ic.getContainerProperty(object, "CURRENT EXTENSION").setValue(extension);
                 ic.getContainerProperty(object, "id").setValue(couchModel.getId());
-                ic.getContainerProperty(object, "").setValue(new Button("-", new Button.ClickListener() {
+                ic.getContainerProperty(object, "").setValue(new Button("", new Button.ClickListener() {
                     public void buttonClick(Button.ClickEvent event) {
                         table.select(object);
                         ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
@@ -125,15 +123,6 @@ public class AgentsContent extends VerticalLayout {
 
         }
         return ic;
-    }
-
-    private CouchModelLite getExtension(String id) {
-        try {
-            return modelLiteService.getCouchLiteModel(id);
-        } catch (IOException e) {
-            return new CouchModelLite();
-        }
-
     }
 
     private List<CouchModel> getCouchModels() {
@@ -152,7 +141,7 @@ public class AgentsContent extends VerticalLayout {
         }
     }
 
-    private void getForm(String id) {
+    private void getForm(String id, Object itemId) {
         AgentsForm agentsForm = new AgentsForm(bundle, table);
         agentsForm.setWidth("400px");
         agentsForm.setHeight("300px");
@@ -160,7 +149,7 @@ public class AgentsContent extends VerticalLayout {
         agentsForm.setModal(true);
 
         getWindow().addWindow(agentsForm);
-        agentsForm.init(id);
+        agentsForm.init(id, itemId);
     }
 
     public HorizontalLayout createHead() {

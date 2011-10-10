@@ -29,7 +29,6 @@ public class RecordingsContent extends VerticalLayout {
     private CouchModelLiteDatabaseService liteService = ObjectFactory.getBean(CouchModelLiteDatabaseService.class);
 
     private List<String> hiddenFields;
-    private RecordingsForm recordingsForm;
 
     private Table table = new Table();
     private List<String> tableFields;
@@ -83,17 +82,17 @@ public class RecordingsContent extends VerticalLayout {
 
     private HorizontalLayout createButtons() {
 
-        HorizontalLayout addRemoveButtons = new HorizontalLayout();
-        addRemoveButtons.addComponent(new Button("Add", new Button.ClickListener() {
+        HorizontalLayout addButton = new HorizontalLayout();
+        addButton.addComponent(new Button("Add", new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
                 getForm("-1", "-1");
             }
         }));
-        return addRemoveButtons;
+        return addButton;
     }
 
     private void getForm(String id, Object itemId) {
-        recordingsForm = new RecordingsForm(bundle, table);
+        RecordingsForm recordingsForm = new RecordingsForm(bundle, table);
         recordingsForm.setWidth(410.0F, 0);
         recordingsForm.setHeight(350.0F, 0);
         recordingsForm.center();
@@ -116,6 +115,7 @@ public class RecordingsContent extends VerticalLayout {
                     Item item = event.getItem();
                     if (null != item) {
                         getForm((String) event.getItem().getItemProperty("id").getValue(), event.getItemId());
+//                        getForm((String) event.getItem().getItemProperty("id").getValue(), event.getItemId());
                     }
                 }
             }
@@ -165,10 +165,10 @@ public class RecordingsContent extends VerticalLayout {
 
                 param.put("id", couchModel.getId());
                 param.put("object", object);
-                Button delete = new Button("-");
+                Button delete = new Button("");
                 delete.setData(param);
 
-                CouchModelLite extensionModel = getExtension((String) couchModel.getOutputs().get("extension"));
+                CouchModelLite extensionModel = createForward(couchModel);
 
                 ic.getContainerProperty(object, "NAME").setValue(recording.getName());
                 ic.getContainerProperty(object, "FORWARD TO ON END").setValue(extensionModel.getName());
@@ -178,26 +178,22 @@ public class RecordingsContent extends VerticalLayout {
 
                 delete.addListener(new Button.ClickListener() {
                     public void buttonClick(Button.ClickEvent event) {
-                        Map<String, Object> paramMap = (Map<String, Object>) event.getButton().getData();
-                        String id = (String) paramMap.get("id");
-                        Object object = paramMap.get("object");
-
-                        if (null != id) {
-
-                            ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
-                            getWindow().addWindow(confirmingRemove);
-                            confirmingRemove.initConfirm(id, table, object);
-                            confirmingRemove.center();
-                            confirmingRemove.setWidth("420px");
-                            confirmingRemove.setHeight("180px");
-                        } else {
-                            getWindow().showNotification("Select Recording");
-                        }
+                        table.select(object);
+                        ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
+                        getWindow().addWindow(confirmingRemove);
+                        confirmingRemove.init(couchModel.getId(), table);
+                        confirmingRemove.center();
+                        confirmingRemove.setWidth("300px");
+                        confirmingRemove.setHeight("180px");
                     }
                 });
             }
         }
         return ic;
+    }
+
+    private CouchModelLite createForward(CouchModel couchModel) {
+        return getForward((String) couchModel.getProperties().get("forward_to"));
     }
 
     private Recording getRecording(CouchModel couchModel) {
@@ -227,7 +223,7 @@ public class RecordingsContent extends VerticalLayout {
         return tableFields;
     }
 
-    private CouchModelLite getExtension(String id) {
+    private CouchModelLite getForward(String id) {
         try {
             return liteService.getCouchLiteModel(id);
         } catch (Exception e) {

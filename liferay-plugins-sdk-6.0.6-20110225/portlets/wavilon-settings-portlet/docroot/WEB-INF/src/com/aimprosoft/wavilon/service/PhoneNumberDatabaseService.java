@@ -15,11 +15,11 @@ public interface PhoneNumberDatabaseService {
 
     List<PhoneNumber> getAllPhoneNumber() throws IOException;
 
-    void updatePhoneNumber(PhoneNumber number, CouchModel model) throws IOException;
+    void updatePhoneNumber(PhoneNumber number, CouchModel model, String id) throws IOException;
 
     List<CouchModel> getAllUsersCouchModelToPhoneNumber(Long userId, Long organizationId) throws IOException;
 
-    void addPhoneNumber(PhoneNumber number, CouchModel model) throws IOException;
+    void addPhoneNumber(PhoneNumber number, CouchModel model, String forwardId) throws IOException;
 
     void removePhoneNumber(CouchModel model) throws IOException;
 

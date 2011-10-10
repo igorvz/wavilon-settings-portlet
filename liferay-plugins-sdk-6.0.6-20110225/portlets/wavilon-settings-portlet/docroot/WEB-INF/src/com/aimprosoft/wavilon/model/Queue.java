@@ -6,10 +6,10 @@ import org.codehaus.jackson.annotate.JsonProperty;
 @JsonIgnoreProperties(value = {"maxTime", "maxLength", "forwardToOnMaxTime", "forwardToOnMaxLength", "musicOnHold"}, ignoreUnknown = true)
 public class Queue extends BaseModel {
     @JsonProperty("max_time")
-    private int maxTime;
+    private Integer maxTime;
 
     @JsonProperty("max_tength")
-    private int maxLength;
+    private Integer maxLength;
 
     @JsonProperty("forward_to_on_max_time")
     private String forwardToOnMaxTime;
@@ -27,7 +27,7 @@ public class Queue extends BaseModel {
         return maxTime;
     }
 
-    public void setMaxTime(int maxTime) {
+    public void setMaxTime(Integer maxTime) {
         this.maxTime = maxTime;
     }
 
@@ -35,7 +35,7 @@ public class Queue extends BaseModel {
         return maxLength;
     }
 
-    public void setMaxLength(int maxLength) {
+    public void setMaxLength(Integer maxLength) {
         this.maxLength = maxLength;
     }
 

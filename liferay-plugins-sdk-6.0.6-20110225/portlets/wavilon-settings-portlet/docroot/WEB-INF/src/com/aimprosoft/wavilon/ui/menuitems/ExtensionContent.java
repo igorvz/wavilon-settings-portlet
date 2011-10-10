@@ -3,7 +3,6 @@ package com.aimprosoft.wavilon.ui.menuitems;
 import com.aimprosoft.wavilon.application.GenericPortletApplication;
 import com.aimprosoft.wavilon.couch.CouchModel;
 import com.aimprosoft.wavilon.model.Extension;
-import com.aimprosoft.wavilon.service.CouchModelLiteDatabaseService;
 import com.aimprosoft.wavilon.service.ExtensionDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.ui.menuitems.forms.ConfirmingRemove;
@@ -17,13 +16,15 @@ import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 
 import javax.portlet.PortletRequest;
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ResourceBundle;
 
 public class ExtensionContent extends VerticalLayout {
     private ResourceBundle bundle;
     private static PortletRequest request;
     private ExtensionDatabaseService extensionService = ObjectFactory.getBean(ExtensionDatabaseService.class);
-    private CouchModelLiteDatabaseService modelLiteService = ObjectFactory.getBean(CouchModelLiteDatabaseService.class);
     private List<String> hiddenFields;
 
     private Table table = new Table();
@@ -139,7 +140,7 @@ public class ExtensionContent extends VerticalLayout {
                 ic.getContainerProperty(object, "NAME").setValue(extension.getName());
                 ic.getContainerProperty(object, "EXTENSION TYPE").setValue(extension.getChannel());
                 ic.getContainerProperty(object, "DESTINATION").setValue(extension.getDestination());
-                ic.getContainerProperty(object, "").setValue(new Button("-", new Button.ClickListener() {
+                ic.getContainerProperty(object, "").setValue(new Button("", new Button.ClickListener() {
                     public void buttonClick(Button.ClickEvent event) {
                         table.select(object);
                         ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);

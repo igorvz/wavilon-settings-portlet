@@ -6,26 +6,26 @@ import com.aimprosoft.wavilon.couch.CouchModel;
 import com.aimprosoft.wavilon.couch.CouchModelLite;
 import com.aimprosoft.wavilon.couch.CouchTypes;
 import com.aimprosoft.wavilon.model.Recording;
-import com.aimprosoft.wavilon.service.CouchModelLiteDatabaseService;
 import com.aimprosoft.wavilon.service.RecordingDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.util.CouchModelUtil;
 import com.liferay.portal.util.PortalUtil;
 import com.vaadin.Application;
-import com.vaadin.data.Item;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.terminal.UserError;
 import com.vaadin.ui.*;
 
 import javax.portlet.PortletRequest;
 import java.net.URLDecoder;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.ResourceBundle;
 
 public class RecordingsForm extends Window {
     private ResourceBundle bundle;
 
     private RecordingDatabaseService service = ObjectFactory.getBean(RecordingDatabaseService.class);
-    private CouchModelLiteDatabaseService modelLiteService = ObjectFactory.getBean(CouchModelLiteDatabaseService.class);
 
     private static PortletRequest request;
     private Recording recording = null;
@@ -85,17 +85,14 @@ public class RecordingsForm extends Window {
                 try {
                     form.commit();
 
+
                     String name = (String) form.getField("name").getValue();
-                    CouchModelLite extensionModel = (CouchModelLite) form.getField("extension").getValue();
+                    CouchModelLite forwardModel = (CouchModelLite) form.getField("forward").getValue();
 
                     model.setType(CouchTypes.recording);
 
-                    Map<String, Object> extensionOut = new HashMap<String, Object>();
-                    extensionOut.put("extension", extensionModel.getId());
-
-                    model.setType(CouchTypes.recording);
-                    model.setOutputs(extensionOut);
                     recording.setName(name);
+                    recording.setForwardTo(forwardModel.getId());
 
                     if (model.getAttachments() == null) {
 
@@ -105,9 +102,23 @@ public class RecordingsForm extends Window {
 
                         service.addRecording(recording, model);
 
-                        Object object = table.addItem();
+                        final Object object = table.addItem();
+
                         Button delete = new Button("-");
                         delete.setData(object);
+                        delete.addListener(new Button.ClickListener() {
+                            public void buttonClick(Button.ClickEvent event) {
+
+                                table.select(object);
+                                String phoneNumbersID = (String) table.getItem(object).getItemProperty("id").getValue();
+                                ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
+                                application.getMainWindow().addWindow(confirmingRemove);
+                                confirmingRemove.init(phoneNumbersID, table);
+                                confirmingRemove.center();
+                                confirmingRemove.setWidth("300px");
+                                confirmingRemove.setHeight("180px");
+                            }
+                        });
 
                         if (null != model.getRevision()) {
                             table.removeItem(itemId);
@@ -120,29 +131,10 @@ public class RecordingsForm extends Window {
                             String fileName = URLDecoder.decode(entry.getKey(), "UTF-8");
 
                             table.getContainerProperty(object, "NAME").setValue(recording.getName());
-                            table.getContainerProperty(object, "FORWARD TO ON END").setValue(extensionModel.getName());
+                            table.getContainerProperty(object, "FORWARD TO ON END").setValue(forwardModel.getName());
                             table.getContainerProperty(object, "MEDIA FILE").setValue(fileName);
                             table.getContainerProperty(object, "id").setValue(model.getId());
                             table.getContainerProperty(object, "").setValue(delete);
-                            delete.addListener(new Button.ClickListener() {
-                                public void buttonClick(Button.ClickEvent event) {
-                                    String id = model.getId();
-                                    Object object = event.getButton().getData();
-
-                                    if (null != id) {
-                                        ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
-
-                                        application.getWindow("settingWindow").addWindow(confirmingRemove);
-                                        confirmingRemove.initConfirm(id, table, object);
-                                        confirmingRemove.center();
-                                        confirmingRemove.setWidth("420px");
-                                        confirmingRemove.setHeight("180px");
-
-                                    } else {
-                                        getWindow().showNotification("Select Recording");
-                                    }
-                                }
-                            });
                         }
                         getWindow().showNotification("Well done");
                         close();
@@ -173,20 +165,18 @@ public class RecordingsForm extends Window {
         name.setRequiredError("Name must be not empty");
         form.addField("name", name);
 
-        List<CouchModelLite> extensionsLites = getLiteExtensions();
+        List<CouchModelLite> forwardsLites = getLiteForward();
 
-        final ComboBox extensionCombo = new ComboBox("Forward to");
-        extensionCombo.addItem("Select . . .");
+        final ComboBox forwardComboBox = new ComboBox("Forward to");
+        forwardComboBox.addItem("Select . . .");
 
-        for (CouchModelLite extension : extensionsLites) {
-            extensionCombo.addItem(extension);
+        for (CouchModelLite forward : forwardsLites) {
+            forwardComboBox.addItem(forward);
         }
-        extensionCombo.setImmediate(true);
-        extensionCombo.setNullSelectionAllowed(false);
-        extensionCombo.setNullSelectionItemId("Select . . .");
-        extensionCombo.setRequired(true);
-        extensionCombo.setRequiredError("Select Extension");
-        form.addField("extension", extensionCombo);
+        forwardComboBox.setNullSelectionItemId("Select . . .");
+        forwardComboBox.setRequired(true);
+        forwardComboBox.setRequiredError("Select Forward to");
+        form.addField("forward", forwardComboBox);
 
         if (null != model.getRevision() && !"".equals(model.getRevision())) {
             name.setValue(model.getProperties().get("name"));
@@ -212,9 +202,9 @@ public class RecordingsForm extends Window {
         }
     }
 
-    private List<CouchModelLite> getLiteExtensions() {
+    private List<CouchModelLite> getLiteForward() {
         try {
-            return modelLiteService.getAllCouchModelsLite(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request), CouchTypes.extension);
+            return CouchModelUtil.getForwards(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request));
         } catch (Exception e) {
             return Collections.emptyList();
         }

@@ -3,11 +3,12 @@ package com.aimprosoft.wavilon.ui.menuitems;
 import com.aimprosoft.wavilon.application.GenericPortletApplication;
 import com.aimprosoft.wavilon.couch.CouchModel;
 import com.aimprosoft.wavilon.couch.CouchModelLite;
-import com.aimprosoft.wavilon.service.CouchModelLiteDatabaseService;
+import com.aimprosoft.wavilon.model.VirtualNumber;
 import com.aimprosoft.wavilon.service.VirtualNumberDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.ui.menuitems.forms.ConfirmingRemove;
 import com.aimprosoft.wavilon.ui.menuitems.forms.VirtualNumbersForm;
+import com.aimprosoft.wavilon.util.CouchModelUtil;
 import com.liferay.portal.util.PortalUtil;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
@@ -30,8 +31,7 @@ public class VirtualNumbersContent extends VerticalLayout {
     private Table virtualNumbers = new Table();
 
     private PortletRequest request;
-    private VirtualNumberDatabaseService service = (VirtualNumberDatabaseService) ObjectFactory.getBean(VirtualNumberDatabaseService.class);
-    private CouchModelLiteDatabaseService liteService = ObjectFactory.getBean(CouchModelLiteDatabaseService.class);
+    private VirtualNumberDatabaseService service = ObjectFactory.getBean(VirtualNumberDatabaseService.class);
 
     public VirtualNumbersContent(ResourceBundle bundle) {
         this.bundle = bundle;
@@ -107,14 +107,14 @@ public class VirtualNumbersContent extends VerticalLayout {
 
             for (final CouchModel couchModel : couchModels) {
                 final Object object = ic.addItem();
+                VirtualNumber virtualNumber  = getVirtualNumber(couchModel);
+                CouchModelLite forward = CouchModelUtil.getCouchModelLite((String) couchModel.getProperties().get("forward_to"));
 
-                CouchModelLite extensionModel = getExtension((String) couchModel.getOutputs().get("extension"));
-
-                ic.getContainerProperty(object, "NUMBER").setValue(couchModel.getProperties().get("locator"));
-                ic.getContainerProperty(object, "NAME").setValue(couchModel.getProperties().get("name"));
+                ic.getContainerProperty(object, "NUMBER").setValue(virtualNumber.getLocator());
+                ic.getContainerProperty(object, "NAME").setValue(virtualNumber.getName());
                 ic.getContainerProperty(object, "id").setValue(couchModel.getId());
-                ic.getContainerProperty(object, "FORWARD CALLS TO").setValue(extensionModel.getName());
-                ic.getContainerProperty(object, "").setValue(new Button("-", new Button.ClickListener() {
+                ic.getContainerProperty(object, "FORWARD CALLS TO").setValue(forward);
+                ic.getContainerProperty(object, "").setValue(new Button("", new Button.ClickListener() {
                     public void buttonClick(Button.ClickEvent event) {
                         virtualNumbers.select(object);
                         ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
@@ -130,11 +130,11 @@ public class VirtualNumbersContent extends VerticalLayout {
         return ic;
     }
 
-    private CouchModelLite getExtension(String id) {
+    private VirtualNumber getVirtualNumber(CouchModel couchModel) {
         try {
-            return liteService.getCouchLiteModel(id);
-        } catch (Exception e) {
-            return (CouchModelLite) Collections.emptyList();
+            return service.getVirtualNumber(couchModel);
+        } catch (Exception ignored) {
+            return new VirtualNumber();
         }
     }
 

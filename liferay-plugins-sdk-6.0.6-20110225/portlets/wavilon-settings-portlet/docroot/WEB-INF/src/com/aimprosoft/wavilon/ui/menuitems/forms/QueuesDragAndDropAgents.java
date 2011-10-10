@@ -4,6 +4,7 @@ import com.aimprosoft.wavilon.application.GenericPortletApplication;
 import com.aimprosoft.wavilon.couch.CouchModel;
 import com.aimprosoft.wavilon.couch.CouchModelLite;
 import com.aimprosoft.wavilon.couch.CouchTypes;
+import com.aimprosoft.wavilon.model.Agent;
 import com.aimprosoft.wavilon.model.Queue;
 import com.aimprosoft.wavilon.service.AgentDatabaseService;
 import com.aimprosoft.wavilon.service.CouchModelLiteDatabaseService;
@@ -33,8 +34,7 @@ public class QueuesDragAndDropAgents extends HorizontalLayout {
 
 
     private QueueDatabaseService queuesService = ObjectFactory.getBean(QueueDatabaseService.class);
-    private CouchModelLiteDatabaseService modelLiteService = ObjectFactory.getBean(CouchModelLiteDatabaseService.class);
-    private AgentDatabaseService agentService =  ObjectFactory.getBean(AgentDatabaseService.class);
+    private AgentDatabaseService agentService = ObjectFactory.getBean(AgentDatabaseService.class);
     private ResourceBundle bundle;
     private PortletRequest request;
     private CouchModel model;
@@ -158,13 +158,15 @@ public class QueuesDragAndDropAgents extends HorizontalLayout {
 
     private List<CouchModel> getQueuesAgents() {
         List<CouchModel> agentsInQueueList = new LinkedList<CouchModel>();
-        if (null  != model.getOutputs()) {
+        if (null != model.getOutputs()) {
             List<String> agents = (List) model.getOutputs().get("agents");
             for (String agentId : agents) {
                 try {
                     CouchModel agent = agentService.getModel(agentId);
                     agentsInQueueList.add(agent);
-                } catch (IOException ignored) {
+                } catch (Exception ignored) {
+                    Agent agent = new Agent();
+                    agent.setName("This has been removed!");
                 }
             }
         }
@@ -218,11 +220,8 @@ public class QueuesDragAndDropAgents extends HorizontalLayout {
         for (CouchModel agent : agentList) {
             Object object = ic.addItem();
             ic.getContainerProperty(object, "NAME").setValue(agent.getProperties().get("name"));
-            CouchModelLite extension = null;
-            try {
-                extension = modelLiteService.getCouchLiteModel((String) agent.getOutputs().get("extension"));
-            } catch (IOException ignored) {
-            }
+            CouchModelLite extension = CouchModelUtil.getCouchModelLite((String) agent.getOutputs().get("extension"));
+
             ic.getContainerProperty(object, "CURRENT EXTENSION").setValue(extension);
             ic.getContainerProperty(object, "id").setValue(agent.getId());
         }

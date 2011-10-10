@@ -5,7 +5,6 @@ import com.aimprosoft.wavilon.couch.CouchModel;
 import com.aimprosoft.wavilon.couch.CouchModelLite;
 import com.aimprosoft.wavilon.couch.CouchTypes;
 import com.aimprosoft.wavilon.model.VirtualNumber;
-import com.aimprosoft.wavilon.service.CouchModelLiteDatabaseService;
 import com.aimprosoft.wavilon.service.VirtualNumberDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.util.CouchModelUtil;
@@ -16,11 +15,12 @@ import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 
 import javax.portlet.PortletRequest;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.ResourceBundle;
 
 public class VirtualNumbersForm extends Window {
     private VirtualNumberDatabaseService service = ObjectFactory.getBean(VirtualNumberDatabaseService.class);
-    CouchModelLiteDatabaseService modelLiteDatabaseService = ObjectFactory.getBean(CouchModelLiteDatabaseService.class);
     private ResourceBundle bundle;
     private PortletRequest request;
     private Table table;
@@ -58,7 +58,6 @@ public class VirtualNumbersForm extends Window {
         final Form form = createForm();
         content.addComponent(form);
 
-
         HorizontalLayout buttons = createButtons(content);
 
 
@@ -76,16 +75,13 @@ public class VirtualNumbersForm extends Window {
 
                     String name = (String) form.getField("name").getValue();
                     String number = (String) form.getField("number").getValue();
-                    CouchModel forwardCallTo = (CouchModel) form.getField("forwardCallTo").getValue();
+                    CouchModelLite forwardCallTo = (CouchModelLite) form.getField("forwardCallTo").getValue();
                     virtualNumber.setName(name);
                     virtualNumber.setLocator(number);
+                    virtualNumber.setForwardTo(forwardCallTo.getId());
 
                     model.setType(CouchTypes.startnode);
 
-                    Map<String, Object> extensionOut = new HashMap<String, Object>();
-                    extensionOut.put("extension", forwardCallTo.getId());
-
-                    model.setOutputs(extensionOut);
                     service.addVirtualNumber(virtualNumber, model);
 
                     if (null != model.getRevision()) {
@@ -111,9 +107,8 @@ public class VirtualNumbersForm extends Window {
                     table.getContainerProperty(object, "NUMBER").setValue(model.getProperties().get("locator"));
                     table.getContainerProperty(object, "NAME").setValue(virtualNumber.getName());
                     table.getContainerProperty(object, "id").setValue(model.getId());
-                    table.getContainerProperty(object, "FORWARD CALLS TO").setValue(forwardCallTo.getProperties().get("name"));
+                    table.getContainerProperty(object, "FORWARD CALLS TO").setValue(forwardCallTo.getName());
                     table.getContainerProperty(object, "").setValue(new Button("-", listener));
-
 
                     getWindow().showNotification("Well done");
                     close();
@@ -146,13 +141,12 @@ public class VirtualNumbersForm extends Window {
         number.addValidator(new RegexpValidator("[+][0-9]{10}", "<div align=\"center\">Number must be numeric, begin with + <br/>and consist of 10 digit</div>"));
 
 
-        List<CouchModelLite> forwards = getExtensions();
+        List<CouchModelLite> forwards = getForward();
         ComboBox forwardCallTo = new ComboBox("Forward calls to");
         forwardCallTo.addItem("Select . . .");
         for (CouchModelLite forward : forwards) {
             forwardCallTo.addItem(forward);
         }
-        forwardCallTo.setImmediate(true);
         forwardCallTo.setNullSelectionItemId("Select . . .");
         forwardCallTo.setRequired(true);
         name.setRequiredError("Empty field \"Forward calls to\"");
@@ -188,11 +182,10 @@ public class VirtualNumbersForm extends Window {
         return buttons;
     }
 
-    private List<CouchModelLite> getExtensions() {
+    private List<CouchModelLite> getForward() {
 
         try {
-
-            return modelLiteDatabaseService.getAllCouchModelsLite(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request), CouchTypes.extension);
+            return CouchModelUtil.getForwards(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request));
         } catch (Exception e) {
             return Collections.emptyList();
         }

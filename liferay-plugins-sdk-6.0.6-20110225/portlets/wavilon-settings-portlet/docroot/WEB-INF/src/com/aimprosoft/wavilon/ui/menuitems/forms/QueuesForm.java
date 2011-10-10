@@ -5,7 +5,6 @@ import com.aimprosoft.wavilon.couch.CouchModel;
 import com.aimprosoft.wavilon.couch.CouchModelLite;
 import com.aimprosoft.wavilon.couch.CouchTypes;
 import com.aimprosoft.wavilon.model.Queue;
-import com.aimprosoft.wavilon.service.CouchModelLiteDatabaseService;
 import com.aimprosoft.wavilon.service.QueueDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.util.CouchModelUtil;
@@ -17,7 +16,6 @@ import com.vaadin.ui.*;
 import org.apache.commons.lang.math.NumberUtils;
 
 import javax.portlet.PortletRequest;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -25,7 +23,6 @@ import java.util.ResourceBundle;
 
 public class QueuesForm extends Window {
 
-    private CouchModelLiteDatabaseService modelLiteService = ObjectFactory.getBean(CouchModelLiteDatabaseService.class);
     private QueueDatabaseService service = ObjectFactory.getBean(QueueDatabaseService.class);
     private ResourceBundle bundle;
     private PortletRequest request;
@@ -39,7 +36,7 @@ public class QueuesForm extends Window {
         this.table = table;
     }
 
-    public void init(String id) {
+    public void init(String id, final Object itemId) {
         final Application application = getApplication();
         request = ((GenericPortletApplication) application).getPortletRequest();
         model = createModel(id);
@@ -88,7 +85,7 @@ public class QueuesForm extends Window {
 
 
                     if (null != model.getRevision()) {
-                        table.removeItem(table.getValue());
+                        table.removeItem(itemId);
                         table.select(null);
                     }
 
@@ -119,8 +116,8 @@ public class QueuesForm extends Window {
 
 
                     table.getContainerProperty(object, "NAME").setValue(queue.getName());
-                    table.getContainerProperty(object, "FORWARD TO ON MAX. TIME").setValue(getForward(queue.getForwardToOnMaxTime()));
-                    table.getContainerProperty(object, "FORWARD TO ON MAX. LENGTH").setValue(getForward(queue.getForwardToOnMaxLength()));
+                    table.getContainerProperty(object, "FORWARD TO ON MAX. TIME").setValue(CouchModelUtil.getCouchModelLite(queue.getForwardToOnMaxTime()));
+                    table.getContainerProperty(object, "FORWARD TO ON MAX. LENGTH").setValue(CouchModelUtil.getCouchModelLite(queue.getForwardToOnMaxLength()));
                     table.getContainerProperty(object, "id").setValue(model.getId());
                     table.getContainerProperty(object, "").setValue(new Button("-", listener));
 
@@ -131,14 +128,6 @@ public class QueuesForm extends Window {
             }
         });
         buttons.addComponent(save);
-    }
-
-    private Object getForward(String id) {
-        try {
-            return modelLiteService.getCouchLiteModel(id);
-        } catch (IOException e) {
-            return new Object();
-        }
     }
 
     private Queue createQueue(CouchModel model) {
@@ -273,17 +262,11 @@ public class QueuesForm extends Window {
     }
 
     private List<CouchModelLite> getForwards() {
-        List<CouchModelLite> modelLiteList = new LinkedList<CouchModelLite>();
         try {
-            modelLiteList.addAll(modelLiteService.getAllCouchModelsLite(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request), CouchTypes.queue));
-            modelLiteList.addAll(modelLiteService.getAllCouchModelsLite(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request), CouchTypes.agent));
-            modelLiteList.addAll(modelLiteService.getAllCouchModelsLite(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request), CouchTypes.extension));
-            modelLiteList.addAll(modelLiteService.getAllCouchModelsLite(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request), CouchTypes.recording));
-        } catch (Exception e) {
-            Collections.emptyList();
+            return CouchModelUtil.getForwards(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request));
+        } catch (Exception ignored) {
+            return Collections.emptyList();
         }
-
-        return modelLiteList;
     }
 
     private static class QueuesFormLayout extends Form {
