@@ -69,8 +69,6 @@ public class VirtualNumbersContent extends VerticalLayout {
 
         this.virtualNumbers.setContainerDataSource(this.tableData);
         this.virtualNumbers.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-        this.virtualNumbers.setStyleName("virtualNumbers");
-        this.virtualNumbers.setStyleName("tableCustom");
         addComponent(this.virtualNumbers);
     }
 
@@ -152,9 +150,8 @@ public class VirtualNumbersContent extends VerticalLayout {
         Label headLabel = new Label("Virtual Numbers");
         head.addComponent(headLabel);
         head.setMargin(false);
-        head.addStyleName("headLine");
-        headLabel.addStyleName("tableHeader");
-        headLabel.addStyleName("virtualHeader");
+        head.addStyleName("head");
+        headLabel.addStyleName("label");
 
         HorizontalLayout addRemoveButtons = createButtons();
         head.addComponent(addRemoveButtons);

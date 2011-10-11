@@ -41,8 +41,8 @@ public class PhoneNumbersContent extends VerticalLayout {
         this.tableFields = fillFields();
         this.tableData = createTableData();
 
-        setWidth(100, Sizeable.UNITS_PERCENTAGE);
-        setSizeUndefined();
+//        setWidth(100, Sizeable.UNITS_PERCENTAGE);
+        setSizeFull();
         initLayout();
         initPhoneNumbers();
     }
@@ -54,7 +54,7 @@ public class PhoneNumbersContent extends VerticalLayout {
 
         this.phoneNumbers.setContainerDataSource(this.tableData);
         this.phoneNumbers.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-
+        this.phoneNumbers.setFooterVisible(false);
         this.phoneNumbers.addStyleName("tableCustom");
         addComponent(this.phoneNumbers);
     }
@@ -99,7 +99,7 @@ public class PhoneNumbersContent extends VerticalLayout {
                 ic.getContainerProperty(object, "NAME").setValue(phoneNumber.getName());
                 ic.getContainerProperty(object, "id").setValue(couchModel.getId());
                 ic.getContainerProperty(object, "FORWARD CALLS TO").setValue(forward);
-                ic.getContainerProperty(object, "").setValue(new Button("", new Button.ClickListener() {
+                Button removeButton = new Button("", new Button.ClickListener() {
                     public void buttonClick(Button.ClickEvent event) {
                         phoneNumbers.select(object);
                         ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
@@ -109,7 +109,8 @@ public class PhoneNumbersContent extends VerticalLayout {
                         confirmingRemove.setWidth("300px");
                         confirmingRemove.setHeight("180px");
                     }
-                }));
+                });
+                ic.getContainerProperty(object, "").setValue(removeButton);
             }
         }
         return ic;
@@ -129,27 +130,26 @@ public class PhoneNumbersContent extends VerticalLayout {
         Label headLabel = new Label("Phone Numbers");
         head.addComponent(headLabel);
         head.setMargin(false);
-        head.addStyleName("headLine");
-        headLabel.addStyleName("phoneHeader");
-        headLabel.addStyleName("tableHeader");
+        head.addStyleName("head");
+        headLabel.addStyleName("label");
 
-        HorizontalLayout addRemoveButtons = createButtons();
-        head.addComponent(addRemoveButtons);
+        HorizontalLayout addButton = createButton();
+        head.addComponent(addButton);
 
         head.setComponentAlignment(headLabel, Alignment.TOP_LEFT);
-        head.setComponentAlignment(addRemoveButtons, Alignment.MIDDLE_RIGHT);
+        head.setComponentAlignment(addButton, Alignment.MIDDLE_RIGHT);
 
         return head;
     }
 
-    private HorizontalLayout createButtons() {
-        HorizontalLayout addRemoveButtons = new HorizontalLayout();
-        addRemoveButtons.addComponent(new Button("Add", new Button.ClickListener() {
+    private HorizontalLayout createButton() {
+        HorizontalLayout addButton = new HorizontalLayout();
+        addButton.addComponent(new Button("Add", new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
-                PhoneNumbersContent.this.getForm("-1", "-1");
+                getForm("-1", "-1");
             }
         }));
-        return addRemoveButtons;
+        return addButton;
     }
 
     private void getForm(String id, Object itemId) {

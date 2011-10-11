@@ -56,7 +56,6 @@ public class RecordingsContent extends VerticalLayout {
 
         table.setContainerDataSource(tableData);
         table.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-        table.setStyleName("tableCustom");
         addComponent(table);
     }
 
@@ -67,9 +66,8 @@ public class RecordingsContent extends VerticalLayout {
         Label headLabel = new Label("Recordings");
         head.addComponent(headLabel);
         head.setMargin(false);
-        head.addStyleName("headLine");
-        headLabel.addStyleName("tableHeader");
-        headLabel.addStyleName("recordingsHeader");
+        head.addStyleName("head");
+        headLabel.addStyleName("label");
 
         HorizontalLayout addRemoveButtons = createButtons();
         head.addComponent(addRemoveButtons);

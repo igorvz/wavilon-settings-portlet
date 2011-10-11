@@ -107,7 +107,7 @@ public class AgentsForm extends Window {
                     table.getContainerProperty(object, "NAME").setValue(agent.getName());
                     table.getContainerProperty(object, "CURRENT EXTENSION").setValue(form.getField("extensions").getValue());
                     table.getContainerProperty(object, "id").setValue(model.getId());
-                    table.getContainerProperty(object, "").setValue(new Button("-", listener));
+                    table.getContainerProperty(object, "").setValue(new Button("", listener));
 
                     getWindow().showNotification("Well done");
                     close();

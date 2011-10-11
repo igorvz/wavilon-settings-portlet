@@ -54,7 +54,6 @@ public class AgentsContent extends VerticalLayout {
 
         table.setContainerDataSource(this.tableData);
         table.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-        table.setStyleName("tableCustom");
         addComponent(table);
     }
 
@@ -76,7 +75,7 @@ public class AgentsContent extends VerticalLayout {
         });
     }
 
-    private HorizontalLayout createButtons() {
+    private HorizontalLayout createButton() {
         HorizontalLayout addButton = new HorizontalLayout();
         addButton.addComponent(new Button("Add", new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
@@ -158,15 +157,14 @@ public class AgentsContent extends VerticalLayout {
         Label headLabel = new Label("Agents");
         head.addComponent(headLabel);
         head.setMargin(false);
-        head.addStyleName("headLine");
-        headLabel.addStyleName("agentHeader");
-        headLabel.addStyleName("tableHeader");
+        head.addStyleName("head");
+        headLabel.addStyleName("label");
 
-        HorizontalLayout addRemoveButtons = createButtons();
-        head.addComponent(addRemoveButtons);
+        HorizontalLayout addButton = createButton();
+        head.addComponent(addButton);
 
         head.setComponentAlignment(headLabel, Alignment.TOP_LEFT);
-        head.setComponentAlignment(addRemoveButtons, Alignment.MIDDLE_RIGHT);
+        head.setComponentAlignment(addButton, Alignment.MIDDLE_RIGHT);
 
         return head;
     }

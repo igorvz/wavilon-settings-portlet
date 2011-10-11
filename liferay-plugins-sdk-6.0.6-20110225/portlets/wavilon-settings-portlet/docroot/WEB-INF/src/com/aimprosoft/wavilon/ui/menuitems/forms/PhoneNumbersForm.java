@@ -117,7 +117,9 @@ public class PhoneNumbersForm extends Window {
                     table.getContainerProperty(object, "NAME").setValue(phoneNumber.getName());
                     table.getContainerProperty(object, "FORWARD CALLS TO").setValue(forwardCallTo.getName());
                     table.getContainerProperty(object, "id").setValue(model.getId());
-                    table.getContainerProperty(object, "").setValue(new Button("-", listener));
+                    Button removeButton = new Button("", listener);
+                    removeButton.addStyleName("removeButton");
+                    table.getContainerProperty(object, "").setValue(removeButton);
 
                     getWindow().showNotification("Well done");
                     close();

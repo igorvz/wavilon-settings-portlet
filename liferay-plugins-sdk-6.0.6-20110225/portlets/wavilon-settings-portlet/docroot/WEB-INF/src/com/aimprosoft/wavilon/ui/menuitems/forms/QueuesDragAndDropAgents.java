@@ -69,16 +69,23 @@ public class QueuesDragAndDropAgents extends HorizontalLayout {
         List<String> tableHiddenFields = createHidden();
 
         VerticalLayout left = new VerticalLayout();
+        left.addStyleName("head");
         addComponent(left);
-        left.addComponent(new Label("Agents In Queue"));
+        Label leftLabel = new Label("Agents In Queue");
+        leftLabel.addStyleName("label");
+        left.addComponent(leftLabel);
 
         VerticalLayout middle = new VerticalLayout();
         middle.setWidth(50, Sizeable.UNITS_PIXELS);
         addComponent(middle);
 
         VerticalLayout right = new VerticalLayout();
+        right.addStyleName("head");
         addComponent(right);
-        right.addComponent(new Label("Available Agents"));
+        Label rightLabel = new Label("Available Agents");
+        rightLabel.addStyleName("label");
+        right.addComponent(rightLabel);
+
 
 
         final Table agentsInQueue = fillTable(agentsInQueueList, tableVisibleFields, tableHiddenFields);

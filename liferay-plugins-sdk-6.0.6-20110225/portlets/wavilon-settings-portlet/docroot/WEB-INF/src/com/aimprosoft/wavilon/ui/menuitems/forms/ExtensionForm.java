@@ -110,7 +110,7 @@ public class ExtensionForm extends Window {
                     table.getContainerProperty(object, "NAME").setValue(extension.getName());
                     table.getContainerProperty(object, "EXTENSION TYPE").setValue(extension.getChannel());
                     table.getContainerProperty(object, "DESTINATION").setValue(extension.getDestination());
-                    table.getContainerProperty(object, "").setValue(new Button("-", listener));
+                    table.getContainerProperty(object, "").setValue(new Button("", listener));
 
 
 

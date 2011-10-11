@@ -104,7 +104,7 @@ public class RecordingsForm extends Window {
 
                         final Object object = table.addItem();
 
-                        Button delete = new Button("-");
+                        Button delete = new Button("");
                         delete.setData(object);
                         delete.addListener(new Button.ClickListener() {
                             public void buttonClick(Button.ClickEvent event) {

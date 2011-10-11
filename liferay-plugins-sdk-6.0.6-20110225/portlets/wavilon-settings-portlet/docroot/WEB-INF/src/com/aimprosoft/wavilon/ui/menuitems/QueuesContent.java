@@ -179,9 +179,8 @@ public class QueuesContent extends VerticalLayout {
         Label headLabel = new Label("Queues");
         head.addComponent(headLabel);
         head.setMargin(false);
-        head.addStyleName("headLine");
-        headLabel.addStyleName("phoneHeader");
-        headLabel.addStyleName("tableHeader");
+        head.addStyleName("head");
+        headLabel.addStyleName("label");
 
         HorizontalLayout addRemoveButtons = createButtons();
         head.addComponent(addRemoveButtons);

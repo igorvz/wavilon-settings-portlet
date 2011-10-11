@@ -1,13 +1,26 @@
-.v-view {
-    overflow: hidden !important;
+/*.v-view {*/
+/*overflow: hidden !important;*/
+/*}*/
+
+/*.wrapperLayouts {*/
+/*font-family: Verdana, Arial, sans-serif;*/
+
+/*}*/
+
+/*******************************************************************************************************************************/
+/*-----------------------------------------------------Left Column Design-----------------------------------------------------*/
+/*****************************************************************************************************************************/
+
+.v-view  .leftcolumn {
+    height: 100%;
 }
 
-.wrapperLayouts {
-    font-family: Verdana, Arial, sans-serif;
-
+/*stretch buttons*/
+.v-view .leftcolumn div {
+    float: none !important;
 }
 
-.v-view .leftcolumn .v-nativebutton {
+.leftcolumn .v-nativebutton {
     background: none repeat scroll 0 0 transparent;
     border: medium none;
     line-height: 19px;
@@ -15,33 +28,175 @@
     text-align: left;
     text-shadow: none;
     font-weight: bold;
+    height: 30px;
     width: 100%;
     display: block;
     color: #686868;
     font-size: 13px;
+    border-radius: 0 0 0 0;
+    -moz-border-radius: 0 0 0 0;
+    -webkit-border-radius: 0 0 0 0;
+    -khtml-border-radius: 0 0 0 0;
+    border-bottom: 1px solid #999999;
 }
 
-.v-view .leftcolumn .v-nativebutton-active {
-    background: none repeat scroll 0 0 #6093e0;
+.leftcolumn .v-nativebutton-phoneNumbersButton {
+    background: url("../images/phoneNumber.PNG") no-repeat scroll 10px 50% transparent;
+    padding: 0 30px;
+}
+
+.leftcolumn .v-nativebutton-phoneNumbersButtonSelect {
+    background-image: url("../images/phoneNumberSelect.PNG");
+}
+
+.leftcolumn .v-nativebutton-virtualNumbersButton {
+    background: url("../images/virtualNumber.PNG") no-repeat scroll 10px 50% transparent;
+    padding: 0 30px;
+}
+
+.leftcolumn .v-nativebutton-virtualNumbersButtonSelect {
+    background-image: url("../images/virtualNumberSelect.png");
+}
+
+.leftcolumn .v-nativebutton-queuesButton {
+    background: url("../images/queue.png") no-repeat scroll 10px 50% transparent;
+    padding: 0 30px;
+}
+
+.leftcolumn .v-nativebutton-queuesButtonSelect {
+    background-image: url("../images/queueSelect.PNG");
+}
+
+.leftcolumn .v-nativebutton-agentsButton {
+    background: url("../images/agent.PNG") no-repeat scroll 10px 50% transparent;
+    padding: 0 30px;
+}
+
+.leftcolumn .v-nativebutton-agentsButtonSelect {
+    background-image: url("../images/agentSelect.PNG");
+}
+
+.leftcolumn .v-nativebutton-extensionsButton {
+    background: url("../images/extension.PNG") no-repeat scroll 10px 50% transparent;
+    padding: 0 30px;
+}
+
+.leftcolumn .v-nativebutton-extensionsButtonSelect {
+    background-image: url("../images/extensionSelect.png");
+}
+
+.leftcolumn .v-nativebutton-recordingsButton {
+    background: url("../images/recording.png") no-repeat scroll 10px 50% transparent;
+    padding: 0 30px;
+}
+
+.leftcolumn .v-nativebutton-recordingsButtonSelect {
+    background-image: url("../images/recordingSelect.png");
+}
+
+.leftcolumn .v-nativebutton-phoneNumbersButtonSelect,
+.leftcolumn .v-nativebutton-virtualNumbersButtonSelect,
+.leftcolumn .v-nativebutton-queuesButtonSelect,
+.leftcolumn .v-nativebutton-agentsButtonSelect,
+.leftcolumn .v-nativebutton-extensionsButtonSelect,
+.leftcolumn .v-nativebutton-recordingsButtonSelect {
+    background-color: #6093e0;
+    background-position: 10px 50%;
+    background-repeat: no-repeat;
+    padding: 0 30px;
     color: #FFFFFF;
-    border-radius: 0;
     display: block;
 }
 
-.v-view  .leftcolumn {
-    height: 100%;
-    padding: 20px 0;
+/*******************************************************************************************************************************/
+/*-----------------------------------------------------Right Column Design----------------------------------------------------*/
+/*****************************************************************************************************************************/
+
+.v-view .rightcolumn {
+    margin: 0 !important;
+    /**/
+    /*background: #f5f5f5;*/
+    /*display: block;*/
+    height: 100% !important;
+    /*position: relative;*/
 }
 
-.v-view .leftcolumn div {
-    float: none !important;
+.rightcolumn .head {
+
 }
 
-.v-view .gridLayout .v-splitpanel-first-container {
-    background: none repeat scroll 0 0 #ebebeb;
+.rightcolumn .head .label {
+    color: #959595;
+    font-size: 18px;
+    vertical-align: middle;
+    font-weight: bold;
+    height: 41px;
+    line-height: 41px;
+    padding-left: 30px
 }
 
-.v-view .rightcolumn .v-table-row .v-button {
+/*---------------------------------------------Right Column Design   ["Add" button]----------------------------------------------------*/
+.rightcolumn .head .v-button,
+.rightcolumn .head .v-button:active,
+.rightcolumn .head .v-button.v-pressed,
+.rightcolumn .head .v-button:focus {
+    background: none transparent;
+    margin: 5px 5px 0;
+}
+
+.rightcolumn .head .v-button .v-button-wrap,
+.rightcolumn .head .v-button:active .v-button-wrap,
+.rightcolumn .head .v-button.v-pressed .v-button-wrap,
+.rightcolumn .head .v-button:focus .v-button-wrap {
+    background: url("../images/AddButton.PNG") no-repeat scroll 0 0 transparent;
+    line-height: 27px;
+    padding: 0;
+    height: 26px;
+    width: 120px;
+}
+
+/*---------------------------------------------Right Column Design   [table]----------------------------------------------------*/
+
+.rightcolumn .v-table {
+    overflow-x: auto !important;
+}
+
+.rightcolumn .v-table-row-odd {
+    background: none repeat scroll 0 0 #F1F5FA !important;
+}
+
+.rightcolumn .v-table-header-wrap {
+    background: url("../images/table-header-bg.png") repeat-x scroll 0 0 transparent !important;
+    height: 16px !important;
+    position: relative !important;
+}
+
+.rightcolumn .v-table-resizer {
+    visibility: hidden;
+}
+
+.rightcolumn .v-table .v-table-cell-content {
+    border: medium none;
+}
+
+.rightcolumn .v-table .v-selected {
+    background: none repeat scroll 0 0 #6093e0 !important;
+    color: #FFFFFF;
+    text-shadow: none !important;
+}
+
+.v-table-cell-wrapper {
+    width: 100% !important;
+}
+
+.rightcolumn .v-table-tableCustom {
+    height: 509px;
+    width: 100%;
+}
+
+/*---------------------------------------------Right Column Design   ["Remove" button]----------------------------------------------------*/
+.rightcolumn .v-table-row .v-button,
+.rightcolumn .v-table-row-odd .v-button {
     background: none repeat scroll 0 0 transparent;
     border: medium none;
     height: 20px;
@@ -50,177 +205,64 @@
 
 .rightcolumn .v-table-row .v-button .v-button-wrap,
 .rightcolumn .v-table-row .v-button:active .v-button-wrap,
-.rightcolumn .v-table-row.v-button.v-pressed .v-button-wrap,
-.rightcolumn .v-table-row.v-button:focus .v-button-wrap {
+.rightcolumn .v-table-row .v-button.v-pressed .v-button-wrap,
+.rightcolumn .v-table-row .v-button:focus .v-button-wrap,
+.rightcolumn .v-table-row-odd .v-button .v-button-wrap,
+.rightcolumn .v-table-row-odd .v-button:active .v-button-wrap,
+.rightcolumn .v-table-row-odd .v-button.v-pressed .v-button-wrap,
+.rightcolumn .v-table-row-odd .v-button:focus .v-button-wrap {
     background: url("../images/removeButton.png") no-repeat scroll 0 50% transparent;
     padding: 0;
     height: 18px;
     width: 18px;
 }
 
-
-.rightcolumn .v-table .v-selected, .black .v-table .v-selected .v-button .v-button-wrap,
-.rightcolumn .v-table .v-selected, .black .v-table .v-selected .v-button:active .v-button-wrap,
-.rightcolumn .v-table .v-selected, .black .v-table .v-selected .v-button.v-pressed .v-button-wrap,
-.rightcolumn .v-table .v-selected, .black .v-table .v-selected .v-button:focus .v-button-wrap {
+.rightcolumn .v-table .v-selected  .v-button .v-button-wrap,
+.rightcolumn .v-table .v-selected  .v-button:active .v-button-wrap,
+.rightcolumn .v-table .v-selected  .v-button.v-pressed .v-button-wrap,
+.rightcolumn .v-table .v-selected  .v-button:focus .v-button-wrap {
     background: url("../images/removeButtonSelect.PNG") no-repeat scroll 0 50% transparent;
     padding: 0;
     height: 18px;
     width: 18px;
 }
 
-.v-view .rightcolumn {
-    background: #f5f5f5;
-    display: block;
-    height: 100% !important;
-    position: relative;
-}
+/*********************************************************************/
+/*.v-table-header {*/
+/*height: 36px !important;*/
+/*}*/
 
-.v-view .rightcolumn .phoneHeader {
-    background: url("../images/phone.png") no-repeat scroll 0 50% transparent;
-    padding: 0 30px;
-}
+/*.v-table-caption-container {*/
+/*color: #393A3C;*/
+/*font-size: 15px;*/
+/*margin-left: 4px;*/
+/*padding: 1px 2px 9px 0 !important;*/
+/*text-shadow: 0 1px 0 #FFFFFF;*/
+/*}*/
 
-.v-view .rightcolumn .recordingsHeader {
-    background: url("../images/recordings.png") no-repeat scroll 0 50% transparent;
-    padding: 0 45px;
-}
+/*.v-table-caption-container {*/
+/*color: #000000;*/
+/*font-size: 11px;*/
+/*font-weight: bold;*/
+/*padding-top: 1px;*/
+/*text-shadow: 0 1px 0 #FFFFFF;*/
+/*text-transform: capitalize;*/
+/*}*/
 
-.v-view .rightcolumn .extensionHeader {
-    background: url("../images/extensions.png") no-repeat scroll 0 50% transparent;
-    padding: 0 58px;
-}
+/*.v-formlayout-captioncell,*/
+/*.v-formlayout-errorcell,*/
+/*.v-formlayout-contentcell {*/
+/*padding-bottom: 3px !important;*/
+/*padding-top: 0 !important;*/
+/*}*/
 
-.v-view .rightcolumn .virtualHeader {
-    background: url("../images/virtual.png") no-repeat scroll 0 50% transparent;
-    padding: 0 30px;
-}
-
-.v-view .rightcolumn .agentHeader {
-    background: url("../images/agents.png") no-repeat scroll 0 50% transparent;
-    padding: 0 45px;
-}
-
-.v-view .rightcolumn .tableHeader {
-    color: #282828;
-    font-size: 18px;
-    vertical-align: middle;
-    font-weight: bold;
-    height: 41px;
-    line-height: 41px;
-}
-
-.headLine {
-    /*margin: 15px 0;*/
-    margin: 5px 0;
-}
-
-.headLine .v-button .v-button-wrap,
-.headLine .v-button:active .v-button-wrap,
-.headLine .v-button.v-pressed .v-button-wrap,
-.headLine .v-button:focus .v-button-wrap {
-    background: url("../images/AddButton.PNG") no-repeat scroll 0 0 transparent;
-    line-height: 27px;
-    padding: 0;
-    height: 26px;
-    width: 120px;
-}
-
-.headLine .v-button,
-.headLine .v-button:active,
-.headLine .v-button.v-pressed,
-.headLine .v-button:focus {
-    background: none transparent;
-    margin: 5px 5px 0;
-}
-
-.headLine .v-button-caption {
-    color: #fff;
-    font-size: 11px;
-    font-weight: bold;
-    line-height: 16px;
-    text-shadow: 0 1px 0 #000;
-}
-
-.queuesPanel .v-nativebutton,
-.queuesPanel .v-nativebutton:active,
-.queuesPanel .v-nativebutton.v-pressed,
-.queuesPanel .v-nativebutton:focus {
-    background: url("../images/AddButton.PNG") no-repeat scroll 0 0 transparent;
-    height: 22px;
-    line-height: 18px;
-    padding: 0;
-    width: 21px;
-    border: medium none;
-    margin-top: 14px;
-    margin-left: 14px;
-}
-
-.queuesPanel .v-nativebutton-caption {
-    color: #FFFFFF !important;
-    font-family: serif !important;
-    font-weight: bold;
-    text-shadow: 0 1px 0 #000000;
-    vertical-align: middle;
-}
-
-.v-table .v-selected, .black .v-table .v-selected {
-    background: none repeat scroll 0 0 #6093e0 !important;
-    color: #FFFFFF;
-    text-shadow: none !important;
-}
-
-.v-table-resizer {
-    background: url("../images/resizer-bg.png") repeat-y scroll 100% 50% transparent;
-    height: 36px;
-    width: 4px;
-}
-
-.v-table-header-wrap {
-    background: url("../images/table-header-bg.png") repeat-x scroll 0 0 transparent !important;
-    height: 16px !important;
-    position: relative !important;
-}
-
-.v-table-header {
-    height: 36px !important;
-}
-
-.v-table-row-odd {
-    background: none repeat scroll 0 0 #F1F5FA !important;
-}
-
-.v-table-caption-container {
-    color: #393A3C;
-    font-size: 15px;
-    margin-left: 4px;
-    padding: 1px 2px 9px 0 !important;
-    /*text-shadow: 0 1px 0 #FFFFFF;*/
-}
-
-.v-table-caption-container {
-    color: #000000;
-    font-size: 11px;
-    font-weight: bold;
-    padding-top: 1px;
-    /*text-shadow: 0 1px 0 #FFFFFF;*/
-    text-transform: capitalize;
-}
-
-.v-formlayout-captioncell,
-.v-formlayout-errorcell,
-.v-formlayout-contentcell {
-    padding-bottom: 3px !important;
-    padding-top: 0 !important;
-}
-
-.v-table-cell-wrapper {
-    line-height: 23px;
-    overflow: hidden;
-    padding: 3px 0 0;
-    white-space: nowrap;
-    width: 100% !important;
-}
+/*.v-table-cell-wrapper {*/
+/*line-height: 23px;*/
+/*overflow: hidden;*/
+/*padding: 3px 0 0;*/
+/*white-space: nowrap;*/
+/*width: 100% !important;*/
+/*}*/
 
 .singInPanel {
     background: none repeat scroll 0 0 #939394;

@@ -108,7 +108,7 @@ public class VirtualNumbersForm extends Window {
                     table.getContainerProperty(object, "NAME").setValue(virtualNumber.getName());
                     table.getContainerProperty(object, "id").setValue(model.getId());
                     table.getContainerProperty(object, "FORWARD CALLS TO").setValue(forwardCallTo.getName());
-                    table.getContainerProperty(object, "").setValue(new Button("-", listener));
+                    table.getContainerProperty(object, "").setValue(new Button("", listener));
 
                     getWindow().showNotification("Well done");
                     close();

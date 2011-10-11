@@ -68,15 +68,14 @@ public class ExtensionContent extends VerticalLayout {
         Label headLabel = new Label("Extensions");
         head.addComponent(headLabel);
         head.setMargin(false);
-        head.addStyleName("headLine");
-        headLabel.addStyleName("tableHeader");
-        headLabel.addStyleName("extensionHeader");
+        head.addStyleName("head");
+        headLabel.addStyleName("label");
 
-        HorizontalLayout addRemoveButtons = createButton();
-        head.addComponent(addRemoveButtons);
+        HorizontalLayout addButton = createButton();
+        head.addComponent(addButton);
 
         head.setComponentAlignment(headLabel, Alignment.TOP_LEFT);
-        head.setComponentAlignment(addRemoveButtons, Alignment.MIDDLE_RIGHT);
+        head.setComponentAlignment(addButton, Alignment.MIDDLE_RIGHT);
 
         return head;
     }

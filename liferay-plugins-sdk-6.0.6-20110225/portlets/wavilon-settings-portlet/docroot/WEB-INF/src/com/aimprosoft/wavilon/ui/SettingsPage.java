@@ -21,9 +21,7 @@ import com.vaadin.ui.*;
 import com.vaadin.ui.themes.Reindeer;
 
 import javax.portlet.PortletRequest;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class SettingsPage extends VerticalLayout {
     private ResourceBundle bundle;
@@ -31,6 +29,16 @@ public class SettingsPage extends VerticalLayout {
     private VerticalLayout detailsContent;
     private PortletRequest request;
     private ApplicationProperties properties = ObjectFactory.getBean(ApplicationProperties.class);
+    List<String> styles = new LinkedList<String>();
+
+    {
+        styles.add("phoneNumbers");
+        styles.add("virtualNumbers");
+        styles.add("queues");
+        styles.add("agents");
+        styles.add("extensions");
+        styles.add("recordings");
+    }
 
     public SettingsPage(final ResourceBundle bundle) {
         this.bundle = bundle;
@@ -59,16 +67,20 @@ public class SettingsPage extends VerticalLayout {
         panel.setSecondComponent(rightColumn);
 
         VerticalLayout detailsBox = new VerticalLayout();
-        detailsBox.setStyleName("detailsBox");
+//        detailsBox.setStyleName("detailsBox");
+        detailsBox.setSizeFull();
         setSides(detailsBox);
 
         detailsContent = new VerticalLayout();
-        detailsContent.setStyleName("detailsContent");
+//        detailsContent.setHeight(550, Sizeable.UNITS_PIXELS);
+//        detailsContent.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+        detailsContent.setSizeFull();
+//        detailsContent.setStyleName("detailsContent");
         detailsBox.addComponent(detailsContent);
 
         rightColumn.addComponent(detailsBox);
 
-        panel.addStyleName("gridLayout");
+//        panel.addStyleName("gridLayout");
         addButtons();
 
         checkEntities();
@@ -78,7 +90,142 @@ public class SettingsPage extends VerticalLayout {
         detailsContent.addComponent(phoneNumbersContent);
         phoneNumbersContent.init();
 
-        setExpandRatio(panel, 0);
+//        setExpandRatio(panel, 0);
+    }
+
+    private void addButtons() {
+
+        Button phoneNumbers = new NativeButton(bundle.getString("wavilon.settings.services.phoneNumbers"));
+        phoneNumbers.addStyleName("phoneNumbersButton");
+        phoneNumbers.addListener(new Button.ClickListener() {
+            public void buttonClick(Button.ClickEvent event) {
+                Button button = event.getButton();
+
+                assignActiveButton(button);
+                detailsContent.removeAllComponents();
+                PhoneNumbersContent phoneNumbersContent = new PhoneNumbersContent(bundle);
+                detailsContent.addComponent(phoneNumbersContent);
+                phoneNumbersContent.init();
+            }
+        });
+
+        Button virtualNumbers = new NativeButton(bundle.getString("wavilon.settings.services.virtualNumbers"));
+        virtualNumbers.addStyleName("virtualNumbersButton");
+        virtualNumbers.addListener(new Button.ClickListener() {
+            public void buttonClick(Button.ClickEvent event) {
+                Button button = event.getButton();
+
+                assignActiveButton(button);
+                detailsContent.removeAllComponents();
+                VirtualNumbersContent virtualNumbersContent = new VirtualNumbersContent(bundle);
+                detailsContent.addComponent(virtualNumbersContent);
+                virtualNumbersContent.init();
+            }
+        });
+
+        Button queues = new NativeButton(bundle.getString("wavilon.settings.queues"));
+        queues.addStyleName("queuesButton");
+        queues.addListener(new Button.ClickListener() {
+            public void buttonClick(Button.ClickEvent event) {
+                Button button = event.getButton();
+
+                assignActiveButton(button);
+
+                detailsContent.removeAllComponents();
+                QueuesContent queuesContent = new QueuesContent(bundle);
+                detailsContent.addComponent(queuesContent);
+                queuesContent.init();
+            }
+        });
+
+        Button agents = new NativeButton(bundle.getString("wavilon.settings.agents"));
+        agents.addStyleName("agentsButton");
+        agents.addListener(new Button.ClickListener() {
+            public void buttonClick(Button.ClickEvent event) {
+                Button button = event.getButton();
+
+                assignActiveButton(button);
+
+                detailsContent.removeAllComponents();
+                AgentsContent agentsContent = new AgentsContent(bundle);
+                detailsContent.addComponent(agentsContent);
+                agentsContent.init();
+            }
+        });
+
+        Button extensions = new NativeButton(bundle.getString("wavilon.settings.extensions"));
+        extensions.addStyleName("extensionsButton");
+        extensions.addListener(new Button.ClickListener() {
+            public void buttonClick(Button.ClickEvent event) {
+                Button button = event.getButton();
+                ExtensionContent extensionContent = new ExtensionContent(bundle);
+
+                assignActiveButton(button);
+
+                detailsContent.removeAllComponents();
+                detailsContent.addComponent(extensionContent);
+                extensionContent.init();
+
+            }
+        });
+
+        Button recordings = new NativeButton(bundle.getString("wavilon.settings.recordings"));
+        recordings.addStyleName("recordingsButton");
+        recordings.addListener(new Button.ClickListener() {
+            public void buttonClick(Button.ClickEvent event) {
+                Button button = event.getButton();
+                RecordingsContent recordingsContent = new RecordingsContent(bundle);
+
+                assignActiveButton(button);
+
+                detailsContent.removeAllComponents();
+                detailsContent.addComponent(recordingsContent);
+                recordingsContent.init();
+            }
+        });
+
+        leftColumn.addComponent(phoneNumbers);
+        leftColumn.addComponent(virtualNumbers);
+        leftColumn.addComponent(queues);
+        leftColumn.addComponent(agents);
+        leftColumn.addComponent(extensions);
+        leftColumn.addComponent(recordings);
+    }
+
+    private void assignActiveButton(Button button) {
+        removeButtonSelection();
+        if (("Phone Numbers").equals(button.getCaption())) {
+            button.addStyleName("phoneNumbersButtonSelect");
+        } else if (("Virtual Numbers").equals(button.getCaption())) {
+            button.addStyleName("virtualNumbersButtonSelect");
+        } else if (("Queues").equals(button.getCaption())) {
+            button.addStyleName("queuesButtonSelect");
+        } else if (("Agents").equals(button.getCaption())) {
+            button.addStyleName("agentsButtonSelect");
+        } else if (("Extensions").equals(button.getCaption())) {
+            button.addStyleName("extensionsButtonSelect");
+        } else {
+            button.addStyleName("recordingsButtonSelect");
+        }
+    }
+
+    //remove selection for all buttons
+    private void removeButtonSelection() {
+        Iterator<Component> componentIterator = leftColumn.getComponentIterator();
+        while (componentIterator.hasNext()) {
+            Component component = componentIterator.next();
+            //make sure component is button
+            if (component instanceof Button) {
+                for (String style : styles) {
+                    component.removeStyleName(style + "ButtonSelect");
+                }
+            }
+        }
+    }
+
+    private void setSides(Component component) {
+        component.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+        component.setHeight(100, Sizeable.UNITS_PERCENTAGE);
     }
 
     private void checkEntities() {
@@ -86,18 +233,6 @@ public class SettingsPage extends VerticalLayout {
         if (CouchModelUtil.getForwards(getUserId(), getOrganizationId()).isEmpty()) {
             createEmptyEntities();
         }
-    }
-
-    private long getOrganizationId() {
-        try {
-            return PortalUtil.getScopeGroupId(request);
-        } catch (Exception ignored) {
-            return 0l;
-        }
-    }
-
-    private long getUserId() {
-        return PortalUtil.getUserId(request);
     }
 
     private void createEmptyEntities() {
@@ -145,124 +280,15 @@ public class SettingsPage extends VerticalLayout {
 
     }
 
-    private void addButtons() {
-
-        Button phoneNumbers = new NativeButton(bundle.getString("wavilon.settings.services.phoneNumbers"));
-        phoneNumbers.addStyleName("phoneNumbersButton");
-        phoneNumbers.addListener(new Button.ClickListener() {
-            public void buttonClick(Button.ClickEvent event) {
-                Button button = event.getButton();
-
-                assignActiveButton(button);
-                detailsContent.removeAllComponents();
-                PhoneNumbersContent phoneNumbersContent = new PhoneNumbersContent(bundle);
-                detailsContent.addComponent(phoneNumbersContent);
-                phoneNumbersContent.init();
-            }
-        });
-
-        Button virtualNumbers = new NativeButton(bundle.getString("wavilon.settings.services.virtualNumbers"));
-        virtualNumbers.addStyleName("label");
-        virtualNumbers.addListener(new Button.ClickListener() {
-            public void buttonClick(Button.ClickEvent event) {
-                Button button = event.getButton();
-
-                assignActiveButton(button);
-                detailsContent.removeAllComponents();
-                VirtualNumbersContent virtualNumbersContent = new VirtualNumbersContent(bundle);
-                detailsContent.addComponent(virtualNumbersContent);
-                virtualNumbersContent.init();
-            }
-        });
-
-        Button queues = new NativeButton(bundle.getString("wavilon.settings.queues"));
-        queues.addStyleName("label");
-        queues.addListener(new Button.ClickListener() {
-            public void buttonClick(Button.ClickEvent event) {
-                Button button = event.getButton();
-
-                assignActiveButton(button);
-
-                detailsContent.removeAllComponents();
-                QueuesContent queuesContent = new QueuesContent(bundle);
-                detailsContent.addComponent(queuesContent);
-                queuesContent.init();
-            }
-        });
-
-        Button agents = new NativeButton(bundle.getString("wavilon.settings.agents"));
-        agents.addStyleName("label");
-        agents.addListener(new Button.ClickListener() {
-            public void buttonClick(Button.ClickEvent event) {
-                Button button = event.getButton();
-
-                assignActiveButton(button);
-
-                detailsContent.removeAllComponents();
-                AgentsContent agentsContent = new AgentsContent(bundle);
-                detailsContent.addComponent(agentsContent);
-                agentsContent.init();
-            }
-        });
-
-        Button extensions = new NativeButton(bundle.getString("wavilon.settings.extensions"));
-        extensions.addStyleName("label");
-        extensions.addListener(new Button.ClickListener() {
-            public void buttonClick(Button.ClickEvent event) {
-                Button button = event.getButton();
-                ExtensionContent extensionContent = new ExtensionContent(bundle);
-
-                assignActiveButton(button);
-
-                detailsContent.removeAllComponents();
-                detailsContent.addComponent(extensionContent);
-                extensionContent.init();
-
-            }
-        });
-
-        Button recordings = new NativeButton(bundle.getString("wavilon.settings.recordings"));
-        recordings.addStyleName("label");
-        recordings.addListener(new Button.ClickListener() {
-            public void buttonClick(Button.ClickEvent event) {
-                Button button = event.getButton();
-                RecordingsContent recordingsContent = new RecordingsContent(bundle);
-
-                assignActiveButton(button);
-
-                detailsContent.removeAllComponents();
-                detailsContent.addComponent(recordingsContent);
-                recordingsContent.init();
-            }
-        });
-
-        leftColumn.addComponent(phoneNumbers);
-        leftColumn.addComponent(virtualNumbers);
-        leftColumn.addComponent(queues);
-        leftColumn.addComponent(agents);
-        leftColumn.addComponent(extensions);
-        leftColumn.addComponent(recordings);
-    }
-
-    private void assignActiveButton(Button button) {
-        removeButtonSelection();
-        button.addStyleName("active");
-    }
-
-    //remove selection for all buttons
-    private void removeButtonSelection() {
-        Iterator<Component> componentIterator = leftColumn.getComponentIterator();
-        while (componentIterator.hasNext()) {
-            Component component = componentIterator.next();
-            //make sure component is button
-            if (component instanceof Button) {
-                component.removeStyleName("active");
-            }
+    private long getOrganizationId() {
+        try {
+            return PortalUtil.getScopeGroupId(request);
+        } catch (Exception ignored) {
+            return 0l;
         }
     }
 
-    private void setSides(Component component) {
-        component.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-        component.setHeight(100, Sizeable.UNITS_PERCENTAGE);
+    private long getUserId() {
+        return PortalUtil.getUserId(request);
     }
 }

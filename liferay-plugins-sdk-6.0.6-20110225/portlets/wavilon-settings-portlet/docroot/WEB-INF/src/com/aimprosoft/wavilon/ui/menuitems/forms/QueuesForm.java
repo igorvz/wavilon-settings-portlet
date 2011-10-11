@@ -119,7 +119,7 @@ public class QueuesForm extends Window {
                     table.getContainerProperty(object, "FORWARD TO ON MAX. TIME").setValue(CouchModelUtil.getCouchModelLite(queue.getForwardToOnMaxTime()));
                     table.getContainerProperty(object, "FORWARD TO ON MAX. LENGTH").setValue(CouchModelUtil.getCouchModelLite(queue.getForwardToOnMaxLength()));
                     table.getContainerProperty(object, "id").setValue(model.getId());
-                    table.getContainerProperty(object, "").setValue(new Button("-", listener));
+                    table.getContainerProperty(object, "").setValue(new Button("", listener));
 
                     getWindow().showNotification("Well done");
                     close();
