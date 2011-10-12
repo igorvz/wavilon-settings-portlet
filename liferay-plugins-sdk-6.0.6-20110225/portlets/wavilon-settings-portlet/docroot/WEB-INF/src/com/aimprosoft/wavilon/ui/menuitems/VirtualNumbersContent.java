@@ -44,8 +44,6 @@ public class VirtualNumbersContent extends VerticalLayout {
         this.tableFields = fillFields();
         this.tableData = createTableData();
 
-        setHeight(100, Sizeable.UNITS_PERCENTAGE);
-        setWidth(100, Sizeable.UNITS_PERCENTAGE);
         setSizeUndefined();
         initLayout();
         initVirtualNumbers();
@@ -67,8 +65,11 @@ public class VirtualNumbersContent extends VerticalLayout {
         setWidth(100, Sizeable.UNITS_PERCENTAGE);
         addComponent(head);
 
+        this.virtualNumbers.setColumnWidth("", 60);
         this.virtualNumbers.setContainerDataSource(this.tableData);
         this.virtualNumbers.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+        this.virtualNumbers.setHeight("555px");
+        this.virtualNumbers.addStyleName("tableCustom");
         addComponent(this.virtualNumbers);
     }
 
@@ -174,7 +175,7 @@ public class VirtualNumbersContent extends VerticalLayout {
 
     private void getForm(String id, Object itemId) {
         VirtualNumbersForm virtualNumbersForm = new VirtualNumbersForm(this.bundle, this.virtualNumbers);
-        virtualNumbersForm.setWidth("400px");
+        virtualNumbersForm.setWidth("450px");
         virtualNumbersForm.setHeight("300px");
         virtualNumbersForm.center();
         virtualNumbersForm.setModal(true);

@@ -42,8 +42,6 @@ public class ExtensionContent extends VerticalLayout {
         hiddenFields = fillHiddenFields();
         tableData = createTableData();
 
-        setHeight(100, Sizeable.UNITS_PERCENTAGE);
-        setWidth(100, Sizeable.UNITS_PERCENTAGE);
         setSizeUndefined();
         initLayout();
         initExtension();
@@ -54,9 +52,10 @@ public class ExtensionContent extends VerticalLayout {
         setWidth(100, Sizeable.UNITS_PERCENTAGE);
         addComponent(head);
 
+        table.setColumnWidth("", 60);
         table.setContainerDataSource(tableData);
         table.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-
+        table.setHeight("555px");
         table.addStyleName("tableCustom");
         addComponent(table);
     }
@@ -175,8 +174,8 @@ public class ExtensionContent extends VerticalLayout {
     private void getForm(String id) {
         ExtensionForm extensionForm = new ExtensionForm(bundle, this.table);
         extensionForm.setItem(this.item);
-        extensionForm.setWidth("400px");
-        extensionForm.setHeight("300px");
+        extensionForm.setWidth("450px");
+        extensionForm.setHeight("320px");
         extensionForm.center();
         extensionForm.setModal(true);
 

@@ -61,7 +61,7 @@ public class RecordingUploader extends VerticalLayout {
         addComponent(progressRow);
 
         TextArea area = new TextArea();
-        area.setWidth(500, Sizeable.UNITS_PIXELS);
+        area.setWidth(330, Sizeable.UNITS_PIXELS);
         area.setValue("You can upload a custom file in the WAV or MP3 format.\n" +
                 "Please do not upload any copyrighted files without permission");
         area.setReadOnly(true);
@@ -114,6 +114,7 @@ public class RecordingUploader extends VerticalLayout {
                 succeededMessage.setValue("Uploading file \"" + event.getFilename()
                         + "\" succeeded");
                 succeededMessage.setVisible(true);
+                succeededMessage.addStyleName("succeededMessage");
 
                 pi.setVisible(false);
                 cancelProcessing.setVisible(false);

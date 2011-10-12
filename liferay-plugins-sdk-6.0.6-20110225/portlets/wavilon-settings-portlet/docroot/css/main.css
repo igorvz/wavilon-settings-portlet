@@ -1,6 +1,6 @@
-/*.v-view {*/
-/*overflow: hidden !important;*/
-/*}*/
+.v-view {
+    overflow: hidden !important;
+}
 
 /*.wrapperLayouts {*/
 /*font-family: Verdana, Arial, sans-serif;*/
@@ -20,92 +20,99 @@
     float: none !important;
 }
 
+.v-splitpanel-first-container{
+    background: none repeat scroll 0 0 #EBEBEB;
+}
+.v-splitpanel-second-container{
+    background: none repeat scroll 0 0 #f5f5f5;
+}
+
 .leftcolumn .v-nativebutton {
-    background: none repeat scroll 0 0 transparent;
+    background: none no-repeat scroll 15px 50% transparent;
     border: medium none;
-    line-height: 19px;
-    padding: 8px 10px;
+    padding: 0 0 0 38px;
     text-align: left;
     text-shadow: none;
     font-weight: bold;
-    height: 30px;
+    height: 34px;
+    vertical-align: middle;
     width: 100%;
-    display: block;
-    color: #686868;
+    color: #5f5f5f;
     font-size: 13px;
     border-radius: 0 0 0 0;
     -moz-border-radius: 0 0 0 0;
     -webkit-border-radius: 0 0 0 0;
     -khtml-border-radius: 0 0 0 0;
-    border-bottom: 1px solid #999999;
+    font-family: Verdana;
+    border-bottom: 1px solid #959595;
+}
+
+.leftcolumn .v-nativebutton .v-nativebutton-caption {
+    line-height: 25px;
 }
 
 .leftcolumn .v-nativebutton-phoneNumbersButton {
-    background: url("../images/phoneNumber.PNG") no-repeat scroll 10px 50% transparent;
-    padding: 0 30px;
+    background-image: url("../images/phoneNumber.PNG");
+    background-position: 20px 50%;
 }
 
 .leftcolumn .v-nativebutton-phoneNumbersButtonSelect {
     background-image: url("../images/phoneNumberSelect.PNG");
+    background-color: #6093e0;
+    background-position: 20px 50%;
+    color: #FFFFFF;
 }
 
 .leftcolumn .v-nativebutton-virtualNumbersButton {
-    background: url("../images/virtualNumber.PNG") no-repeat scroll 10px 50% transparent;
-    padding: 0 30px;
+    background-image: url("../images/virtualNumber.PNG");
+    background-position: 20px 50%;
 }
 
 .leftcolumn .v-nativebutton-virtualNumbersButtonSelect {
     background-image: url("../images/virtualNumberSelect.png");
+    background-color: #6093e0;
+    background-position: 20px 50%;
+    color: #FFFFFF;
 }
 
 .leftcolumn .v-nativebutton-queuesButton {
-    background: url("../images/queue.png") no-repeat scroll 10px 50% transparent;
-    padding: 0 30px;
+    background-image: url("../images/queue.png");
 }
 
 .leftcolumn .v-nativebutton-queuesButtonSelect {
     background-image: url("../images/queueSelect.PNG");
+    background-color: #6093e0;
+    color: #FFFFFF;
 }
 
 .leftcolumn .v-nativebutton-agentsButton {
-    background: url("../images/agent.PNG") no-repeat scroll 10px 50% transparent;
-    padding: 0 30px;
+    background-image: url("../images/agent.PNG");
 }
 
 .leftcolumn .v-nativebutton-agentsButtonSelect {
     background-image: url("../images/agentSelect.PNG");
+    background-color: #6093e0;
+    color: #FFFFFF;
 }
 
 .leftcolumn .v-nativebutton-extensionsButton {
-    background: url("../images/extension.PNG") no-repeat scroll 10px 50% transparent;
-    padding: 0 30px;
+    background-image: url("../images/extension.PNG");
 }
 
 .leftcolumn .v-nativebutton-extensionsButtonSelect {
     background-image: url("../images/extensionSelect.png");
+    background-color: #6093e0;
+    color: #FFFFFF;
 }
 
 .leftcolumn .v-nativebutton-recordingsButton {
-    background: url("../images/recording.png") no-repeat scroll 10px 50% transparent;
-    padding: 0 30px;
+    background-image: url("../images/recording.png");
 }
 
 .leftcolumn .v-nativebutton-recordingsButtonSelect {
     background-image: url("../images/recordingSelect.png");
-}
-
-.leftcolumn .v-nativebutton-phoneNumbersButtonSelect,
-.leftcolumn .v-nativebutton-virtualNumbersButtonSelect,
-.leftcolumn .v-nativebutton-queuesButtonSelect,
-.leftcolumn .v-nativebutton-agentsButtonSelect,
-.leftcolumn .v-nativebutton-extensionsButtonSelect,
-.leftcolumn .v-nativebutton-recordingsButtonSelect {
     background-color: #6093e0;
-    background-position: 10px 50%;
-    background-repeat: no-repeat;
-    padding: 0 30px;
     color: #FFFFFF;
-    display: block;
 }
 
 /*******************************************************************************************************************************/
@@ -127,12 +134,12 @@
 
 .rightcolumn .head .label {
     color: #959595;
-    font-size: 18px;
+    font-family: Verdana;
+    font-size: 20px;
+    height: 43px;
+    line-height: 43px;
+    padding-left: 26px;
     vertical-align: middle;
-    font-weight: bold;
-    height: 41px;
-    line-height: 41px;
-    padding-left: 30px
 }
 
 /*---------------------------------------------Right Column Design   ["Add" button]----------------------------------------------------*/
@@ -157,26 +164,36 @@
 
 /*---------------------------------------------Right Column Design   [table]----------------------------------------------------*/
 
-.rightcolumn .v-table {
-    overflow-x: auto !important;
-}
-
 .rightcolumn .v-table-row-odd {
-    background: none repeat scroll 0 0 #F1F5FA !important;
+    background: none repeat scroll 0 0 #f1f5fb !important;
 }
 
 .rightcolumn .v-table-header-wrap {
     background: url("../images/table-header-bg.png") repeat-x scroll 0 0 transparent !important;
-    height: 16px !important;
-    position: relative !important;
 }
 
 .rightcolumn .v-table-resizer {
     visibility: hidden;
+    display: none;
+}
+
+.rightcolumn .v-table .v-table-header .v-table-caption-container {
+    color: #545454;
+    font-size: 12px;
+    padding: 1px 0;
+    text-shadow: 0 0 0 #FFFFFF;
+    text-indent: 25px;
+    width: 100% !important;
+}
+
+.rightcolumn .v-table .v-table-cell-content {
+    text-indent: 25px;
+    padding: 0;
 }
 
 .rightcolumn .v-table .v-table-cell-content {
     border: medium none;
+    vertical-align: middle;
 }
 
 .rightcolumn .v-table .v-selected {
@@ -185,15 +202,44 @@
     text-shadow: none !important;
 }
 
-.v-table-cell-wrapper {
-    width: 100% !important;
+.rightcolumn .v-table .v-table-cell-wrapper {
+    /*margin: 0 5px;*/
 }
 
-.rightcolumn .v-table-tableCustom {
-    height: 509px;
-    width: 100%;
+.rightcolumn .v-table .v-table-table{
+   width: 100% !important;
 }
 
+
+.rightcolumn .tableCustom, .rightcolumn .tableCustom .v-table-body{
+    border: medium none;
+    /*overflow: hidden !important;*/
+}
+
+.rightcolumn .tableCustom .v-table-body{
+     width: 100%;
+}
+
+.rightcolumn .v-table .v-table-row{
+   width: 100%;
+}
+
+.rightcolumn .v-table .v-table-header-wrap{
+    height: 18px;
+}
+
+.rightcolumn .v-table .v-table-header{
+    height: 18px;
+}
+
+.rightcolumn .v-table-footer-wrap{
+    height: 0;
+}
+
+/*.rightcolumn .v-table-tableCustom {*/
+    /*height: 509px;*/
+    /*width: 100%;*/
+/*}*/
 /*---------------------------------------------Right Column Design   ["Remove" button]----------------------------------------------------*/
 .rightcolumn .v-table-row .v-button,
 .rightcolumn .v-table-row-odd .v-button {
@@ -291,16 +337,30 @@
     width: 380px;
 }
 
-.formRegion .headerForm fieldset * {
-    vertical-align: middle;
-}
-
-.formRegion .v-caption-labelField {
+.formRegion, .formRegion * {
+    color: #5f5f5f !important;
 
 }
 
-.formRegion .v-form-labelField {
-    margin: 30px 0;
+.formRegion .v-textfield, .formRegion .v-filterselect-input, .formRegion .v-textarea {
+     font-size: 13px;
+}
+
+.formRegion fieldset * {
+    vertical-align: top;
+}
+
+.formRegion fieldset table{
+    width: 100%;
+}
+
+
+.formRegion{
+    font-size: 13px;
+}
+
+.formRegion .v-formlayout-errorcell{
+    padding-left: 6px;
 }
 
 .wrapperLayouts, .settingsPanel {
@@ -335,7 +395,49 @@
 }
 
 .formRegion .buttonsPanel  .v-button {
+    margin: 0 0 0 15px;
+}
+
+.formRegion .v-textfield {
+    width: 90%;
+}
+
+.formRegion .v-formlayout-spacing .v-formlayout-row .v-formlayout-captioncell,
+.formRegion .v-formlayout-spacing .v-formlayout-row .v-formlayout-contentcell,
+.formRegion .v-formlayout-spacing .v-formlayout-row .v-formlayout-errorcell {
+    padding-top: 15px;
+    padding-bottom: 0;
+}
+
+.recordingUploader{
+    margin: 15px 0;
+}
+
+.recordingUploader textarea {
+    width: 370px !important;
+}
+
+.recordingUploader  .v-progressindicator-indicator {
+    height: 20px !important;
+}
+
+.recordingUploader .v-progressindicator {
+    margin: 5px;
+}
+
+.recordingUploader .succeededMessage {
     margin: 0 0 0 5px;
+}
+.recordingUploader form{
+    margin: 0 0 0 17px;
+}
+
+.recordingUploader form .gwt-FileUpload{
+    width: 210px
+}
+
+.recordingUploader .v-label {
+    margin: 0 0 0 10px;
 }
 
 .v-form-errormessage {
@@ -359,4 +461,26 @@
 
 .v-window-closebox {
     background: #878787 url(../images/close.png) no-repeat 0 0 !important;
+}
+
+
+.queuesCustom .v-table-body{
+    border: none medium ;
+    border-bottom: 1px solid #c2c3c4;
+}
+
+.agentsInQueueTable .v-table-body {
+    border: none medium;
+    border-right: 1px solid #c2c3c4;
+}
+
+.availableAgentsTable .v-table-body {
+    border: none medium;
+    border-left: 1px solid #c2c3c4;
+}
+
+.middleDragNDrop{
+    background: url("../images/dragNdrop.png") no-repeat scroll 50% 50% transparent;
+    display: block;
+    height: 301px !important;
 }

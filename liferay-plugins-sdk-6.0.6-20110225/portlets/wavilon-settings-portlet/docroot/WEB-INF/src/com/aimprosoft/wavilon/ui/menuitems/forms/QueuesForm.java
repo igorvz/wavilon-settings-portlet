@@ -54,8 +54,8 @@ public class QueuesForm extends Window {
 
         addComponent(content);
 
-        Label headerForm = createHeader(id, queue);
-        content.addComponent(headerForm);
+//        Label headerForm = createHeader(id, queue);
+//        content.addComponent(headerForm);
 
         final Form form = createForm();
         content.addComponent(form);

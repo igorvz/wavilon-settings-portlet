@@ -2,6 +2,7 @@ package com.aimprosoft.wavilon.ui.menuitems.forms;
 
 import com.aimprosoft.wavilon.service.ExtensionDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
+import com.vaadin.event.ShortcutAction;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 
@@ -10,6 +11,7 @@ import java.util.ResourceBundle;
 public class ConfirmingRemove extends Window {
     private ExtensionDatabaseService service = ObjectFactory.getBean(ExtensionDatabaseService.class);
     ResourceBundle bundle;
+
     public ConfirmingRemove(ResourceBundle bundle) {
         this.bundle = bundle;
     }
@@ -47,6 +49,7 @@ public class ConfirmingRemove extends Window {
         buttons.addComponent(cancel);
 
         Button ok = new Button("Ok");
+        ok.setClickShortcut(ShortcutAction.KeyCode.ENTER);
         ok.setData(object);
         ok.addListener(new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
@@ -99,7 +102,7 @@ public class ConfirmingRemove extends Window {
         return buttons;
     }
 
-     public void initConfirm(String id, Table table, Object object) {
+    public void initConfirm(String id, Table table, Object object) {
         setCaption("Information");
 
         VerticalLayout mainLayout = new VerticalLayout();
@@ -117,5 +120,5 @@ public class ConfirmingRemove extends Window {
         mainLayout.addComponent(buttons);
         buttons.addStyleName("buttonsPanel");
         mainLayout.setComponentAlignment(buttons, Alignment.BOTTOM_RIGHT);
-     }
+    }
 }

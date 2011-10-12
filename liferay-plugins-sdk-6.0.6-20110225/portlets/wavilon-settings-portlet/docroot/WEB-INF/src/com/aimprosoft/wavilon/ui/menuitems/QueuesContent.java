@@ -45,8 +45,7 @@ public class QueuesContent extends VerticalLayout {
         this.tableFields = fillFields();
         this.tableData = createTableData();
 
-        setWidth(100, Sizeable.UNITS_PERCENTAGE);
-        setSizeUndefined();
+        setSizeFull();
         initLayout();
         initQueuesTable();
     }
@@ -57,32 +56,34 @@ public class QueuesContent extends VerticalLayout {
 
         bottom = new VerticalLayout();
         addComponent(bottom);
-        bottom.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-        bottom.setHeight(240, Sizeable.UNITS_PIXELS);
+//        bottom.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+//        bottom.setHeight(300, Sizeable.UNITS_PIXELS);
 
         HorizontalLayout head = createHead();
         setWidth(100, Sizeable.UNITS_PERCENTAGE);
         top.addComponent(head);
 
+
+        this.queuesTable.setColumnExpandRatio("NAME", 1);
+        this.queuesTable.setColumnExpandRatio("FORWARD TO ON MAX. TIME", 2);
+        this.queuesTable.setColumnExpandRatio("FORWARD TO ON MAX. LENGTH", 2);
+        this.queuesTable.setColumnWidth("", 60);
         this.queuesTable.setContainerDataSource(this.tableData);
         this.queuesTable.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-        this.queuesTable.setHeight(150, Sizeable.UNITS_PIXELS);
-
-        this.queuesTable.addStyleName("tableCustom");
+        this.queuesTable.setHeight(207, Sizeable.UNITS_PIXELS);
+        this.queuesTable.addStyleName("queuesCustom");
         top.addComponent(this.queuesTable);
-
-
     }
 
     private VerticalLayout createTop() {
         VerticalLayout top = new VerticalLayout();
-        top.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-        top.setHeight(220, Sizeable.UNITS_PIXELS);
+//        top.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+//        top.setHeight(250, Sizeable.UNITS_PIXELS);
         return top;
     }
 
     private void initQueuesTable() {
-        this.queuesTable.setContainerDataSource(this.tableData);
+//        this.queuesTable.setContainerDataSource(this.tableData);
         this.queuesTable.setVisibleColumns(this.tableFields.toArray());
         this.queuesTable.setSelectable(true);
         this.queuesTable.setImmediate(true);
@@ -203,8 +204,8 @@ public class QueuesContent extends VerticalLayout {
 
     private void getAgentsTwinColumns(String id) {
         QueuesDragAndDropAgents agentsLayout = new QueuesDragAndDropAgents(bundle);
-        agentsLayout.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-        agentsLayout.setHeight(250, Sizeable.UNITS_PIXELS);
+//        agentsLayout.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+//        agentsLayout.setHeight(300, Sizeable.UNITS_PIXELS);
 
         this.bottom.removeAllComponents();
         this.bottom.addComponent(agentsLayout);

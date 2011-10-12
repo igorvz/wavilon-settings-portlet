@@ -186,6 +186,7 @@ public class RecordingsForm extends Window {
 
     private RecordingUploader createRecordingUpload() {
         recordingUploader = new RecordingUploader();
+        recordingUploader.addStyleName("recordingUploader");
         recordingUploader.attach();
 
         return recordingUploader;

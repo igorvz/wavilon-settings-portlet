@@ -52,8 +52,8 @@ public class AgentsForm extends Window {
 
         addComponent(content);
 
-        Label headerForm = createHeader(id, agent);
-        content.addComponent(headerForm);
+//        Label headerForm = createHeader(id, agent);
+//        content.addComponent(headerForm);
 
         final Form form = createForm();
         content.addComponent(form);

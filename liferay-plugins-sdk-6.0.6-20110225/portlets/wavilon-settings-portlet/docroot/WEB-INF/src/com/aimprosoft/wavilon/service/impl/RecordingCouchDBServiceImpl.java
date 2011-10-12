@@ -57,7 +57,7 @@ public class RecordingCouchDBServiceImpl implements RecordingDatabaseService {
         couchDBService.updateModel(model);
     }
 
-    public List<CouchModel> getAllUsersCouchModelToRecording(Long userId, Long organizationId) throws IOException {
+    public List<CouchModel> getAllUsersCouchModelToRecording(Long userId, Long organizationId, boolean attachment) throws IOException {
         String formattedFunction = FormatUtil.formatFunction(couchDBService.functions.getBaseModelsByUserAndTypeFunction(), "recording", userId, organizationId);
 
         ViewResults viewResults = couchDBService.database.adhoc(formattedFunction);
@@ -65,8 +65,12 @@ public class RecordingCouchDBServiceImpl implements RecordingDatabaseService {
         List<CouchModel> modelList = new LinkedList<CouchModel>();
 
         for (Document doc : viewResults.getResults()) {
+            CouchModel model = null;
 
-            CouchModel model = getModel(doc.getId());
+            if (attachment) {
+                model = getModel(doc.getId());
+
+            } else model = getLiteModel(doc.getId());
 
             modelList.add(model);
         }
@@ -83,5 +87,9 @@ public class RecordingCouchDBServiceImpl implements RecordingDatabaseService {
 
     public void removeRecording(String id) throws IOException {
         couchDBService.removeModelById(id);
+    }
+
+    private CouchModel getLiteModel(String id) throws IOException {
+        return couchDBService.getModelById(id, false);
     }
 }

@@ -10,6 +10,7 @@ import com.aimprosoft.wavilon.service.RecordingDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.ui.menuitems.forms.ConfirmingRemove;
 import com.aimprosoft.wavilon.ui.menuitems.forms.RecordingsForm;
+import com.aimprosoft.wavilon.util.CouchModelUtil;
 import com.liferay.portal.util.PortalUtil;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
@@ -56,6 +57,9 @@ public class RecordingsContent extends VerticalLayout {
 
         table.setContainerDataSource(tableData);
         table.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+        table.setColumnWidth("", 60);
+        table.setHeight("555px");
+        table.addStyleName("tableCustom");
         addComponent(table);
     }
 
@@ -91,8 +95,8 @@ public class RecordingsContent extends VerticalLayout {
 
     private void getForm(String id, Object itemId) {
         RecordingsForm recordingsForm = new RecordingsForm(bundle, table);
-        recordingsForm.setWidth(410.0F, 0);
-        recordingsForm.setHeight(350.0F, 0);
+        recordingsForm.setWidth("450px");
+        recordingsForm.setHeight("400px");
         recordingsForm.center();
         recordingsForm.setModal(true);
 
@@ -113,7 +117,6 @@ public class RecordingsContent extends VerticalLayout {
                     Item item = event.getItem();
                     if (null != item) {
                         getForm((String) event.getItem().getItemProperty("id").getValue(), event.getItemId());
-//                        getForm((String) event.getItem().getItemProperty("id").getValue(), event.getItemId());
                     }
                 }
             }
@@ -134,8 +137,7 @@ public class RecordingsContent extends VerticalLayout {
 
     private IndexedContainer createTableData() {
         IndexedContainer ic = new IndexedContainer();
-        List<CouchModel> couchModels = getCouchModels();
-
+        List<CouchModel> recordingModelLiteList = getAllRecordingLite();
         for (String field : tableFields) {
             if ("".equals(field)) {
                 ic.addContainerProperty(field, Component.class, null);
@@ -143,9 +145,9 @@ public class RecordingsContent extends VerticalLayout {
             ic.addContainerProperty(field, String.class, "");
         }
 
-        if (!couchModels.isEmpty()) {
+        if (!recordingModelLiteList.isEmpty()) {
 
-            for (final CouchModel couchModel : couchModels) {
+            for (final CouchModel couchModel : recordingModelLiteList) {
                 Recording recording = getRecording(couchModel);
 
                 final Object object = ic.addItem();
@@ -166,10 +168,10 @@ public class RecordingsContent extends VerticalLayout {
                 Button delete = new Button("");
                 delete.setData(param);
 
-                CouchModelLite extensionModel = createForward(couchModel);
+                CouchModelLite forwardModel = createForward(couchModel);
 
                 ic.getContainerProperty(object, "NAME").setValue(recording.getName());
-                ic.getContainerProperty(object, "FORWARD TO ON END").setValue(extensionModel.getName());
+                ic.getContainerProperty(object, "FORWARD TO ON END").setValue(forwardModel.getName());
                 ic.getContainerProperty(object, "MEDIA FILE").setValue(fileName);
                 ic.getContainerProperty(object, "id").setValue(couchModel.getId());
                 ic.getContainerProperty(object, "").setValue(delete);
@@ -202,14 +204,6 @@ public class RecordingsContent extends VerticalLayout {
         }
     }
 
-    private List<CouchModel> getCouchModels() {
-        try {
-            return service.getAllUsersCouchModelToRecording(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request));
-        } catch (Exception e) {
-            return Collections.emptyList();
-        }
-    }
-
     private List<String> fillHiddenFields() {
         LinkedList<String> tableFields = new LinkedList<String>();
 
@@ -223,9 +217,17 @@ public class RecordingsContent extends VerticalLayout {
 
     private CouchModelLite getForward(String id) {
         try {
-            return liteService.getCouchLiteModel(id);
+            return CouchModelUtil.getCouchModelLite(id);
         } catch (Exception e) {
             return (CouchModelLite) Collections.emptyList();
+        }
+    }
+
+    private List<CouchModel> getAllRecordingLite() {
+        try {
+            return service.getAllUsersCouchModelToRecording(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request), false);
+        } catch (Exception e) {
+            return Collections.emptyList();
         }
     }
 }

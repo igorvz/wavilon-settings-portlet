@@ -52,8 +52,8 @@ public class VirtualNumbersForm extends Window {
 
         addComponent(content);
 
-        Label headerForm = createHeader(id, virtualNumber);
-        content.addComponent(headerForm);
+//        Label headerForm = createHeader(id, virtualNumber);
+//        content.addComponent(headerForm);
 
         final Form form = createForm();
         content.addComponent(form);

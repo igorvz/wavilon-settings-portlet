@@ -41,7 +41,6 @@ public class AgentsContent extends VerticalLayout {
         hiddenFields = fillHiddenFields();
         tableData = createTableData();
 
-        this.setWidth(100, Sizeable.UNITS_PERCENTAGE);
         this.setSizeFull();
         initLayout();
         initAgents();
@@ -52,13 +51,16 @@ public class AgentsContent extends VerticalLayout {
         setWidth(100, Sizeable.UNITS_PERCENTAGE);
         addComponent(head);
 
+        table.setColumnWidth("", 60);
         table.setContainerDataSource(this.tableData);
         table.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+        table.setHeight("555px");
+        table.addStyleName("tableCustom");
         addComponent(table);
     }
 
     private void initAgents() {
-        table.setContainerDataSource(this.tableData);
+//        table.setContainerDataSource(this.tableData);
         table.setVisibleColumns(this.tableFields.toArray());
         table.setSelectable(true);
         table.setImmediate(true);
@@ -142,8 +144,8 @@ public class AgentsContent extends VerticalLayout {
 
     private void getForm(String id, Object itemId) {
         AgentsForm agentsForm = new AgentsForm(bundle, table);
-        agentsForm.setWidth("400px");
-        agentsForm.setHeight("300px");
+        agentsForm.setWidth("450px");
+        agentsForm.setHeight("320px");
         agentsForm.center();
         agentsForm.setModal(true);
 

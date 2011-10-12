@@ -7,7 +7,6 @@ import com.aimprosoft.wavilon.couch.CouchTypes;
 import com.aimprosoft.wavilon.model.Agent;
 import com.aimprosoft.wavilon.model.Queue;
 import com.aimprosoft.wavilon.service.AgentDatabaseService;
-import com.aimprosoft.wavilon.service.CouchModelLiteDatabaseService;
 import com.aimprosoft.wavilon.service.QueueDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.util.CouchModelUtil;
@@ -54,7 +53,7 @@ public class QueuesDragAndDropAgents extends HorizontalLayout {
 
     private void initLayout() {
         setWidth(100, Sizeable.UNITS_PERCENTAGE);
-        setHeight(250, Sizeable.UNITS_PIXELS);
+        setHeight(300, Sizeable.UNITS_PIXELS);
 
         List<CouchModel> availableAgentList = Collections.emptyList();
         try {
@@ -76,7 +75,8 @@ public class QueuesDragAndDropAgents extends HorizontalLayout {
         left.addComponent(leftLabel);
 
         VerticalLayout middle = new VerticalLayout();
-        middle.setWidth(50, Sizeable.UNITS_PIXELS);
+        middle.addStyleName("middleDragNDrop");
+//        middle.setWidth(50, Sizeable.UNITS_PIXELS);
         addComponent(middle);
 
         VerticalLayout right = new VerticalLayout();
@@ -87,9 +87,11 @@ public class QueuesDragAndDropAgents extends HorizontalLayout {
         right.addComponent(rightLabel);
 
 
-
         final Table agentsInQueue = fillTable(agentsInQueueList, tableVisibleFields, tableHiddenFields);
+        agentsInQueue.addStyleName("agentsInQueueTable");
+
         final Table availableAgents = fillTable(availableAgentList, tableVisibleFields, tableHiddenFields);
+        availableAgents.addStyleName("availableAgentsTable");
 
         dragAndDropInit(agentsInQueue, availableAgents);
 
@@ -166,16 +168,26 @@ public class QueuesDragAndDropAgents extends HorizontalLayout {
     private List<CouchModel> getQueuesAgents() {
         List<CouchModel> agentsInQueueList = new LinkedList<CouchModel>();
         if (null != model.getOutputs()) {
-            List<String> agents = (List) model.getOutputs().get("agents");
+            List<String> agents = (List<String>) model.getOutputs().get("agents");
+            List<String> modifiedAgents = new LinkedList<String>();
             for (String agentId : agents) {
+
                 try {
                     CouchModel agent = agentService.getModel(agentId);
                     agentsInQueueList.add(agent);
                 } catch (Exception ignored) {
-                    Agent agent = new Agent();
-                    agent.setName("This has been removed!");
+                    modifiedAgents.add(agentId);
                 }
             }
+            if (!modifiedAgents.isEmpty()) {
+                agents.removeAll(modifiedAgents);
+                try {
+                    queuesService.updateQueue(queue, model, agents);
+                    model = queuesService.getModel(model.getId());
+                } catch (Exception ignored) {
+                }
+            }
+
         }
         return agentsInQueueList;
     }
@@ -210,9 +222,13 @@ public class QueuesDragAndDropAgents extends HorizontalLayout {
 
         table.setContainerDataSource(tableData);
         table.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-        table.setHeight(100, Sizeable.UNITS_PERCENTAGE);
+        table.setHeight(257, Sizeable.UNITS_PIXELS);
         table.setVisibleColumns(tableVisibleFields.toArray());
         table.setImmediate(true);
+        table.setSelectable(true);
+
+        table.setColumnExpandRatio("NAME", 1);
+        table.setColumnExpandRatio("CURRENT EXTENSION", 2);
 
         return table;
     }

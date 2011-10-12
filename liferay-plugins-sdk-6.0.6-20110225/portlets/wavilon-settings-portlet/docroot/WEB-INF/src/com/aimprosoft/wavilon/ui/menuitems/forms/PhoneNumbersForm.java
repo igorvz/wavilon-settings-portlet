@@ -5,7 +5,6 @@ import com.aimprosoft.wavilon.couch.CouchModel;
 import com.aimprosoft.wavilon.couch.CouchModelLite;
 import com.aimprosoft.wavilon.couch.CouchTypes;
 import com.aimprosoft.wavilon.model.PhoneNumber;
-import com.aimprosoft.wavilon.service.CouchModelLiteDatabaseService;
 import com.aimprosoft.wavilon.service.PhoneNumberDatabaseService;
 import com.aimprosoft.wavilon.service.VirtualNumberDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
@@ -22,15 +21,13 @@ import java.util.ResourceBundle;
 
 public class PhoneNumbersForm extends Window {
     private PhoneNumberDatabaseService service = ObjectFactory.getBean(PhoneNumberDatabaseService.class);
-    private CouchModelLiteDatabaseService couchModelLiteDatabaseService = ObjectFactory.getBean(CouchModelLiteDatabaseService.class);
-     private VirtualNumberDatabaseService virtualNumberDatabaseService = ObjectFactory.getBean(VirtualNumberDatabaseService.class);
+    private VirtualNumberDatabaseService virtualNumberDatabaseService = ObjectFactory.getBean(VirtualNumberDatabaseService.class);
     private ResourceBundle bundle;
     private PortletRequest request;
     private Table table;
     private PhoneNumber phoneNumber;
     private Application application;
     private CouchModel model;
-
 
     public PhoneNumbersForm(ResourceBundle bundle, Table table) {
         this.bundle = bundle;
@@ -54,8 +51,8 @@ public class PhoneNumbersForm extends Window {
         content.setSizeFull();
         addComponent(content);
 
-        Label headerForm = createHeader(id, phoneNumber);
-        content.addComponent(headerForm);
+//        Label headerForm = createHeader(id, phoneNumber);
+//        content.addComponent(headerForm);
 
         final Form form = createForm();
         content.addComponent(form);
@@ -101,7 +98,6 @@ public class PhoneNumbersForm extends Window {
 
                     Button.ClickListener listener = new Button.ClickListener() {
                         public void buttonClick(Button.ClickEvent event) {
-
                             table.select(object);
                             String phoneNumbersID = (String) table.getItem(object).getItemProperty("id").getValue();
                             ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
@@ -126,8 +122,7 @@ public class PhoneNumbersForm extends Window {
                 } catch (Exception ignored) {
                 }
             }
-        }
-        );
+        });
         buttons.addComponent(save);
     }
 
@@ -168,8 +163,8 @@ public class PhoneNumbersForm extends Window {
             numbers.addItem("Select . . .");
 
             for (CouchModel number : virtualNumbers) {
-            numbers.addItem(number);
-        }
+                numbers.addItem(number);
+            }
             numbers.setNullSelectionItemId("Select . . .");
             numbers.setRequired(true);
             name.setRequiredError("Empty field \"Number\"");
@@ -179,16 +174,15 @@ public class PhoneNumbersForm extends Window {
             form.addField("forwardCallTo", forwardCallTo);
 
 
-            String noteString = "The selected phone number has a" +
-                    "monthly cost of 0.00€ Clicking save" +
-                    "you are accepting that the amount" +
-                    "of 0.00€ will be charged monthly ets.";
-            TextArea note = new TextArea("Note", noteString);
+            String noteString = "The selected phone number has a " +
+                    "monthly cost of 0.00\u20ac Clicking save " +
+                    "you are accepting that the amount " +
+                    "of 0.00\u20ac will be charged monthly ets.";
+            TextArea note = new TextArea("Note: ",  noteString);
             note.setReadOnly(true);
 
             form.addField("note", note);
         }
-
 
         return form;
     }

@@ -41,7 +41,6 @@ public class PhoneNumbersContent extends VerticalLayout {
         this.tableFields = fillFields();
         this.tableData = createTableData();
 
-//        setWidth(100, Sizeable.UNITS_PERCENTAGE);
         setSizeFull();
         initLayout();
         initPhoneNumbers();
@@ -52,8 +51,10 @@ public class PhoneNumbersContent extends VerticalLayout {
         setWidth(100, Sizeable.UNITS_PERCENTAGE);
         addComponent(head);
 
+        this.phoneNumbers.setColumnWidth("", 60);
         this.phoneNumbers.setContainerDataSource(this.tableData);
         this.phoneNumbers.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+        this.phoneNumbers.setHeight("555px");
         this.phoneNumbers.setFooterVisible(false);
         this.phoneNumbers.addStyleName("tableCustom");
         addComponent(this.phoneNumbers);
@@ -99,6 +100,7 @@ public class PhoneNumbersContent extends VerticalLayout {
                 ic.getContainerProperty(object, "NAME").setValue(phoneNumber.getName());
                 ic.getContainerProperty(object, "id").setValue(couchModel.getId());
                 ic.getContainerProperty(object, "FORWARD CALLS TO").setValue(forward);
+
                 Button removeButton = new Button("", new Button.ClickListener() {
                     public void buttonClick(Button.ClickEvent event) {
                         phoneNumbers.select(object);
@@ -110,6 +112,7 @@ public class PhoneNumbersContent extends VerticalLayout {
                         confirmingRemove.setHeight("180px");
                     }
                 });
+
                 ic.getContainerProperty(object, "").setValue(removeButton);
             }
         }
@@ -154,8 +157,8 @@ public class PhoneNumbersContent extends VerticalLayout {
 
     private void getForm(String id, Object itemId) {
         PhoneNumbersForm phoneNumbersForm = new PhoneNumbersForm(this.bundle, this.phoneNumbers);
-        phoneNumbersForm.setWidth("400px");
-        phoneNumbersForm.setHeight("300px");
+        phoneNumbersForm.setWidth("450px");
+        phoneNumbersForm.setHeight("325px");
         phoneNumbersForm.center();
         phoneNumbersForm.setModal(true);
 
