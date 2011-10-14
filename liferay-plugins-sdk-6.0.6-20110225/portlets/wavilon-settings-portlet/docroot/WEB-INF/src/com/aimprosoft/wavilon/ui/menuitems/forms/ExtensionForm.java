@@ -16,7 +16,8 @@ import com.vaadin.event.ShortcutAction;
 import com.vaadin.ui.*;
 
 import javax.portlet.PortletRequest;
-import java.util.*;
+import java.util.Map;
+import java.util.ResourceBundle;
 
 public class ExtensionForm extends Window {
     private ExtensionDatabaseService service = ObjectFactory.getBean(ExtensionDatabaseService.class);
@@ -120,6 +121,7 @@ public class ExtensionForm extends Window {
             }
         });
         save.setClickShortcut(ShortcutAction.KeyCode.ENTER);
+        save.addStyleName("saveButton");
         buttons.addComponent(save);
     }
 

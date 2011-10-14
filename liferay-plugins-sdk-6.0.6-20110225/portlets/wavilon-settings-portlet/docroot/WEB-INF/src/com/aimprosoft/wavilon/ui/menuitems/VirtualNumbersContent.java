@@ -4,6 +4,7 @@ import com.aimprosoft.wavilon.application.GenericPortletApplication;
 import com.aimprosoft.wavilon.couch.CouchModel;
 import com.aimprosoft.wavilon.couch.CouchModelLite;
 import com.aimprosoft.wavilon.model.VirtualNumber;
+import com.aimprosoft.wavilon.service.AllPhoneNumbersDatabaseService;
 import com.aimprosoft.wavilon.service.VirtualNumberDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.ui.menuitems.forms.ConfirmingRemove;
@@ -17,6 +18,7 @@ import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 
 import javax.portlet.PortletRequest;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,7 +34,7 @@ public class VirtualNumbersContent extends VerticalLayout {
 
     private PortletRequest request;
     private VirtualNumberDatabaseService service = ObjectFactory.getBean(VirtualNumberDatabaseService.class);
-
+    private AllPhoneNumbersDatabaseService allPhonesService  = ObjectFactory.getBean(AllPhoneNumbersDatabaseService.class);
     public VirtualNumbersContent(ResourceBundle bundle) {
         this.bundle = bundle;
     }
@@ -144,11 +146,15 @@ public class VirtualNumbersContent extends VerticalLayout {
     }
 
     private List<CouchModel> getCouchModels() {
+        List<CouchModel> couchModelList = new LinkedList<CouchModel>();
+
         try {
-            return service.getAllUsersCouchModelToVirtualNumber(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request));
-        } catch (Exception e) {
-            return Collections.emptyList();
+            couchModelList.addAll(service.getAllUsersCouchModelToVirtualNumber(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request)));
+            couchModelList.addAll(allPhonesService.getVirtualNumbers());
+        } catch (Exception ignored) {
         }
+
+        return couchModelList;
     }
 
     public HorizontalLayout createHead() {

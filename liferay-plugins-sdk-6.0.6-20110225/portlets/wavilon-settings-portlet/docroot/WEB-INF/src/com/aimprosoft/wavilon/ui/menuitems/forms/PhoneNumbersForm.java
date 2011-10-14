@@ -5,6 +5,7 @@ import com.aimprosoft.wavilon.couch.CouchModel;
 import com.aimprosoft.wavilon.couch.CouchModelLite;
 import com.aimprosoft.wavilon.couch.CouchTypes;
 import com.aimprosoft.wavilon.model.PhoneNumber;
+import com.aimprosoft.wavilon.service.AllPhoneNumbersDatabaseService;
 import com.aimprosoft.wavilon.service.PhoneNumberDatabaseService;
 import com.aimprosoft.wavilon.service.VirtualNumberDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
@@ -16,17 +17,20 @@ import com.vaadin.ui.*;
 import javax.portlet.PortletRequest;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 public class PhoneNumbersForm extends Window {
     private PhoneNumberDatabaseService service = ObjectFactory.getBean(PhoneNumberDatabaseService.class);
     private VirtualNumberDatabaseService virtualNumberDatabaseService = ObjectFactory.getBean(VirtualNumberDatabaseService.class);
+    private AllPhoneNumbersDatabaseService allPhonesService = ObjectFactory.getBean(AllPhoneNumbersDatabaseService.class);
     private ResourceBundle bundle;
     private PortletRequest request;
     private Table table;
     private PhoneNumber phoneNumber;
     private Application application;
     private CouchModel model;
+    private String anotherPhoneId = "";
 
 
     public PhoneNumbersForm(ResourceBundle bundle, Table table) {
@@ -71,7 +75,6 @@ public class PhoneNumbersForm extends Window {
                     String name = (String) form.getField("name").getValue();
                     CouchModelLite forwardCallTo = ((CouchModelLite) form.getField("forwardCallTo").getValue());
                     try {
-
                         CouchModel virtualNumber = ((CouchModel) form.getField("number").getValue());
                         phoneNumber.setLocator((String) virtualNumber.getProperties().get("locator"));
 
@@ -80,16 +83,22 @@ public class PhoneNumbersForm extends Window {
                         phoneNumber.setLocator(virtualNumber);
 
                     }
-                    if (null != model.getRevision()) {
-                        table.removeItem(itemId);
-                        table.select(null);
-                    }
+
 
                     phoneNumber.setName(name);
 
                     model.setType(CouchTypes.service);
 
                     service.addPhoneNumber(phoneNumber, model, forwardCallTo.getId());
+
+                    if (!"".equals(anotherPhoneId)) {
+                        allPhonesService.updateModel(model.getLiferayOrganizationId(), anotherPhoneId);
+                    }
+
+                    if (null != model.getRevision() || !"".equals(anotherPhoneId)) {
+                        table.removeItem(itemId);
+                        table.select(null);
+                    }
 
                     final Object object = table.addItem();
 
@@ -122,6 +131,7 @@ public class PhoneNumbersForm extends Window {
             }
         }
         );
+        save.addStyleName("saveButton");
         buttons.addComponent(save);
     }
 
@@ -145,7 +155,7 @@ public class PhoneNumbersForm extends Window {
         forwardCallTo.setRequired(true);
         forwardCallTo.setRequiredError(bundle.getString("wavilon.error.massage.phonenumbers.forward.empty"));
 
-        if (null != this.model.getRevision() && !"".equals(this.model.getRevision())) {
+        if ((null != this.model.getRevision() && !"".equals(this.model.getRevision())) || null!= model.getProperties()) {
             name.setValue(model.getProperties().get("name"));
 
             TextField number = new TextField(bundle.getString("wavilon.form.number"));
@@ -205,10 +215,26 @@ public class PhoneNumbersForm extends Window {
     }
 
     private CouchModel createModel(String id) {
+        if ("-1".equals(id)) {
+            return CouchModelUtil.newCouchModel(request, CouchTypes.startnode);
+        }
         try {
             return service.getModel(id);
         } catch (Exception e) {
-            return CouchModelUtil.newCouchModel(request, CouchTypes.service);
+            try {
+                CouchModel anotherCouchModel = allPhonesService.getPhoneNumber(id);
+                anotherPhoneId = anotherCouchModel.getId();
+                CouchModel nativeCouchModel = CouchModelUtil.newCouchModel(request, CouchTypes.startnode);
+                Map<String, Object> props = anotherCouchModel.getProperties();
+                props.put("name", "");
+                nativeCouchModel.setProperties(props);
+                nativeCouchModel.setOutputs(null);
+
+                return nativeCouchModel;
+
+            } catch (Exception ignored) {
+                return CouchModelUtil.newCouchModel(request, CouchTypes.startnode);
+            }
         }
     }
 

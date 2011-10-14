@@ -43,6 +43,14 @@ public class Functions {
     @Value("${fetch.all.couch.model.lite}")
     private String allCouchModelLite;
 
+    @Value("${fetch.all.phones.virtual.number}")
+    private String allPhonesVirtualNumbers;
+
+    @Value("${fetch.all.phones.phone.number}")
+    private String allPhonesPhoneNumbers;
+
+
+
     public String getAllDocumentFunction() {
         return allDocumentFunction;
     }
@@ -93,5 +101,13 @@ public class Functions {
 
     public String getAllCouchModelLite() {
         return allCouchModelLite;
+    }
+
+    public String getAllPhonesVirtualNumbers() {
+        return allPhonesVirtualNumbers;
+    }
+
+    public String getAllPhonesPhoneNumbers() {
+        return allPhonesPhoneNumbers;
     }
 }

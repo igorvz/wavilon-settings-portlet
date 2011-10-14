@@ -4,6 +4,7 @@ import com.aimprosoft.wavilon.application.GenericPortletApplication;
 import com.aimprosoft.wavilon.couch.CouchModel;
 import com.aimprosoft.wavilon.couch.CouchModelLite;
 import com.aimprosoft.wavilon.model.PhoneNumber;
+import com.aimprosoft.wavilon.service.AllPhoneNumbersDatabaseService;
 import com.aimprosoft.wavilon.service.PhoneNumberDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.ui.menuitems.forms.ConfirmingRemove;
@@ -17,7 +18,6 @@ import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 
 import javax.portlet.PortletRequest;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -29,6 +29,8 @@ public class PhoneNumbersContent extends VerticalLayout {
     private Table phoneNumbers = new Table();
     private PortletRequest request;
     private PhoneNumberDatabaseService service = ObjectFactory.getBean(PhoneNumberDatabaseService.class);
+    private AllPhoneNumbersDatabaseService allPhonesService = ObjectFactory.getBean(AllPhoneNumbersDatabaseService.class);
+
     private List<String> hiddenFields;
 
     public PhoneNumbersContent(ResourceBundle bundle) {
@@ -156,7 +158,7 @@ public class PhoneNumbersContent extends VerticalLayout {
     private void getForm(String id, Object itemId) {
         PhoneNumbersForm phoneNumbersForm = new PhoneNumbersForm(this.bundle, this.phoneNumbers);
         phoneNumbersForm.setWidth("450px");
-        phoneNumbersForm.setHeight("325px");
+        phoneNumbersForm.setHeight("350px");
         phoneNumbersForm.center();
         phoneNumbersForm.setModal(true);
 
@@ -188,11 +190,16 @@ public class PhoneNumbersContent extends VerticalLayout {
     }
 
     private List<CouchModel> getCouchModels() {
+        List<CouchModel> couchModelList = new LinkedList<CouchModel>();
+
         try {
-            return service.getAllUsersCouchModelToPhoneNumber(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request));
-        } catch (Exception e) {
-            return Collections.emptyList();
+            couchModelList.addAll(service.getAllUsersCouchModelToPhoneNumber(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request)));
+            couchModelList.addAll(allPhonesService.getPhoneNumbers());
+
+        } catch (Exception ignored) {
         }
+
+        return couchModelList;
     }
 
 }

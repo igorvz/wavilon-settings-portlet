@@ -145,6 +145,7 @@ public class RecordingsForm extends Window {
             }
         });
         save.setClickShortcut(ShortcutAction.KeyCode.ENTER);
+        save.addStyleName("saveButton");
         buttons.addComponent(save);
     }
 

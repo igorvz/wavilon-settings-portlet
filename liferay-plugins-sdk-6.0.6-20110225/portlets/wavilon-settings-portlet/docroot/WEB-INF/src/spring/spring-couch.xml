@@ -14,12 +14,16 @@
         <constructor-arg index="3" value="${db.password}"/>
     </bean>
 
-    <bean name="database" factory-bean="databaseSession" factory-method="getDatabase">
-        <constructor-arg value="${db.name}"/>
+    <bean name="databaseNode" factory-bean="databaseSession" factory-method="getDatabase">
+        <constructor-arg value="${db.name.nodes}"/>
+    </bean>
+
+    <bean name="databasePhoneNumbers" factory-bean="databaseSession" factory-method="getDatabase">
+        <constructor-arg value="${db.name.phonenumbers}"/>
     </bean>
 
     <bean id="couchDBService" class="com.aimprosoft.wavilon.service.impl.CouchDBService">
-        <property name="database" ref="database"/>
+        <property name="database" ref="databaseNode"/>
         <property name="functions" ref="functions"/>
         <property name="serializeService" ref="serializeService"/>
         <property name="objectReader">
@@ -28,6 +32,20 @@
             </bean>
         </property>
     </bean>
+
+    <bean id="allPhoneNumbersDBService" class="com.aimprosoft.wavilon.service.impl.AllPhoneNumbersDatabaseServiceImpl">
+        <property name="database" ref="databasePhoneNumbers"/>
+        <property name="functions" ref="functions"/>
+        <property name="objectReader">
+            <bean class="org.codehaus.jackson.map.ObjectReader" factory-bean="objectMapper" factory-method="reader">
+                <constructor-arg index="0" value="com.aimprosoft.wavilon.couch.PhoneModel"/>
+            </bean>
+        </property>
+        <property name="objectWriter">
+            <bean factory-bean="objectMapper" factory-method="writer"/>
+        </property>
+    </bean>
+
 
     <context:component-scan base-package="com.aimprosoft.wavilon.service.impl"/>
 

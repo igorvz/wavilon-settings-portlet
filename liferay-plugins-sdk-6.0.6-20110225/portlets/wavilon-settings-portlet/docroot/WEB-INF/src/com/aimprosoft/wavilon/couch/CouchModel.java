@@ -26,7 +26,7 @@ public class CouchModel {
     private String revision;
 
     @JsonProperty("type")
-    private CouchTypes type;
+    private Object type;
 
     @JsonProperty("properties")
     private Map<String, Object> properties;
@@ -77,11 +77,11 @@ public class CouchModel {
         this.revision = revision;
     }
 
-    public CouchTypes getType() {
-        return type;
+    public Object getType() {
+        return type.toString();
     }
 
-    public void setType(CouchTypes type) {
+    public void setType(Object type) {
         this.type = type;
     }
 

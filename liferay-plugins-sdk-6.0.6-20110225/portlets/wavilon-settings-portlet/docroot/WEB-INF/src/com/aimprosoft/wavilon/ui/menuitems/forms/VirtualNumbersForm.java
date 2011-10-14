@@ -5,6 +5,7 @@ import com.aimprosoft.wavilon.couch.CouchModel;
 import com.aimprosoft.wavilon.couch.CouchModelLite;
 import com.aimprosoft.wavilon.couch.CouchTypes;
 import com.aimprosoft.wavilon.model.VirtualNumber;
+import com.aimprosoft.wavilon.service.AllPhoneNumbersDatabaseService;
 import com.aimprosoft.wavilon.service.VirtualNumberDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.util.CouchModelUtil;
@@ -16,17 +17,19 @@ import com.vaadin.ui.*;
 import javax.portlet.PortletRequest;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 public class VirtualNumbersForm extends Window {
     private VirtualNumberDatabaseService service = ObjectFactory.getBean(VirtualNumberDatabaseService.class);
+    private AllPhoneNumbersDatabaseService allPhonesService = ObjectFactory.getBean(AllPhoneNumbersDatabaseService.class);
     private ResourceBundle bundle;
     private PortletRequest request;
     private Table table;
     private VirtualNumber virtualNumber;
     private Application application;
     private CouchModel model;
-
+    private String anotherPhoneId = "";
 
     public VirtualNumbersForm(ResourceBundle bundle, Table table) {
         this.bundle = bundle;
@@ -80,7 +83,11 @@ public class VirtualNumbersForm extends Window {
 
                     service.addVirtualNumber(virtualNumber, model);
 
-                    if (null != model.getRevision()) {
+                    if (!"".equals(anotherPhoneId)) {
+                        allPhonesService.updateModel(model.getLiferayOrganizationId(), anotherPhoneId);
+                    }
+
+                    if (null != model.getRevision() || !"".equals(anotherPhoneId)) {
                         table.removeItem(itemId);
                         table.select(null);
                     }
@@ -113,14 +120,30 @@ public class VirtualNumbersForm extends Window {
                 }
             }
         });
+        save.addStyleName("saveButton");
         buttons.addComponent(save);
     }
 
     private CouchModel createModel(String id) {
+        if ("-1".equals(id)) {
+            return CouchModelUtil.newCouchModel(request, CouchTypes.startnode);
+        }
         try {
             return service.getModel(id);
         } catch (Exception e) {
-            return CouchModelUtil.newCouchModel(request, CouchTypes.startnode);
+            try {
+                CouchModel anotherCouchModel = allPhonesService.getVirtualNumber(id);
+                anotherPhoneId = anotherCouchModel.getId();
+                CouchModel nativeCouchModel = CouchModelUtil.newCouchModel(request, CouchTypes.startnode);
+                Map<String, Object> props = anotherCouchModel.getProperties();
+                props.put("name", "");
+                nativeCouchModel.setProperties(props);
+
+                return nativeCouchModel;
+
+            } catch (Exception ignored) {
+                return CouchModelUtil.newCouchModel(request, CouchTypes.startnode);
+            }
         }
     }
 
@@ -135,7 +158,8 @@ public class VirtualNumbersForm extends Window {
         TextField number = new TextField(bundle.getString("wavilon.form.number"));
         number.setRequired(true);
         number.setRequiredError(bundle.getString("wavilon.error.massage.virtualnumbers.number.empty"));
-        number.addValidator(new RegexpValidator("[+][0-9]{10}", bundle.getString("wavilon.error.massage.virtualnumbers.wrong")));
+//        number.addValidator(new RegexpValidator("[+][0-9]{10}", bundle.getString("wavilon.error.massage.virtualnumbers.wrong")));
+        number.addValidator(new RegexpValidator("[0-9]{11}", bundle.getString("wavilon.error.massage.virtualnumbers.wrong")));
 
 
         List<CouchModelLite> forwards = getForward();
@@ -148,7 +172,7 @@ public class VirtualNumbersForm extends Window {
         forwardCallTo.setRequired(true);
         forwardCallTo.setRequiredError(bundle.getString("wavilon.error.massage.virtualnumbers.forward.empty"));
 
-        if (null != model.getRevision() && !"".equals(model.getRevision())) {
+        if ((null != model.getRevision() && !"".equals(model.getRevision())) || null!= model.getProperties()) {
             name.setValue(model.getProperties().get("name"));
             number.setValue(model.getProperties().get("locator"));
             number.setReadOnly(true);

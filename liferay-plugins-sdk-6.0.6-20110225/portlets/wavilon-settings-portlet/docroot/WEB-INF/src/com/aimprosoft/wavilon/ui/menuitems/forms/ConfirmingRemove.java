@@ -20,7 +20,7 @@ public class ConfirmingRemove extends Window {
 
         setModal(true);
         center();
-        setWidth("300px");
+        setWidth("320px");
         setHeight("180px");
 
         VerticalLayout mainLayout = new VerticalLayout();
@@ -65,6 +65,7 @@ public class ConfirmingRemove extends Window {
         });
 
         buttons.addComponent(cancel);
+        ok.addStyleName("saveButton");
         buttons.addComponent(ok);
 
         return buttons;

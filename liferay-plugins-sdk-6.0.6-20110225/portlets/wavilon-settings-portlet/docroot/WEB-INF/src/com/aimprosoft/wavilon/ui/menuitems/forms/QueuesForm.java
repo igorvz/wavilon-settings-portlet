@@ -120,6 +120,7 @@ public class QueuesForm extends Window {
                 }
             }
         });
+        save.addStyleName("saveButton");
         buttons.addComponent(save);
     }
 

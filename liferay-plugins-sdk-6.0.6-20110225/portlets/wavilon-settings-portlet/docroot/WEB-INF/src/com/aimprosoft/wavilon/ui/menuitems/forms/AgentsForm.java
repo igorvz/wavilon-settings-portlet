@@ -107,6 +107,7 @@ public class AgentsForm extends Window {
                 }
             }
         });
+        save.addStyleName("saveButton");
         buttons.addComponent(save);
     }
 
