@@ -4,7 +4,6 @@ import com.aimprosoft.wavilon.application.GenericPortletApplication;
 import com.aimprosoft.wavilon.couch.CouchModel;
 import com.aimprosoft.wavilon.couch.CouchModelLite;
 import com.aimprosoft.wavilon.couch.CouchTypes;
-import com.aimprosoft.wavilon.model.Agent;
 import com.aimprosoft.wavilon.model.Queue;
 import com.aimprosoft.wavilon.service.AgentDatabaseService;
 import com.aimprosoft.wavilon.service.QueueDatabaseService;
@@ -69,20 +68,15 @@ public class QueuesDragAndDropAgents extends HorizontalLayout {
 
         VerticalLayout left = new VerticalLayout();
         left.addStyleName("head");
-        addComponent(left);
-        Label leftLabel = new Label("Agents In Queue");
+
+        Label leftLabel = new Label(bundle.getString("wavilon.form.queues.drag.and.drop.agents.in.queue"));
         leftLabel.addStyleName("label");
         left.addComponent(leftLabel);
 
-        VerticalLayout middle = new VerticalLayout();
-        middle.addStyleName("middleDragNDrop");
-//        middle.setWidth(50, Sizeable.UNITS_PIXELS);
-        addComponent(middle);
 
         VerticalLayout right = new VerticalLayout();
         right.addStyleName("head");
-        addComponent(right);
-        Label rightLabel = new Label("Available Agents");
+        Label rightLabel = new Label(bundle.getString("wavilon.form.queues.drag.and.drop.available.agents"));
         rightLabel.addStyleName("label");
         right.addComponent(rightLabel);
 
@@ -95,13 +89,95 @@ public class QueuesDragAndDropAgents extends HorizontalLayout {
 
         dragAndDropInit(agentsInQueue, availableAgents);
 
+
+        VerticalLayout middle = createMiddle(agentsInQueue, availableAgents);
+        middle.addStyleName("middleDragNDrop");
         left.addComponent(agentsInQueue);
         right.addComponent(availableAgents);
 
+        addComponent(left);
+        addComponent(middle);
+        addComponent(right);
+
+        setComponentAlignment(middle, Alignment.MIDDLE_CENTER);
 
         setExpandRatio(left, 3);
         setExpandRatio(middle, 1);
         setExpandRatio(right, 3);
+    }
+
+    private VerticalLayout createMiddle(final Table agentsInQueue, final Table availableAgents) {
+        VerticalLayout middle = new VerticalLayout();
+
+        Button toQueueButton = new Button(bundle.getString("wavilon.button.queues.drag.and.drop.to.queue"), new Button.ClickListener() {
+            public void buttonClick(Button.ClickEvent event) {
+
+                if (null != availableAgents.getValue()) {
+
+                    Item item = availableAgents.getItem(availableAgents.getValue());
+                    Object object = agentsInQueue.addItem();
+
+
+                    List<String> queuesAgents = (List<String>) model.getOutputs().get("agents");
+                    queuesAgents.add(item.getItemProperty("id").getValue().toString());
+                    try {
+                        queuesService.updateQueue(queue, model, queuesAgents);
+                        model = queuesService.getModel(model.getId());
+                    } catch (IOException ignored) {
+                    }
+
+
+                    agentsInQueue.getContainerProperty(object, bundle.getString("wavilon.table.agents.column.name")).setValue(item.getItemProperty(bundle.getString("wavilon.table.agents.column.name")).getValue().toString());
+                    agentsInQueue.getContainerProperty(object, bundle.getString("wavilon.table.agents.column.current.extension")).setValue(item.getItemProperty(bundle.getString("wavilon.table.agents.column.current.extension")).getValue().toString());
+                    agentsInQueue.getContainerProperty(object, "id").setValue(item.getItemProperty("id").getValue().toString());
+
+                    availableAgents.removeItem(availableAgents.getValue());
+
+                } else {
+                    getWindow().showNotification(bundle.getString("wavilon.error.massage.queues.drag.and.drop.no.selectable"));
+                }
+            }
+        });
+        Button fromQueueButton = new Button(bundle.getString("wavilon.button.queues.drag.and.drop.from.queue"), new Button.ClickListener() {
+            public void buttonClick(Button.ClickEvent event) {
+
+                if (null != agentsInQueue.getValue()) {
+
+                    Item item = agentsInQueue.getItem(agentsInQueue.getValue());
+                    Object object = availableAgents.addItem();
+
+
+                    List<String> queuesAgents = (List<String>) model.getOutputs().get("agents");
+                    queuesAgents.remove(item.getItemProperty("id").getValue().toString());
+                    try {
+                        queuesService.updateQueue(queue, model, queuesAgents);
+                        model = queuesService.getModel(model.getId());
+                    } catch (IOException ignored) {
+                    }
+
+
+                    availableAgents.getContainerProperty(object, bundle.getString("wavilon.table.agents.column.name")).setValue(item.getItemProperty(bundle.getString("wavilon.table.agents.column.name")).getValue().toString());
+                    availableAgents.getContainerProperty(object, bundle.getString("wavilon.table.agents.column.current.extension")).setValue(item.getItemProperty(bundle.getString("wavilon.table.agents.column.current.extension")).getValue().toString());
+                    availableAgents.getContainerProperty(object, "id").setValue(item.getItemProperty("id").getValue().toString());
+
+                    agentsInQueue.removeItem(agentsInQueue.getValue());
+                } else {
+                    getWindow().showNotification(bundle.getString("wavilon.error.massage.queues.drag.and.drop.no.selectable"));
+                }
+
+            }
+        });
+        Label massage = new Label(bundle.getString("wavilon.form.queues.drag.and.drop.massage"));
+
+        middle.addComponent(toQueueButton);
+        middle.addComponent(fromQueueButton);
+        middle.addComponent(massage);
+
+        middle.setComponentAlignment(toQueueButton, Alignment.MIDDLE_CENTER);
+        middle.setComponentAlignment(fromQueueButton, Alignment.MIDDLE_CENTER);
+        middle.setComponentAlignment(massage, Alignment.MIDDLE_CENTER);
+
+        return middle;
     }
 
     private void dragAndDropInit(final Table agentsInQueue, final Table availableAgents) {
@@ -122,8 +198,8 @@ public class QueuesDragAndDropAgents extends HorizontalLayout {
                 }
 
 
-                agentsInQueue.getContainerProperty(object, "NAME").setValue(item.getItemProperty("NAME").getValue().toString());
-                agentsInQueue.getContainerProperty(object, "CURRENT EXTENSION").setValue(item.getItemProperty("CURRENT EXTENSION").getValue().toString());
+                agentsInQueue.getContainerProperty(object, bundle.getString("wavilon.table.agents.column.name")).setValue(item.getItemProperty(bundle.getString("wavilon.table.agents.column.name")).getValue().toString());
+                agentsInQueue.getContainerProperty(object, bundle.getString("wavilon.table.agents.column.current.extension")).setValue(item.getItemProperty(bundle.getString("wavilon.table.agents.column.current.extension")).getValue().toString());
                 agentsInQueue.getContainerProperty(object, "id").setValue(item.getItemProperty("id").getValue().toString());
 
                 availableAgents.removeItem(sourceItemId);
@@ -152,8 +228,8 @@ public class QueuesDragAndDropAgents extends HorizontalLayout {
                 }
 
 
-                availableAgents.getContainerProperty(object, "NAME").setValue(item.getItemProperty("NAME").getValue().toString());
-                availableAgents.getContainerProperty(object, "CURRENT EXTENSION").setValue(item.getItemProperty("CURRENT EXTENSION").getValue().toString());
+                availableAgents.getContainerProperty(object, bundle.getString("wavilon.table.agents.column.name")).setValue(item.getItemProperty(bundle.getString("wavilon.table.agents.column.name")).getValue().toString());
+                availableAgents.getContainerProperty(object, bundle.getString("wavilon.table.agents.column.current.extension")).setValue(item.getItemProperty(bundle.getString("wavilon.table.agents.column.current.extension")).getValue().toString());
                 availableAgents.getContainerProperty(object, "id").setValue(item.getItemProperty("id").getValue().toString());
 
                 agentsInQueue.removeItem(sourceItemId);
@@ -194,16 +270,16 @@ public class QueuesDragAndDropAgents extends HorizontalLayout {
 
     private List<String> createHidden() {
         List<String> tableHiddenFields = new LinkedList<String>();
-        tableHiddenFields.add("NAME");
-        tableHiddenFields.add("CURRENT EXTENSION");
+        tableHiddenFields.add(bundle.getString("wavilon.table.agents.column.name"));
+        tableHiddenFields.add(bundle.getString("wavilon.table.agents.column.current.extension"));
         tableHiddenFields.add("id");
         return tableHiddenFields;
     }
 
     private List<String> createVisible() {
         List<String> tableVisibleFields = new LinkedList<String>();
-        tableVisibleFields.add("NAME");
-        tableVisibleFields.add("CURRENT EXTENSION");
+        tableVisibleFields.add(bundle.getString("wavilon.table.agents.column.name"));
+        tableVisibleFields.add(bundle.getString("wavilon.table.agents.column.current.extension"));
         return tableVisibleFields;
     }
 
@@ -227,8 +303,8 @@ public class QueuesDragAndDropAgents extends HorizontalLayout {
         table.setImmediate(true);
         table.setSelectable(true);
 
-        table.setColumnExpandRatio("NAME", 1);
-        table.setColumnExpandRatio("CURRENT EXTENSION", 2);
+        table.setColumnExpandRatio(bundle.getString("wavilon.table.agents.column.name"), 1);
+        table.setColumnExpandRatio(bundle.getString("wavilon.table.agents.column.current.extension"), 2);
 
         return table;
     }
@@ -242,10 +318,10 @@ public class QueuesDragAndDropAgents extends HorizontalLayout {
 
         for (CouchModel agent : agentList) {
             Object object = ic.addItem();
-            ic.getContainerProperty(object, "NAME").setValue(agent.getProperties().get("name"));
+            ic.getContainerProperty(object, bundle.getString("wavilon.table.agents.column.name")).setValue(agent.getProperties().get("name"));
             CouchModelLite extension = CouchModelUtil.getCouchModelLite((String) agent.getOutputs().get("extension"));
 
-            ic.getContainerProperty(object, "CURRENT EXTENSION").setValue(extension);
+            ic.getContainerProperty(object, bundle.getString("wavilon.table.agents.column.current.extension")).setValue(extension);
             ic.getContainerProperty(object, "id").setValue(agent.getId());
         }
 

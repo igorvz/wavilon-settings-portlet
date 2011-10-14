@@ -79,7 +79,7 @@ public class AgentsContent extends VerticalLayout {
 
     private HorizontalLayout createButton() {
         HorizontalLayout addButton = new HorizontalLayout();
-        addButton.addComponent(new Button("Add", new Button.ClickListener() {
+        addButton.addComponent(new Button(bundle.getString("wavilon.button.add"), new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
                 getForm("-1", "-1");
             }
@@ -106,8 +106,8 @@ public class AgentsContent extends VerticalLayout {
                 Agent agent = getAgent(couchModel);
                 CouchModelLite extension = CouchModelUtil.getCouchModelLite((String) couchModel.getOutputs().get("extension"));
                 final Object object = ic.addItem();
-                ic.getContainerProperty(object, "NAME").setValue(agent.getName());
-                ic.getContainerProperty(object, "CURRENT EXTENSION").setValue(extension);
+                ic.getContainerProperty(object, bundle.getString("wavilon.table.agents.column.name")).setValue(agent.getName());
+                ic.getContainerProperty(object, bundle.getString("wavilon.table.agents.column.current.extension")).setValue(extension);
                 ic.getContainerProperty(object, "id").setValue(couchModel.getId());
                 ic.getContainerProperty(object, "").setValue(new Button("", new Button.ClickListener() {
                     public void buttonClick(Button.ClickEvent event) {
@@ -115,9 +115,6 @@ public class AgentsContent extends VerticalLayout {
                         ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
                         getWindow().addWindow(confirmingRemove);
                         confirmingRemove.init(couchModel.getId(), table);
-                        confirmingRemove.center();
-                        confirmingRemove.setWidth("300px");
-                        confirmingRemove.setHeight("180px");
                     }
                 }));
             }
@@ -156,7 +153,7 @@ public class AgentsContent extends VerticalLayout {
     public HorizontalLayout createHead() {
         HorizontalLayout head = new HorizontalLayout();
         head.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-        Label headLabel = new Label("Agents");
+        Label headLabel = new Label(bundle.getString("wavilon.menuitem.agents"));
         head.addComponent(headLabel);
         head.setMargin(false);
         head.addStyleName("head");
@@ -174,8 +171,8 @@ public class AgentsContent extends VerticalLayout {
     private List<String> fillHiddenFields() {
         LinkedList<String> tableFields = new LinkedList<String>();
 
-        tableFields.add("NAME");
-        tableFields.add("CURRENT EXTENSION");
+        tableFields.add(bundle.getString("wavilon.table.agents.column.name"));
+        tableFields.add(bundle.getString("wavilon.table.agents.column.current.extension"));
         tableFields.add("id");
         tableFields.add("");
 
@@ -185,8 +182,8 @@ public class AgentsContent extends VerticalLayout {
     private LinkedList<String> fillFields() {
         LinkedList<String> tableFields = new LinkedList<String>();
 
-        tableFields.add("NAME");
-        tableFields.add("CURRENT EXTENSION");
+        tableFields.add(bundle.getString("wavilon.table.agents.column.name"));
+        tableFields.add(bundle.getString("wavilon.table.agents.column.current.extension"));
         tableFields.add("");
 
         return tableFields;

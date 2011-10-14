@@ -2,7 +2,6 @@ package com.aimprosoft.wavilon.ui.menuitems.forms;
 
 import com.aimprosoft.wavilon.service.ExtensionDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
-import com.vaadin.event.ShortcutAction;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 
@@ -17,7 +16,12 @@ public class ConfirmingRemove extends Window {
     }
 
     public void init(String id, Table table) {
-        setCaption("Information");
+        setCaption(bundle.getString("wavilon.confirming.remove.information"));
+
+        setModal(true);
+        center();
+        setWidth("300px");
+        setHeight("180px");
 
         VerticalLayout mainLayout = new VerticalLayout();
         mainLayout.setWidth(290, Sizeable.UNITS_PIXELS);
@@ -25,10 +29,8 @@ public class ConfirmingRemove extends Window {
         mainLayout.addStyleName("formRegion");
         addComponent(mainLayout);
 
-        String messageContent1 = "Do you really want to permanently delete item?";
-        String messageContent2 = "This operation can't be undone!";
-        mainLayout.addComponent(new Label(messageContent1));
-        mainLayout.addComponent(new Label(messageContent2));
+        mainLayout.addComponent(new Label(bundle.getString("wavilon.confirming.remove.part.first")));
+        mainLayout.addComponent(new Label(bundle.getString("wavilon.confirming.remove.part.second")));
 
         HorizontalLayout buttons = createButtons(id, table);
         mainLayout.addComponent(buttons);
@@ -37,51 +39,17 @@ public class ConfirmingRemove extends Window {
 
     }
 
-
-    private HorizontalLayout createButtons(final String id, final Table table, final Object object) {
-        HorizontalLayout buttons = new HorizontalLayout();
-
-        Button cancel = new Button("Cancel", new Button.ClickListener() {
-            public void buttonClick(Button.ClickEvent event) {
-                close();
-            }
-        });
-        buttons.addComponent(cancel);
-
-        Button ok = new Button("Ok");
-        ok.setClickShortcut(ShortcutAction.KeyCode.ENTER);
-        ok.setData(object);
-        ok.addListener(new Button.ClickListener() {
-            public void buttonClick(Button.ClickEvent event) {
-                try {
-                    service.removeExtension(id);
-                } catch (Exception ignored) {
-                }
-
-                table.removeItem(event.getButton().getData());
-                table.select(null);
-
-                close();
-            }
-        });
-
-        buttons.addComponent(cancel);
-        buttons.addComponent(ok);
-
-        return buttons;
-    }
-
     private HorizontalLayout createButtons(final String id, final Table table) {
         HorizontalLayout buttons = new HorizontalLayout();
 
-        Button cancel = new Button("Cancel", new Button.ClickListener() {
+        Button cancel = new Button(bundle.getString("wavilon.button.cancel"), new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
                 close();
             }
         });
         buttons.addComponent(cancel);
 
-        Button ok = new Button("Ok");
+        Button ok = new Button(bundle.getString("wavilon.button.ok"));
         ok.addListener(new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
                 try {
@@ -102,23 +70,4 @@ public class ConfirmingRemove extends Window {
         return buttons;
     }
 
-    public void initConfirm(String id, Table table, Object object) {
-        setCaption("Information");
-
-        VerticalLayout mainLayout = new VerticalLayout();
-        mainLayout.setWidth(290, Sizeable.UNITS_PIXELS);
-        mainLayout.setHeight(90, Sizeable.UNITS_PIXELS);
-        mainLayout.addStyleName("formRegion");
-        addComponent(mainLayout);
-
-        String messageContent1 = "Do you really want to permanently delete item?";
-        String messageContent2 = "This operation can't be undone!";
-        mainLayout.addComponent(new Label(messageContent1));
-        mainLayout.addComponent(new Label(messageContent2));
-
-        HorizontalLayout buttons = createButtons(id, table, object);
-        mainLayout.addComponent(buttons);
-        buttons.addStyleName("buttonsPanel");
-        mainLayout.setComponentAlignment(buttons, Alignment.BOTTOM_RIGHT);
-    }
 }

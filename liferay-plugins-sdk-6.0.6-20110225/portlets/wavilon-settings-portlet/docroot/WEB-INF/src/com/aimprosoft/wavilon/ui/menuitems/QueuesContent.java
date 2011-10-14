@@ -51,22 +51,20 @@ public class QueuesContent extends VerticalLayout {
     }
 
     private void initLayout() {
-        VerticalLayout top = createTop();
+        VerticalLayout top = new VerticalLayout();
         addComponent(top);
 
         bottom = new VerticalLayout();
         addComponent(bottom);
-//        bottom.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-//        bottom.setHeight(300, Sizeable.UNITS_PIXELS);
 
         HorizontalLayout head = createHead();
         setWidth(100, Sizeable.UNITS_PERCENTAGE);
         top.addComponent(head);
 
 
-        this.queuesTable.setColumnExpandRatio("NAME", 1);
-        this.queuesTable.setColumnExpandRatio("FORWARD TO ON MAX. TIME", 2);
-        this.queuesTable.setColumnExpandRatio("FORWARD TO ON MAX. LENGTH", 2);
+        this.queuesTable.setColumnExpandRatio(bundle.getString("wavilon.table.queues.column.name"), 1);
+        this.queuesTable.setColumnExpandRatio(bundle.getString("wavilon.table.queues.column.forward.to.on.max.time"), 2);
+        this.queuesTable.setColumnExpandRatio(bundle.getString("wavilon.table.queues.column.forward.to.on.max.length"), 2);
         this.queuesTable.setColumnWidth("", 60);
         this.queuesTable.setContainerDataSource(this.tableData);
         this.queuesTable.setWidth(100, Sizeable.UNITS_PERCENTAGE);
@@ -75,15 +73,7 @@ public class QueuesContent extends VerticalLayout {
         top.addComponent(this.queuesTable);
     }
 
-    private VerticalLayout createTop() {
-        VerticalLayout top = new VerticalLayout();
-//        top.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-//        top.setHeight(250, Sizeable.UNITS_PIXELS);
-        return top;
-    }
-
     private void initQueuesTable() {
-//        this.queuesTable.setContainerDataSource(this.tableData);
         this.queuesTable.setVisibleColumns(this.tableFields.toArray());
         this.queuesTable.setSelectable(true);
         this.queuesTable.setImmediate(true);
@@ -137,9 +127,9 @@ public class QueuesContent extends VerticalLayout {
                 CouchModelLite forwardToOnMaxLength = CouchModelUtil.getCouchModelLite(queue.getForwardToOnMaxLength());
                 CouchModelLite forwardToOnMaxTime = CouchModelUtil.getCouchModelLite(queue.getForwardToOnMaxTime());
                 final Object object = ic.addItem();
-                ic.getContainerProperty(object, "NAME").setValue(queue.getName());
-                ic.getContainerProperty(object, "FORWARD TO ON MAX. TIME").setValue(forwardToOnMaxTime);
-                ic.getContainerProperty(object, "FORWARD TO ON MAX. LENGTH").setValue(forwardToOnMaxLength);
+                ic.getContainerProperty(object, bundle.getString("wavilon.table.queues.column.name")).setValue(queue.getName());
+                ic.getContainerProperty(object, bundle.getString("wavilon.table.queues.column.forward.to.on.max.time")).setValue(forwardToOnMaxTime);
+                ic.getContainerProperty(object, bundle.getString("wavilon.table.queues.column.forward.to.on.max.length")).setValue(forwardToOnMaxLength);
                 ic.getContainerProperty(object, "id").setValue(couchModel.getId());
                 ic.getContainerProperty(object, "").setValue(new Button("", new Button.ClickListener() {
                     public void buttonClick(Button.ClickEvent event) {
@@ -148,7 +138,8 @@ public class QueuesContent extends VerticalLayout {
                         getWindow().addWindow(confirmingRemove);
                         confirmingRemove.init(couchModel.getId(), queuesTable);
                         confirmingRemove.center();
-                        confirmingRemove.setWidth("300px");
+                        confirmingRemove.setModal(true);
+                        confirmingRemove.setWidth("330px");
                         confirmingRemove.setHeight("180px");
                     }
                 }));
@@ -177,7 +168,7 @@ public class QueuesContent extends VerticalLayout {
     public HorizontalLayout createHead() {
         HorizontalLayout head = new HorizontalLayout();
         head.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-        Label headLabel = new Label("Queues");
+        Label headLabel = new Label(bundle.getString("wavilon.menuitem.queues"));
         head.addComponent(headLabel);
         head.setMargin(false);
         head.addStyleName("head");
@@ -194,7 +185,7 @@ public class QueuesContent extends VerticalLayout {
 
     private HorizontalLayout createButtons() {
         HorizontalLayout addButton = new HorizontalLayout();
-        addButton.addComponent(new Button("Add", new Button.ClickListener() {
+        addButton.addComponent(new Button(bundle.getString("wavilon.button.add"), new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
                 getForm("-1", "-1");
             }
@@ -204,8 +195,6 @@ public class QueuesContent extends VerticalLayout {
 
     private void getAgentsTwinColumns(String id) {
         QueuesDragAndDropAgents agentsLayout = new QueuesDragAndDropAgents(bundle);
-//        agentsLayout.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-//        agentsLayout.setHeight(300, Sizeable.UNITS_PIXELS);
 
         this.bottom.removeAllComponents();
         this.bottom.addComponent(agentsLayout);
@@ -226,9 +215,9 @@ public class QueuesContent extends VerticalLayout {
     private List<String> fillHiddenFields() {
         List<String> hiddenFields = new LinkedList<String>();
 
-        hiddenFields.add("NAME");
-        hiddenFields.add("FORWARD TO ON MAX. TIME");
-        hiddenFields.add("FORWARD TO ON MAX. LENGTH");
+        hiddenFields.add(bundle.getString("wavilon.table.queues.column.name"));
+        hiddenFields.add(bundle.getString("wavilon.table.queues.column.forward.to.on.max.time"));
+        hiddenFields.add(bundle.getString("wavilon.table.queues.column.forward.to.on.max.length"));
         hiddenFields.add("id");
         hiddenFields.add("");
 
@@ -238,9 +227,9 @@ public class QueuesContent extends VerticalLayout {
     private List<String> fillFields() {
         List<String> tableFields = new LinkedList<String>();
 
-        tableFields.add("NAME");
-        tableFields.add("FORWARD TO ON MAX. TIME");
-        tableFields.add("FORWARD TO ON MAX. LENGTH");
+        tableFields.add(bundle.getString("wavilon.table.queues.column.name"));
+        tableFields.add(bundle.getString("wavilon.table.queues.column.forward.to.on.max.time"));
+        tableFields.add(bundle.getString("wavilon.table.queues.column.forward.to.on.max.length"));
         tableFields.add("");
 
         return tableFields;

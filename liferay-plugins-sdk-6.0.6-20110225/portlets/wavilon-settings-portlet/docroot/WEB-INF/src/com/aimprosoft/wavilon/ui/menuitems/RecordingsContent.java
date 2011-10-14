@@ -55,6 +55,10 @@ public class RecordingsContent extends VerticalLayout {
         setWidth(100, Sizeable.UNITS_PERCENTAGE);
         addComponent(head);
 
+        table.setColumnExpandRatio(bundle.getString("wavilon.table.recordings.column.name"), 1);
+        table.setColumnExpandRatio(bundle.getString("wavilon.table.recordings.column.forward.to.on.end"), 2);
+        table.setColumnExpandRatio(bundle.getString("wavilon.table.recordings.column.media.file"), 2);
+
         table.setContainerDataSource(tableData);
         table.setWidth(100, Sizeable.UNITS_PERCENTAGE);
         table.setColumnWidth("", 60);
@@ -67,7 +71,7 @@ public class RecordingsContent extends VerticalLayout {
         HorizontalLayout head = new HorizontalLayout();
         head.setWidth(100, Sizeable.UNITS_PERCENTAGE);
 
-        Label headLabel = new Label("Recordings");
+        Label headLabel = new Label(bundle.getString("wavilon.menuitem.recordings"));
         head.addComponent(headLabel);
         head.setMargin(false);
         head.addStyleName("head");
@@ -85,7 +89,7 @@ public class RecordingsContent extends VerticalLayout {
     private HorizontalLayout createButtons() {
 
         HorizontalLayout addButton = new HorizontalLayout();
-        addButton.addComponent(new Button("Add", new Button.ClickListener() {
+        addButton.addComponent(new Button(bundle.getString("wavilon.button.add"), new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
                 getForm("-1", "-1");
             }
@@ -123,18 +127,6 @@ public class RecordingsContent extends VerticalLayout {
         });
     }
 
-    private LinkedList<String> fillFields() {
-        LinkedList<String> tableFields = new LinkedList<String>();
-
-        tableFields.add("NAME");
-        tableFields.add("FORWARD TO ON END");
-        tableFields.add("MEDIA FILE");
-        tableFields.add("");
-        tableFields.add("id");
-
-        return tableFields;
-    }
-
     private IndexedContainer createTableData() {
         IndexedContainer ic = new IndexedContainer();
         List<CouchModel> recordingModelLiteList = getAllRecordingLite();
@@ -170,9 +162,9 @@ public class RecordingsContent extends VerticalLayout {
 
                 CouchModelLite forwardModel = createForward(couchModel);
 
-                ic.getContainerProperty(object, "NAME").setValue(recording.getName());
-                ic.getContainerProperty(object, "FORWARD TO ON END").setValue(forwardModel.getName());
-                ic.getContainerProperty(object, "MEDIA FILE").setValue(fileName);
+                ic.getContainerProperty(object, bundle.getString("wavilon.table.recordings.column.name")).setValue(recording.getName());
+                ic.getContainerProperty(object, bundle.getString("wavilon.table.recordings.column.forward.to.on.end")).setValue(forwardModel.getName());
+                ic.getContainerProperty(object, bundle.getString("wavilon.table.recordings.column.media.file")).setValue(fileName);
                 ic.getContainerProperty(object, "id").setValue(couchModel.getId());
                 ic.getContainerProperty(object, "").setValue(delete);
 
@@ -182,9 +174,6 @@ public class RecordingsContent extends VerticalLayout {
                         ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
                         getWindow().addWindow(confirmingRemove);
                         confirmingRemove.init(couchModel.getId(), table);
-                        confirmingRemove.center();
-                        confirmingRemove.setWidth("300px");
-                        confirmingRemove.setHeight("180px");
                     }
                 });
             }
@@ -204,17 +193,6 @@ public class RecordingsContent extends VerticalLayout {
         }
     }
 
-    private List<String> fillHiddenFields() {
-        LinkedList<String> tableFields = new LinkedList<String>();
-
-        tableFields.add("NAME");
-        tableFields.add("FORWARD TO ON END");
-        tableFields.add("MEDIA FILE");
-        tableFields.add("");
-
-        return tableFields;
-    }
-
     private CouchModelLite getForward(String id) {
         try {
             return CouchModelUtil.getCouchModelLite(id);
@@ -229,5 +207,28 @@ public class RecordingsContent extends VerticalLayout {
         } catch (Exception e) {
             return Collections.emptyList();
         }
+    }
+
+    private List<String> fillHiddenFields() {
+        LinkedList<String> tableFields = new LinkedList<String>();
+
+        tableFields.add(bundle.getString("wavilon.table.recordings.column.name"));
+        tableFields.add(bundle.getString("wavilon.table.recordings.column.forward.to.on.end"));
+        tableFields.add(bundle.getString("wavilon.table.recordings.column.media.file"));
+        tableFields.add("");
+
+        return tableFields;
+    }
+
+    private LinkedList<String> fillFields() {
+        LinkedList<String> tableFields = new LinkedList<String>();
+
+        tableFields.add(bundle.getString("wavilon.table.recordings.column.name"));
+        tableFields.add(bundle.getString("wavilon.table.recordings.column.forward.to.on.end"));
+        tableFields.add(bundle.getString("wavilon.table.recordings.column.media.file"));
+        tableFields.add("");
+        tableFields.add("id");
+
+        return tableFields;
     }
 }

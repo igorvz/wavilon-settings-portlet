@@ -11,7 +11,6 @@ import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.util.CouchModelUtil;
 import com.liferay.portal.util.PortalUtil;
 import com.vaadin.Application;
-import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 
 import javax.portlet.PortletRequest;
@@ -29,6 +28,7 @@ public class PhoneNumbersForm extends Window {
     private Application application;
     private CouchModel model;
 
+
     public PhoneNumbersForm(ResourceBundle bundle, Table table) {
         this.bundle = bundle;
         this.table = table;
@@ -40,9 +40,9 @@ public class PhoneNumbersForm extends Window {
         model = createModel(id);
         phoneNumber = new PhoneNumber();
         if ("-1".equals(id)) {
-            setCaption("New Phone Number");
+            setCaption(bundle.getString("wavilon.form.phonenumbers.new.phone.number"));
         } else {
-            setCaption("Edit Phone Number");
+            setCaption(bundle.getString("wavilon.form.phonenumbers.edit.phone.number"));
         }
 
         VerticalLayout content = new VerticalLayout();
@@ -51,22 +51,19 @@ public class PhoneNumbersForm extends Window {
         content.setSizeFull();
         addComponent(content);
 
-//        Label headerForm = createHeader(id, phoneNumber);
-//        content.addComponent(headerForm);
-
         final Form form = createForm();
         content.addComponent(form);
 
         HorizontalLayout buttons = createButtons(content);
 
-        Button cancel = new Button("Cancel", new Button.ClickListener() {
+        Button cancel = new Button(bundle.getString("wavilon.button.cancel"), new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
                 close();
             }
         });
         buttons.addComponent(cancel);
 
-        Button save = new Button(bundle.getString("wavilon.settings.validation.form.button.save"), new Button.ClickListener() {
+        Button save = new Button(bundle.getString("wavilon.button.save"), new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
                 try {
                     form.commit();
@@ -104,25 +101,27 @@ public class PhoneNumbersForm extends Window {
                             application.getMainWindow().addWindow(confirmingRemove);
                             confirmingRemove.init(phoneNumbersID, table);
                             confirmingRemove.center();
-                            confirmingRemove.setWidth("300px");
+                            confirmingRemove.setModal(true);
+                            confirmingRemove.setWidth("330px");
                             confirmingRemove.setHeight("180px");
                         }
                     };
 
-                    table.getContainerProperty(object, "NUMBER").setValue(phoneNumber.getLocator());
-                    table.getContainerProperty(object, "NAME").setValue(phoneNumber.getName());
-                    table.getContainerProperty(object, "FORWARD CALLS TO").setValue(forwardCallTo.getName());
+                    table.getContainerProperty(object, bundle.getString("wavilon.table.phonenumbers.column.number")).setValue(phoneNumber.getLocator());
+                    table.getContainerProperty(object, bundle.getString("wavilon.table.phonenumbers.column.name")).setValue(phoneNumber.getName());
+                    table.getContainerProperty(object, bundle.getString("wavilon.table.phonenumbers.column.forward.calls.to")).setValue(forwardCallTo.getName());
                     table.getContainerProperty(object, "id").setValue(model.getId());
                     Button removeButton = new Button("", listener);
                     removeButton.addStyleName("removeButton");
                     table.getContainerProperty(object, "").setValue(removeButton);
 
-                    getWindow().showNotification("Well done");
+                    getWindow().showNotification(bundle.getString("wavilon.well.done"));
                     close();
                 } catch (Exception ignored) {
                 }
             }
-        });
+        }
+        );
         buttons.addComponent(save);
     }
 
@@ -130,28 +129,29 @@ public class PhoneNumbersForm extends Window {
         Form form = new Form();
         form.addStyleName("labelField");
 
-        TextField name = new TextField("Name");
+        TextField name = new TextField(bundle.getString("wavilon.form.name"));
         name.setRequired(true);
-        name.setRequiredError("Empty field name");
+        name.setRequiredError(bundle.getString("wavilon.error.massage.phonenumbers.name.empty"));
         form.addField("name", name);
 
 
         List<CouchModelLite> forwards = createForwards();
-        ComboBox forwardCallTo = new ComboBox("Forward calls to");
-        forwardCallTo.addItem("Select . . .");
+        ComboBox forwardCallTo = new ComboBox(bundle.getString("wavilon.form.phonenumbers.forward.calls.to"));
+        forwardCallTo.addItem(bundle.getString("wavilon.form.select"));
         for (CouchModelLite forward : forwards) {
             forwardCallTo.addItem(forward);
         }
-        forwardCallTo.setNullSelectionItemId("Select . . .");
+        forwardCallTo.setNullSelectionItemId(bundle.getString("wavilon.form.select"));
         forwardCallTo.setRequired(true);
-        name.setRequiredError("Empty field \"Forward calls to\"");
+        forwardCallTo.setRequiredError(bundle.getString("wavilon.error.massage.phonenumbers.forward.empty"));
 
         if (null != this.model.getRevision() && !"".equals(this.model.getRevision())) {
             name.setValue(model.getProperties().get("name"));
 
-            TextField number = new TextField("Number");
+            TextField number = new TextField(bundle.getString("wavilon.form.number"));
             number.setValue(model.getProperties().get("locator"));
             number.setReadOnly(true);
+            number.setRequiredError(bundle.getString("wavilon.error.massage.phonenumbers.number.empty"));
 
             form.addField("number", number);
 
@@ -159,26 +159,25 @@ public class PhoneNumbersForm extends Window {
 
         } else {
             List<CouchModel> virtualNumbers = createVirtualNumbers();
-            ComboBox numbers = new ComboBox("Number");
-            numbers.addItem("Select . . .");
+            ComboBox numbers = new ComboBox(bundle.getString("wavilon.form.number"));
+            numbers.addItem(bundle.getString("wavilon.form.select"));
 
             for (CouchModel number : virtualNumbers) {
                 numbers.addItem(number);
             }
-            numbers.setNullSelectionItemId("Select . . .");
+            numbers.setNullSelectionItemId(bundle.getString("wavilon.form.select"));
             numbers.setRequired(true);
-            name.setRequiredError("Empty field \"Number\"");
+            numbers.setRequiredError(bundle.getString("wavilon.error.massage.phonenumbers.number.empty"));
 
             form.addField("number", numbers);
 
             form.addField("forwardCallTo", forwardCallTo);
 
 
-            String noteString = "The selected phone number has a " +
-                    "monthly cost of 0.00\u20ac Clicking save " +
-                    "you are accepting that the amount " +
-                    "of 0.00\u20ac will be charged monthly ets.";
-            TextArea note = new TextArea("Note: ",  noteString);
+            String noteString = bundle.getString("wavilon.form.phonenumbers.note.part.first") +
+                    "\u20ac " + bundle.getString("wavilon.form.phonenumbers.note.part.second") +
+                    "\u20ac " + bundle.getString("wavilon.form.phonenumbers.note.part.three");
+            TextArea note = new TextArea("Note: ", noteString);
             note.setReadOnly(true);
 
             form.addField("note", note);
@@ -194,16 +193,6 @@ public class PhoneNumbersForm extends Window {
 
     private List<CouchModelLite> createForwards() {
         return getForwards();
-    }
-
-    private Label createHeader(String id, PhoneNumber phoneNumber) {
-        Label headerForm = new Label("-1".equals(id) ? "New Phone Number" : phoneNumber.getName());
-
-        headerForm.setHeight(27, Sizeable.UNITS_PIXELS);
-        headerForm.setWidth("100%");
-        headerForm.addStyleName("headerForm");
-
-        return headerForm;
     }
 
     private HorizontalLayout createButtons(VerticalLayout content) {

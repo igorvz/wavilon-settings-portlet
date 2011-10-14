@@ -8,10 +8,7 @@ import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.liferay.portal.util.PortalUtil;
 
 import javax.portlet.PortletRequest;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class CouchModelUtil {
     private static CouchModelLiteDatabaseService modelLiteService = ObjectFactory.getBean(CouchModelLiteDatabaseService.class);
@@ -58,4 +55,25 @@ public class CouchModelUtil {
         return modelLiteList;
     }
 
+    public static Map<String, String> extensionTypeMapPut(ResourceBundle bundle) {
+        Map<String, String> extensionTypeMap = new LinkedHashMap<String, String>();
+
+        extensionTypeMap.put(bundle.getString("wavilon.form.extensions.type.phone.number"), "phone");
+        extensionTypeMap.put(bundle.getString("wavilon.form.extensions.type.gtalk"), "gtalk");
+        extensionTypeMap.put(bundle.getString("wavilon.form.extensions.type.sip"), "sip");
+
+
+        return extensionTypeMap;
+    }
+
+    public static Map<String, String> extensionTypeMapEject(ResourceBundle bundle) {
+        Map<String, String> extensionTypeMap = new LinkedHashMap<String, String>();
+
+        extensionTypeMap.put("phone", bundle.getString("wavilon.form.extensions.type.phone.number"));
+        extensionTypeMap.put("gtalk",bundle.getString("wavilon.form.extensions.type.gtalk"));
+        extensionTypeMap.put("sip", bundle.getString("wavilon.form.extensions.type.sip"));
+
+
+        return extensionTypeMap;
+    }
 }

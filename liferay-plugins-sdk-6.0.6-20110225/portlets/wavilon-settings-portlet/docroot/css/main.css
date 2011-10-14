@@ -2,11 +2,6 @@
     overflow: hidden !important;
 }
 
-/*.wrapperLayouts {*/
-/*font-family: Verdana, Arial, sans-serif;*/
-
-/*}*/
-
 /*******************************************************************************************************************************/
 /*-----------------------------------------------------Left Column Design-----------------------------------------------------*/
 /*****************************************************************************************************************************/
@@ -28,17 +23,16 @@
 }
 
 .leftcolumn .v-nativebutton {
-    background: none no-repeat scroll 15px 50% transparent;
+    background: none no-repeat scroll 12px 50% transparent;
     border: medium none;
     padding: 0 0 0 38px;
     text-align: left;
     text-shadow: none;
-    font-weight: bold;
     height: 34px;
     vertical-align: middle;
     width: 100%;
     color: #5f5f5f;
-    font-size: 13px;
+    font-size: 14px;
     border-radius: 0 0 0 0;
     -moz-border-radius: 0 0 0 0;
     -webkit-border-radius: 0 0 0 0;
@@ -52,26 +46,26 @@
 }
 
 .leftcolumn .v-nativebutton-phoneNumbersButton {
-    background-image: url("../images/phoneNumber.PNG");
-    background-position: 20px 50%;
+    background-image: url("../images/phoneNumber.png");
+    background-position: 17px 50%;
 }
 
 .leftcolumn .v-nativebutton-phoneNumbersButtonSelect {
-    background-image: url("../images/phoneNumberSelect.PNG");
+    background-image: url("../images/phoneNumberSelect.png");
     background-color: #6093e0;
-    background-position: 20px 50%;
+    background-position: 17px 50%;
     color: #FFFFFF;
 }
 
 .leftcolumn .v-nativebutton-virtualNumbersButton {
-    background-image: url("../images/virtualNumber.PNG");
-    background-position: 20px 50%;
+    background-image: url("../images/virtualNumber.png");
+    background-position: 17px 50%;
 }
 
 .leftcolumn .v-nativebutton-virtualNumbersButtonSelect {
     background-image: url("../images/virtualNumberSelect.png");
     background-color: #6093e0;
-    background-position: 20px 50%;
+    background-position: 17px 50%;
     color: #FFFFFF;
 }
 
@@ -80,23 +74,23 @@
 }
 
 .leftcolumn .v-nativebutton-queuesButtonSelect {
-    background-image: url("../images/queueSelect.PNG");
+    background-image: url("../images/queueSelect.png");
     background-color: #6093e0;
     color: #FFFFFF;
 }
 
 .leftcolumn .v-nativebutton-agentsButton {
-    background-image: url("../images/agent.PNG");
+    background-image: url("../images/agent.png");
 }
 
 .leftcolumn .v-nativebutton-agentsButtonSelect {
-    background-image: url("../images/agentSelect.PNG");
+    background-image: url("../images/agentSelect.png");
     background-color: #6093e0;
     color: #FFFFFF;
 }
 
 .leftcolumn .v-nativebutton-extensionsButton {
-    background-image: url("../images/extension.PNG");
+    background-image: url("../images/extension.png");
 }
 
 .leftcolumn .v-nativebutton-extensionsButtonSelect {
@@ -121,11 +115,7 @@
 
 .v-view .rightcolumn {
     margin: 0 !important;
-    /**/
-    /*background: #f5f5f5;*/
-    /*display: block;*/
     height: 100% !important;
-    /*position: relative;*/
 }
 
 .rightcolumn .head {
@@ -155,7 +145,7 @@
 .rightcolumn .head .v-button:active .v-button-wrap,
 .rightcolumn .head .v-button.v-pressed .v-button-wrap,
 .rightcolumn .head .v-button:focus .v-button-wrap {
-    background: url("../images/AddButton.PNG") no-repeat scroll 0 0 transparent;
+    background: url("../images/AddButton.png") no-repeat scroll 0 0 transparent;
     line-height: 27px;
     padding: 0;
     height: 26px;
@@ -203,7 +193,6 @@
 }
 
 .rightcolumn .v-table .v-table-cell-wrapper {
-    /*margin: 0 5px;*/
 }
 
 .rightcolumn .v-table .v-table-table{
@@ -213,7 +202,6 @@
 
 .rightcolumn .tableCustom, .rightcolumn .tableCustom .v-table-body{
     border: medium none;
-    /*overflow: hidden !important;*/
 }
 
 .rightcolumn .tableCustom .v-table-body{
@@ -236,10 +224,6 @@
     height: 0;
 }
 
-/*.rightcolumn .v-table-tableCustom {*/
-    /*height: 509px;*/
-    /*width: 100%;*/
-/*}*/
 /*---------------------------------------------Right Column Design   ["Remove" button]----------------------------------------------------*/
 .rightcolumn .v-table-row .v-button,
 .rightcolumn .v-table-row-odd .v-button {
@@ -267,48 +251,11 @@
 .rightcolumn .v-table .v-selected  .v-button:active .v-button-wrap,
 .rightcolumn .v-table .v-selected  .v-button.v-pressed .v-button-wrap,
 .rightcolumn .v-table .v-selected  .v-button:focus .v-button-wrap {
-    background: url("../images/removeButtonSelect.PNG") no-repeat scroll 0 50% transparent;
+    background: url("../images/removeButtonSelect.png") no-repeat scroll 0 50% transparent;
     padding: 0;
     height: 18px;
     width: 18px;
 }
-
-/*********************************************************************/
-/*.v-table-header {*/
-/*height: 36px !important;*/
-/*}*/
-
-/*.v-table-caption-container {*/
-/*color: #393A3C;*/
-/*font-size: 15px;*/
-/*margin-left: 4px;*/
-/*padding: 1px 2px 9px 0 !important;*/
-/*text-shadow: 0 1px 0 #FFFFFF;*/
-/*}*/
-
-/*.v-table-caption-container {*/
-/*color: #000000;*/
-/*font-size: 11px;*/
-/*font-weight: bold;*/
-/*padding-top: 1px;*/
-/*text-shadow: 0 1px 0 #FFFFFF;*/
-/*text-transform: capitalize;*/
-/*}*/
-
-/*.v-formlayout-captioncell,*/
-/*.v-formlayout-errorcell,*/
-/*.v-formlayout-contentcell {*/
-/*padding-bottom: 3px !important;*/
-/*padding-top: 0 !important;*/
-/*}*/
-
-/*.v-table-cell-wrapper {*/
-/*line-height: 23px;*/
-/*overflow: hidden;*/
-/*padding: 3px 0 0;*/
-/*white-space: nowrap;*/
-/*width: 100% !important;*/
-/*}*/
 
 .singInPanel {
     background: none repeat scroll 0 0 #939394;
@@ -409,6 +356,11 @@
     padding-bottom: 0;
 }
 
+
+.popupContent .v-filterselect-suggestmenu .gwt-MenuItem-selected{
+    background: none #6093E0;
+}
+
 .recordingUploader{
     margin: 15px 0;
 }
@@ -479,8 +431,35 @@
     border-left: 1px solid #c2c3c4;
 }
 
-.middleDragNDrop{
-    background: url("../images/dragNdrop.png") no-repeat scroll 50% 50% transparent;
-    display: block;
-    height: 301px !important;
+
+.middleDragNDrop .v-button .v-button-wrap,
+.middleDragNDrop .v-button:active .v-button-wrap,
+.middleDragNDrop .v-button.v-pressed .v-button-wrap,
+.middleDragNDrop .v-button:focus .v-button-wrap {
+    background: url("../images/buttonbg2.png") no-repeat scroll 100% 0 transparent;
+}
+
+.middleDragNDrop .v-button,
+.middleDragNDrop .v-button:active,
+.middleDragNDrop .v-button.v-pressed,
+.middleDragNDrop .v-button:focus {
+    background: url("../images/buttonbg1.png") no-repeat scroll 0 0 transparent;
+    padding: 0 0 0 5px;
+    margin: 5px 0;
+}
+
+.middleDragNDrop .v-button-caption {
+    font-size: 12px;
+    font-weight: bold;
+    color: #222222;
+    text-shadow: 0 1px 1px #ccc;
+}
+
+.middleDragNDrop .v-label{
+    width: 84px !important;
+    text-align: center;
+    color: #5f5f5f;
+    font-style: italic;
+    font-size: 14px;
+    text-shadow: 0 1px 1px #cdcdcd;
 }

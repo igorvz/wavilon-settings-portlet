@@ -23,6 +23,4 @@
 
     <bean name="functions" class="com.aimprosoft.wavilon.config.Functions"/>
 
-    <bean name="applicationProperties" class="com.aimprosoft.wavilon.config.ApplicationProperties"/>
-
 </beans>

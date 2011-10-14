@@ -52,9 +52,9 @@ public class VirtualNumbersContent extends VerticalLayout {
     private List<String> fillFields() {
         List<String> tableFields = new LinkedList<String>();
 
-        tableFields.add("NUMBER");
-        tableFields.add("NAME");
-        tableFields.add("FORWARD CALLS TO");
+        tableFields.add(bundle.getString("wavilon.table.virtualnumbers.column.number"));
+        tableFields.add(bundle.getString("wavilon.table.virtualnumbers.column.name"));
+        tableFields.add(bundle.getString("wavilon.table.virtualnumbers.column.forward.calls.to"));
         tableFields.add("");
 
         return tableFields;
@@ -66,6 +66,11 @@ public class VirtualNumbersContent extends VerticalLayout {
         addComponent(head);
 
         this.virtualNumbers.setColumnWidth("", 60);
+
+        this.virtualNumbers.setColumnExpandRatio(bundle.getString("wavilon.table.virtualnumbers.column.number"), 1);
+        this.virtualNumbers.setColumnExpandRatio(bundle.getString("wavilon.table.virtualnumbers.column.name"), 1);
+        this.virtualNumbers.setColumnExpandRatio(bundle.getString("wavilon.table.virtualnumbers.column.forward.calls.to"), 1);
+
         this.virtualNumbers.setContainerDataSource(this.tableData);
         this.virtualNumbers.setWidth(100, Sizeable.UNITS_PERCENTAGE);
         this.virtualNumbers.setHeight("555px");
@@ -109,10 +114,10 @@ public class VirtualNumbersContent extends VerticalLayout {
                 VirtualNumber virtualNumber  = getVirtualNumber(couchModel);
                 CouchModelLite forward = CouchModelUtil.getCouchModelLite((String) couchModel.getProperties().get("forward_to"));
 
-                ic.getContainerProperty(object, "NUMBER").setValue(virtualNumber.getLocator());
-                ic.getContainerProperty(object, "NAME").setValue(virtualNumber.getName());
+                ic.getContainerProperty(object, bundle.getString("wavilon.table.virtualnumbers.column.number")).setValue(virtualNumber.getLocator());
+                ic.getContainerProperty(object, bundle.getString("wavilon.table.virtualnumbers.column.name")).setValue(virtualNumber.getName());
                 ic.getContainerProperty(object, "id").setValue(couchModel.getId());
-                ic.getContainerProperty(object, "FORWARD CALLS TO").setValue(forward);
+                ic.getContainerProperty(object, bundle.getString("wavilon.table.virtualnumbers.column.forward.calls.to")).setValue(forward);
                 ic.getContainerProperty(object, "").setValue(new Button("", new Button.ClickListener() {
                     public void buttonClick(Button.ClickEvent event) {
                         virtualNumbers.select(object);
@@ -120,7 +125,8 @@ public class VirtualNumbersContent extends VerticalLayout {
                         getWindow().addWindow(confirmingRemove);
                         confirmingRemove.init(couchModel.getId(), virtualNumbers);
                         confirmingRemove.center();
-                        confirmingRemove.setWidth("300px");
+                        confirmingRemove.setModal(true);
+                        confirmingRemove.setWidth("330px");
                         confirmingRemove.setHeight("180px");
                     }
                 }));
@@ -148,7 +154,7 @@ public class VirtualNumbersContent extends VerticalLayout {
     public HorizontalLayout createHead() {
         HorizontalLayout head = new HorizontalLayout();
         head.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-        Label headLabel = new Label("Virtual Numbers");
+        Label headLabel = new Label(bundle.getString("wavilon.menuitem.virtualnumbers"));
         head.addComponent(headLabel);
         head.setMargin(false);
         head.addStyleName("head");
@@ -165,9 +171,9 @@ public class VirtualNumbersContent extends VerticalLayout {
 
     private HorizontalLayout createButtons() {
         HorizontalLayout addButton = new HorizontalLayout();
-        addButton.addComponent(new Button("Add", new Button.ClickListener() {
+        addButton.addComponent(new Button(bundle.getString("wavilon.button.add"), new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
-                VirtualNumbersContent.this.getForm("-1", "-1");
+                getForm("-1", "-1");
             }
         }));
         return addButton;
@@ -187,10 +193,10 @@ public class VirtualNumbersContent extends VerticalLayout {
     private List<String> fillHiddenFields() {
         List<String> hiddenFields = new LinkedList<String>();
 
-        hiddenFields.add("NUMBER");
-        hiddenFields.add("NAME");
+        hiddenFields.add(bundle.getString("wavilon.table.virtualnumbers.column.number"));
+        hiddenFields.add(bundle.getString("wavilon.table.virtualnumbers.column.name"));
         hiddenFields.add("id");
-        hiddenFields.add("FORWARD CALLS TO");
+        hiddenFields.add(bundle.getString("wavilon.table.virtualnumbers.column.forward.calls.to"));
         hiddenFields.add("");
 
         return hiddenFields;

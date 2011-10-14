@@ -11,7 +11,6 @@ import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.util.CouchModelUtil;
 import com.liferay.portal.util.PortalUtil;
 import com.vaadin.Application;
-import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 
 import javax.portlet.PortletRequest;
@@ -42,9 +41,9 @@ public class AgentsForm extends Window {
         agent = createAgent(model);
 
         if ("-1".equals(id)) {
-            setCaption("New Agent");
+            setCaption(bundle.getString("wavilon.form.agents.new.agent"));
         } else {
-            setCaption("Edit Agent");
+            setCaption(bundle.getString("wavilon.form.agents.edit.agent"));
         }
 
         VerticalLayout content = new VerticalLayout();
@@ -52,24 +51,19 @@ public class AgentsForm extends Window {
 
         addComponent(content);
 
-//        Label headerForm = createHeader(id, agent);
-//        content.addComponent(headerForm);
-
         final Form form = createForm();
         content.addComponent(form);
 
-
         HorizontalLayout buttons = createButtons(content);
 
-
-        Button cancel = new Button("Cancel", new Button.ClickListener() {
+        Button cancel = new Button(bundle.getString("wavilon.button.cancel"), new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
                 close();
             }
         });
         buttons.addComponent(cancel);
 
-        Button save = new Button(bundle.getString("wavilon.settings.validation.form.button.save"), new Button.ClickListener() {
+        Button save = new Button(bundle.getString("wavilon.button.save"), new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
                 try {
                     form.commit();
@@ -85,10 +79,7 @@ public class AgentsForm extends Window {
                         table.removeItem(itemId);
                         table.select(null);
                     }
-
-
                     final Object object = table.addItem();
-
 
                     Button.ClickListener listener = new Button.ClickListener() {
                         public void buttonClick(Button.ClickEvent event) {
@@ -99,17 +90,18 @@ public class AgentsForm extends Window {
                             application.getMainWindow().addWindow(confirmingRemove);
                             confirmingRemove.init(phoneNumbersID, table);
                             confirmingRemove.center();
-                            confirmingRemove.setWidth("300px");
+                            confirmingRemove.setModal(true);
+                            confirmingRemove.setWidth("330px");
                             confirmingRemove.setHeight("180px");
                         }
                     };
 
-                    table.getContainerProperty(object, "NAME").setValue(agent.getName());
-                    table.getContainerProperty(object, "CURRENT EXTENSION").setValue(form.getField("extensions").getValue());
+                    table.getContainerProperty(object, bundle.getString("wavilon.table.agents.column.name")).setValue(agent.getName());
+                    table.getContainerProperty(object, bundle.getString("wavilon.table.agents.column.current.extension")).setValue(form.getField("extensions").getValue());
                     table.getContainerProperty(object, "id").setValue(model.getId());
                     table.getContainerProperty(object, "").setValue(new Button("", listener));
 
-                    getWindow().showNotification("Well done");
+                    getWindow().showNotification(bundle.getString("wavilon.well.done"));
                     close();
                 } catch (Exception ignored) {
                 }
@@ -141,9 +133,9 @@ public class AgentsForm extends Window {
         Form form = new Form();
         form.addStyleName("labelField");
 
-        TextField firstName = new TextField("First Name");
+        TextField firstName = new TextField(bundle.getString("wavilon.form.agents.first.name"));
         firstName.setRequired(true);
-        firstName.setRequiredError("Empty field First Name");
+        firstName.setRequiredError(bundle.getString("wavilon.error.massage.agents.firstname.empty"));
 
         ComboBox extensions = getExtensionsComboBox();
 
@@ -168,17 +160,16 @@ public class AgentsForm extends Window {
 
     private ComboBox getExtensionsComboBox() {
         List<CouchModelLite> extensionModelList = getExtensions();
-        ComboBox extensions = new ComboBox("Current extension");
-        extensions.addItem("Select . . .");
+        ComboBox extensions = new ComboBox(bundle.getString("wavilon.form.agents.current.extension"));
+        extensions.addItem(bundle.getString("wavilon.form.select"));
 
         for (CouchModelLite couchExtensionModel : extensionModelList) {
             extensions.addItem(couchExtensionModel);
         }
 
-        extensions.setNullSelectionItemId("Select . . .");
+        extensions.setNullSelectionItemId(bundle.getString("wavilon.form.select"));
         extensions.setRequired(true);
-        extensions.setRequiredError("Empty field \"Current extension\"");
-
+        extensions.setRequiredError(bundle.getString("wavilon.error.massage.agents.extension.empty"));
 
         return extensions;
     }
@@ -189,16 +180,6 @@ public class AgentsForm extends Window {
         } catch (Exception e) {
             return Collections.emptyList();
         }
-    }
-
-    private Label createHeader(String id, Agent agent) {
-        Label headerForm = new Label("-1".equals(id) ? "New Agent" : agent.getName());
-
-        headerForm.setHeight(27, Sizeable.UNITS_PIXELS);
-        headerForm.setWidth("100%");
-        headerForm.addStyleName("headerForm");
-
-        return headerForm;
     }
 
     private HorizontalLayout createButtons(VerticalLayout content) {

@@ -52,6 +52,9 @@ public class PhoneNumbersContent extends VerticalLayout {
         addComponent(head);
 
         this.phoneNumbers.setColumnWidth("", 60);
+        this.phoneNumbers.setColumnExpandRatio(bundle.getString("wavilon.table.phonenumbers.column.number"), 1);
+        this.phoneNumbers.setColumnExpandRatio(bundle.getString("wavilon.table.phonenumbers.column.name"), 1);
+        this.phoneNumbers.setColumnExpandRatio(bundle.getString("wavilon.table.phonenumbers.column.forward.calls.to"), 1);
         this.phoneNumbers.setContainerDataSource(this.tableData);
         this.phoneNumbers.setWidth(100, Sizeable.UNITS_PERCENTAGE);
         this.phoneNumbers.setHeight("555px");
@@ -96,23 +99,18 @@ public class PhoneNumbersContent extends VerticalLayout {
                 PhoneNumber phoneNumber = getPhoneNumber(couchModel);
                 CouchModelLite forward = CouchModelUtil.getCouchModelLite((String) couchModel.getOutputs().get("startnode"));
 
-                ic.getContainerProperty(object, "NUMBER").setValue(phoneNumber.getLocator());
-                ic.getContainerProperty(object, "NAME").setValue(phoneNumber.getName());
+                ic.getContainerProperty(object, bundle.getString("wavilon.table.phonenumbers.column.number")).setValue(phoneNumber.getLocator());
+                ic.getContainerProperty(object, bundle.getString("wavilon.table.phonenumbers.column.name")).setValue(phoneNumber.getName());
                 ic.getContainerProperty(object, "id").setValue(couchModel.getId());
-                ic.getContainerProperty(object, "FORWARD CALLS TO").setValue(forward);
-
+                ic.getContainerProperty(object, bundle.getString("wavilon.table.phonenumbers.column.forward.calls.to")).setValue(forward);
                 Button removeButton = new Button("", new Button.ClickListener() {
                     public void buttonClick(Button.ClickEvent event) {
                         phoneNumbers.select(object);
                         ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
                         getWindow().addWindow(confirmingRemove);
                         confirmingRemove.init(couchModel.getId(), phoneNumbers);
-                        confirmingRemove.center();
-                        confirmingRemove.setWidth("300px");
-                        confirmingRemove.setHeight("180px");
                     }
                 });
-
                 ic.getContainerProperty(object, "").setValue(removeButton);
             }
         }
@@ -130,7 +128,7 @@ public class PhoneNumbersContent extends VerticalLayout {
     public HorizontalLayout createHead() {
         HorizontalLayout head = new HorizontalLayout();
         head.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-        Label headLabel = new Label("Phone Numbers");
+        Label headLabel = new Label(bundle.getString("wavilon.menuitem.phonenumbers"));
         head.addComponent(headLabel);
         head.setMargin(false);
         head.addStyleName("head");
@@ -147,7 +145,7 @@ public class PhoneNumbersContent extends VerticalLayout {
 
     private HorizontalLayout createButton() {
         HorizontalLayout addButton = new HorizontalLayout();
-        addButton.addComponent(new Button("Add", new Button.ClickListener() {
+        addButton.addComponent(new Button(bundle.getString("wavilon.button.add"), new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
                 getForm("-1", "-1");
             }
@@ -169,10 +167,10 @@ public class PhoneNumbersContent extends VerticalLayout {
     private List<String> fillHiddenFields() {
         List<String> hiddenFields = new LinkedList<String>();
 
-        hiddenFields.add("NUMBER");
-        hiddenFields.add("NAME");
+        hiddenFields.add(bundle.getString("wavilon.table.phonenumbers.column.number"));
+        hiddenFields.add(bundle.getString("wavilon.table.phonenumbers.column.name"));
         hiddenFields.add("id");
-        hiddenFields.add("FORWARD CALLS TO");
+        hiddenFields.add(bundle.getString("wavilon.table.phonenumbers.column.forward.calls.to"));
         hiddenFields.add("");
 
         return hiddenFields;
@@ -181,9 +179,9 @@ public class PhoneNumbersContent extends VerticalLayout {
     private List<String> fillFields() {
         List<String> tableFields = new LinkedList<String>();
 
-        tableFields.add("NUMBER");
-        tableFields.add("NAME");
-        tableFields.add("FORWARD CALLS TO");
+        tableFields.add(bundle.getString("wavilon.table.phonenumbers.column.number"));
+        tableFields.add(bundle.getString("wavilon.table.phonenumbers.column.name"));
+        tableFields.add(bundle.getString("wavilon.table.phonenumbers.column.forward.calls.to"));
         tableFields.add("");
 
         return tableFields;

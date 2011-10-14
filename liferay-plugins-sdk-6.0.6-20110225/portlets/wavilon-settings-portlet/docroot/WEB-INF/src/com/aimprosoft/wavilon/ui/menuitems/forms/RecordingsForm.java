@@ -56,10 +56,10 @@ public class RecordingsForm extends Window {
 
 
         if (model.getRevision() != null) {
-            setCaption("Edit Recording");
+            setCaption(bundle.getString("wavilon.form.recordings.edit.recording"));
 
         } else {
-            setCaption("New Recording");
+            setCaption(bundle.getString("wavilon.form.recordings.new.recording"));
         }
 
         HorizontalLayout uploadLayout = new HorizontalLayout();
@@ -68,7 +68,7 @@ public class RecordingsForm extends Window {
         uploadLayout.addComponent(recordingUploader);
 
         content.addComponent(uploadLayout);
-        recordingUploader.init(model);
+        recordingUploader.init(model, form);
 
         HorizontalLayout buttons = createButtons(content);
 
@@ -79,7 +79,7 @@ public class RecordingsForm extends Window {
         });
         buttons.addComponent(cancel);
 
-        Button save = new Button(bundle.getString("wavilon.settings.validation.form.button.save"));
+        Button save = new Button(bundle.getString("wavilon.button.save"));
         save.addListener(new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
                 try {
@@ -96,7 +96,7 @@ public class RecordingsForm extends Window {
 
                     if (model.getAttachments() == null) {
 
-                        UserError userError = new UserError("You must select file");
+                        UserError userError = new UserError(bundle.getString("wavilon.error.massage.recordings.upload.empty"));
                         form.setComponentError(userError);
                     } else {
 
@@ -115,7 +115,8 @@ public class RecordingsForm extends Window {
                                 application.getMainWindow().addWindow(confirmingRemove);
                                 confirmingRemove.init(phoneNumbersID, table);
                                 confirmingRemove.center();
-                                confirmingRemove.setWidth("300px");
+                                confirmingRemove.setModal(true);
+                                confirmingRemove.setWidth("330px");
                                 confirmingRemove.setHeight("180px");
                             }
                         });
@@ -130,13 +131,13 @@ public class RecordingsForm extends Window {
 
                             String fileName = URLDecoder.decode(entry.getKey(), "UTF-8");
 
-                            table.getContainerProperty(object, "NAME").setValue(recording.getName());
-                            table.getContainerProperty(object, "FORWARD TO ON END").setValue(forwardModel.getName());
-                            table.getContainerProperty(object, "MEDIA FILE").setValue(fileName);
+                            table.getContainerProperty(object, bundle.getString("wavilon.table.recordings.column.name")).setValue(recording.getName());
+                            table.getContainerProperty(object, bundle.getString("wavilon.table.recordings.column.forward.to.on.end")).setValue(forwardModel.getName());
+                            table.getContainerProperty(object, bundle.getString("wavilon.table.recordings.column.media.file")).setValue(fileName);
                             table.getContainerProperty(object, "id").setValue(model.getId());
                             table.getContainerProperty(object, "").setValue(delete);
                         }
-                        getWindow().showNotification("Well done");
+                        getWindow().showNotification(bundle.getString("wavilon.well.done"));
                         close();
                     }
                 } catch (Exception ignored) {
@@ -160,22 +161,22 @@ public class RecordingsForm extends Window {
         Form form = new Form();
         form.addStyleName("labelField");
 
-        TextField name = new TextField("Name");
+        TextField name = new TextField(bundle.getString("wavilon.form.name"));
         name.setRequired(true);
-        name.setRequiredError("Name must be not empty");
+        name.setRequiredError(bundle.getString("wavilon.error.massage.recordings.name.empty"));
         form.addField("name", name);
 
         List<CouchModelLite> forwardsLites = getLiteForward();
 
-        final ComboBox forwardComboBox = new ComboBox("Forward to");
-        forwardComboBox.addItem("Select . . .");
+        final ComboBox forwardComboBox = new ComboBox(bundle.getString("wavilon.form.recordings.forward.to"));
+        forwardComboBox.addItem(bundle.getString("wavilon.form.select"));
 
         for (CouchModelLite forward : forwardsLites) {
             forwardComboBox.addItem(forward);
         }
-        forwardComboBox.setNullSelectionItemId("Select . . .");
+        forwardComboBox.setNullSelectionItemId(bundle.getString("wavilon.form.select"));
         forwardComboBox.setRequired(true);
-        forwardComboBox.setRequiredError("Select Forward to");
+        forwardComboBox.setRequiredError(bundle.getString("wavilon.error.massage.recordings.forward.empty"));
         form.addField("forward", forwardComboBox);
 
         if (null != model.getRevision() && !"".equals(model.getRevision())) {
@@ -185,7 +186,7 @@ public class RecordingsForm extends Window {
     }
 
     private RecordingUploader createRecordingUpload() {
-        recordingUploader = new RecordingUploader();
+        recordingUploader = new RecordingUploader(bundle);
         recordingUploader.addStyleName("recordingUploader");
         recordingUploader.attach();
 

@@ -1,6 +1,5 @@
 package com.aimprosoft.wavilon.ui.menuitems.forms;
 
-import com.aimprosoft.wavilon.application.GenericPortletApplication;
 import com.aimprosoft.wavilon.couch.Attachment;
 import com.aimprosoft.wavilon.couch.CouchModel;
 import com.vaadin.terminal.Sizeable;
@@ -8,38 +7,39 @@ import com.vaadin.ui.*;
 import com.vaadin.ui.Upload.Receiver;
 import org.apache.commons.io.FileUtils;
 
-import javax.portlet.PortletRequest;
 import java.io.*;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 public class RecordingUploader extends VerticalLayout {
-    private static PortletRequest request;
+    private ResourceBundle bundle;
 
     private ProgressIndicator pi = new ProgressIndicator();
     private UploadReceiver receiver = new UploadReceiver();
     private Upload upload = new Upload(null, receiver);
     private File file;
 
-    public RecordingUploader() {
+    public RecordingUploader(final ResourceBundle bundle) {
+        this.bundle = bundle;
     }
 
-    public void init(final CouchModel model) {
-        request = ((GenericPortletApplication) getApplication()).getPortletRequest();
+    public void init(final CouchModel model, final Form form) {
         setSpacing(true);
 
         upload.setImmediate(false);
+        upload.setButtonCaption(bundle.getString("wavilon.button.upload"));
 
         HorizontalLayout uploadLabel = new HorizontalLayout();
-        Label uploadFile = new Label("Upload file");
+        Label uploadFile = new Label(bundle.getString("wavilon.form.recordings.upload.file"));
 
         uploadLabel.addComponent(uploadFile);
         uploadLabel.addComponent(upload);
 
         addComponent(uploadLabel);
 
-        final Label progress = new Label("Progress");
+        final Label progress = new Label(bundle.getString("wavilon.form.recordings.progress"));
         progress.setVisible(false);
         pi.setVisible(false);
 
@@ -62,12 +62,12 @@ public class RecordingUploader extends VerticalLayout {
 
         TextArea area = new TextArea();
         area.setWidth(330, Sizeable.UNITS_PIXELS);
-        area.setValue("You can upload a custom file in the WAV or MP3 format.\n" +
-                "Please do not upload any copyrighted files without permission");
+        area.setValue(bundle.getString("wavilon.form.recordings.massage.part.first") + "\n" +
+                bundle.getString("wavilon.form.recordings.massage.part.second"));
         area.setReadOnly(true);
         addComponent(area);
 
-        final Button cancelProcessing = new Button("Cancel");
+        final Button cancelProcessing = new Button(bundle.getString("wavilon.button.cancel"));
         cancelProcessing.addListener(new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
                 upload.interruptUpload();
@@ -111,8 +111,7 @@ public class RecordingUploader extends VerticalLayout {
             public void uploadSucceeded(Upload.SucceededEvent event) {
                 // This method gets called when the upload finished successfully
 
-                succeededMessage.setValue("Uploading file \"" + event.getFilename()
-                        + "\" succeeded");
+                succeededMessage.setValue(bundle.getString("wavilon.form.recordings.progress.uploading.file"));
                 succeededMessage.setVisible(true);
                 succeededMessage.addStyleName("succeededMessage");
 
@@ -122,10 +121,14 @@ public class RecordingUploader extends VerticalLayout {
                 Attachment attachment = new Attachment();
                 attachment.setContentType(event.getMIMEType());
 
+                if (form.getComponentError() != null) {
+                    form.setComponentError(null);
+                }
+
                 file = new File(event.getFilename());
                 try {
                     attachment.setData(FileUtils.readFileToByteArray(file));
-                } catch (IOException e) {
+                } catch (IOException ignored) {
                 }
                 String fileName = "";
                 try {
@@ -151,4 +154,4 @@ public class RecordingUploader extends VerticalLayout {
             return fileOutputStream;
         }
     }
-};
+}

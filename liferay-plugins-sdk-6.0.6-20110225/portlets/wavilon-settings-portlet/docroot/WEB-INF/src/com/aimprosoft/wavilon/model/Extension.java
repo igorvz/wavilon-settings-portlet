@@ -1,12 +1,10 @@
 package com.aimprosoft.wavilon.model;
 
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 
-@JsonIgnoreProperties(value = {"channel"}, ignoreUnknown = true)
 public class Extension extends BaseModel{
 
-    @JsonProperty("chan")
+    @JsonProperty("channel")
     private String channel;
 
     @JsonProperty("destination")

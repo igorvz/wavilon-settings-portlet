@@ -7,6 +7,7 @@ import com.aimprosoft.wavilon.service.ExtensionDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.ui.menuitems.forms.ConfirmingRemove;
 import com.aimprosoft.wavilon.ui.menuitems.forms.ExtensionForm;
+import com.aimprosoft.wavilon.util.CouchModelUtil;
 import com.liferay.portal.util.PortalUtil;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
@@ -16,17 +17,13 @@ import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 
 import javax.portlet.PortletRequest;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class ExtensionContent extends VerticalLayout {
     private ResourceBundle bundle;
     private static PortletRequest request;
     private ExtensionDatabaseService extensionService = ObjectFactory.getBean(ExtensionDatabaseService.class);
     private List<String> hiddenFields;
-
     private Table table = new Table();
     private List<String> tableFields;
     private IndexedContainer tableData;
@@ -42,6 +39,7 @@ public class ExtensionContent extends VerticalLayout {
         hiddenFields = fillHiddenFields();
         tableData = createTableData();
 
+
         setSizeUndefined();
         initLayout();
         initExtension();
@@ -52,7 +50,13 @@ public class ExtensionContent extends VerticalLayout {
         setWidth(100, Sizeable.UNITS_PERCENTAGE);
         addComponent(head);
 
+        table.setColumnWidth(bundle.getString("wavilon.table.extensions.column.id"), 60);
         table.setColumnWidth("", 60);
+
+        table.setColumnExpandRatio(bundle.getString("wavilon.table.extensions.column.name"), 1);
+        table.setColumnExpandRatio(bundle.getString("wavilon.table.extensions.column.extension.type"), 2);
+        table.setColumnExpandRatio(bundle.getString("wavilon.table.extensions.column.destination"), 2);
+
         table.setContainerDataSource(tableData);
         table.setWidth(100, Sizeable.UNITS_PERCENTAGE);
         table.setHeight("555px");
@@ -64,7 +68,7 @@ public class ExtensionContent extends VerticalLayout {
         HorizontalLayout head = new HorizontalLayout();
         head.setWidth(100, Sizeable.UNITS_PERCENTAGE);
 
-        Label headLabel = new Label("Extensions");
+        Label headLabel = new Label(bundle.getString("wavilon.menuitem.extensions"));
         head.addComponent(headLabel);
         head.setMargin(false);
         head.addStyleName("head");
@@ -81,7 +85,7 @@ public class ExtensionContent extends VerticalLayout {
 
     private HorizontalLayout createButton() {
         HorizontalLayout addButton = new HorizontalLayout();
-        addButton.addComponent(new Button("Add", new Button.ClickListener() {
+        addButton.addComponent(new Button(bundle.getString("wavilon.button.add"), new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
                 getForm("-1");
             }
@@ -129,24 +133,23 @@ public class ExtensionContent extends VerticalLayout {
 
         if (!couchModels.isEmpty()) {
 
+            Map<String, String> extensionTypeMap = CouchModelUtil.extensionTypeMapEject(bundle);
+
             for (final CouchModel couchModel : couchModels) {
                 Extension extension = getExtension(couchModel);
                 final Object object = ic.addItem();
 
                 ic.getContainerProperty(object, "extensionId").setValue(couchModel.getId());
-                ic.getContainerProperty(object, "ID").setValue(couchModel.getLiferayOrganizationId());
-                ic.getContainerProperty(object, "NAME").setValue(extension.getName());
-                ic.getContainerProperty(object, "EXTENSION TYPE").setValue(extension.getChannel());
-                ic.getContainerProperty(object, "DESTINATION").setValue(extension.getDestination());
+                ic.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.id")).setValue(couchModel.getLiferayOrganizationId());
+                ic.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.name")).setValue(extension.getName());
+                ic.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.extension.type")).setValue(extensionTypeMap.get(extension.getChannel()));
+                ic.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.destination")).setValue(extension.getDestination());
                 ic.getContainerProperty(object, "").setValue(new Button("", new Button.ClickListener() {
                     public void buttonClick(Button.ClickEvent event) {
                         table.select(object);
                         ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
                         getWindow().addWindow(confirmingRemove);
                         confirmingRemove.init(couchModel.getId(), table);
-                        confirmingRemove.center();
-                        confirmingRemove.setWidth("300px");
-                        confirmingRemove.setHeight("180px");
                     }
                 }));
 
@@ -187,10 +190,10 @@ public class ExtensionContent extends VerticalLayout {
         LinkedList<String> tableFields = new LinkedList<String>();
 
         tableFields.add("extensionId");
-        tableFields.add("ID");
-        tableFields.add("NAME");
-        tableFields.add("EXTENSION TYPE");
-        tableFields.add("DESTINATION");
+        tableFields.add(bundle.getString("wavilon.table.extensions.column.id"));
+        tableFields.add(bundle.getString("wavilon.table.extensions.column.name"));
+        tableFields.add(bundle.getString("wavilon.table.extensions.column.extension.type"));
+        tableFields.add(bundle.getString("wavilon.table.extensions.column.destination"));
         tableFields.add("");
 
         return tableFields;
@@ -199,10 +202,10 @@ public class ExtensionContent extends VerticalLayout {
     private LinkedList<String> fillFields() {
         LinkedList<String> tableFields = new LinkedList<String>();
 
-        tableFields.add("ID");
-        tableFields.add("NAME");
-        tableFields.add("EXTENSION TYPE");
-        tableFields.add("DESTINATION");
+        tableFields.add(bundle.getString("wavilon.table.extensions.column.id"));
+        tableFields.add(bundle.getString("wavilon.table.extensions.column.name"));
+        tableFields.add(bundle.getString("wavilon.table.extensions.column.extension.type"));
+        tableFields.add(bundle.getString("wavilon.table.extensions.column.destination"));
         tableFields.add("");
 
         return tableFields;

@@ -16,9 +16,7 @@ import com.vaadin.event.ShortcutAction;
 import com.vaadin.ui.*;
 
 import javax.portlet.PortletRequest;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class ExtensionForm extends Window {
     private ExtensionDatabaseService service = ObjectFactory.getBean(ExtensionDatabaseService.class);
@@ -26,9 +24,10 @@ public class ExtensionForm extends Window {
     private PortletRequest request;
     private Table table;
     private Object item;
-    private Validator mobileValidator = new RegexpValidator("[+][0-9]{10}", "<div align=\"center\">Phone Number must be numeric, begin with + <br/>and consist of 10 digit</div>");
-    private Validator emailValidator = new EmailValidator("Wrong format email address");
+    private Validator mobileValidator = null;
+    private Validator emailValidator = null;
     private Application application;
+    private Map<String, String> extensionTypeMap;
 
     private CouchModel model;
     private Extension extension;
@@ -36,6 +35,8 @@ public class ExtensionForm extends Window {
     public ExtensionForm(ResourceBundle bundle, Table table) {
         this.bundle = bundle;
         this.table = table;
+        mobileValidator = new RegexpValidator("[+][0-9]{10}", bundle.getString("wavilon.error.massage.extensions.phonenumber.wrong"));
+        emailValidator = new EmailValidator(bundle.getString("wavilon.error.massage.extensions.email.wrong"));
     }
 
     public void init(String id) {
@@ -45,11 +46,10 @@ public class ExtensionForm extends Window {
         model = createModel(id);
         extension = createExtension(model);
 
-
         if (!"".equals(extension.getName())) {
-            setCaption("Edit Extension");
+            setCaption(bundle.getString("wavilon.form.extensions.edit.extension"));
         } else {
-            setCaption("New Extension");
+            setCaption(bundle.getString("wavilon.form.extensions.new.extension"));
         }
 
         VerticalLayout content = new VerticalLayout();
@@ -62,14 +62,14 @@ public class ExtensionForm extends Window {
 
         HorizontalLayout buttons = createButtons(content);
 
-        Button cancel = new Button("Cancel", new Button.ClickListener() {
+        Button cancel = new Button(bundle.getString("wavilon.button.cancel"), new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
                 close();
             }
         });
         buttons.addComponent(cancel);
 
-        Button save = new Button(bundle.getString("wavilon.settings.validation.form.button.save"), new Button.ClickListener() {
+        Button save = new Button(bundle.getString("wavilon.button.save"), new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
                 try {
                     form.commit();
@@ -89,12 +89,13 @@ public class ExtensionForm extends Window {
                             application.getMainWindow().addWindow(confirmingRemove);
                             confirmingRemove.init(phoneNumbersID, table);
                             confirmingRemove.center();
-                            confirmingRemove.setWidth("300px");
+                            confirmingRemove.setModal(true);
+                            confirmingRemove.setWidth("330px");
                             confirmingRemove.setHeight("180px");
                         }
                     };
 
-                    extension.setChannel(extensionType);
+                    extension.setChannel(extensionTypeMap.get(extensionType));
                     extension.setName(name);
                     extension.setDestination(destination);
 
@@ -106,15 +107,13 @@ public class ExtensionForm extends Window {
                     }
 
                     table.getContainerProperty(object, "extensionId").setValue(model.getId());
-                    table.getContainerProperty(object, "ID").setValue(model.getLiferayOrganizationId());
-                    table.getContainerProperty(object, "NAME").setValue(extension.getName());
-                    table.getContainerProperty(object, "EXTENSION TYPE").setValue(extension.getChannel());
-                    table.getContainerProperty(object, "DESTINATION").setValue(extension.getDestination());
+                    table.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.id")).setValue(model.getLiferayOrganizationId());
+                    table.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.name")).setValue(extension.getName());
+                    table.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.extension.type")).setValue(CouchModelUtil.extensionTypeMapEject(bundle).get(extension.getChannel()));
+                    table.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.destination")).setValue(extension.getDestination());
                     table.getContainerProperty(object, "").setValue(new Button("", listener));
 
-
-
-                    getWindow().showNotification("Well done");
+                    getWindow().showNotification(bundle.getString("wavilon.well.done"));
                     close();
                 } catch (Exception ignored) {
                 }
@@ -157,31 +156,35 @@ public class ExtensionForm extends Window {
         final Form form = new Form();
         form.addStyleName("labelField");
 
-        TextField extensionId = new TextField("Extension id");
+        TextField extensionId = new TextField(bundle.getString("wavilon.form.extensions.extension.id"));
         extensionId.setValue(model.getLiferayOrganizationId());
         extensionId.setReadOnly(true);
 
 
-        TextField name = new TextField("Name");
+        TextField name = new TextField(bundle.getString("wavilon.form.name"));
         name.setRequired(true);
-        name.setRequiredError("Empty field First \"Name\"");
+        name.setRequiredError(bundle.getString("wavilon.error.massage.extensions.name.empty"));
 
         final TextField destination = new TextField();
         destination.setImmediate(true);
         destination.setVisible(false);
 
-        List<String> extensionTypeList = createExtensionType();
-        ComboBox extensionType = new ComboBox("Extension type");
+        extensionTypeMap = CouchModelUtil.extensionTypeMapPut(bundle);
+
+        ComboBox extensionType = new ComboBox(bundle.getString("wavilon.form.extensions.extension.type"));
+        extensionType.addItem(bundle.getString("wavilon.form.select"));
         extensionType.setRequired(true);
-        extensionType.setRequiredError("Empty field \"Extension type\"");
+        extensionType.setRequiredError(bundle.getString("wavilon.error.massage.extensions.extension.type.empty"));
         extensionType.setImmediate(true);
-        for (String s : extensionTypeList) {
+
+        for (String s : extensionTypeMap.keySet()) {
             extensionType.addItem(s);
-            if (null != extension.getChannel() && extension.getChannel().equals(s)) {
+            if (null != extension.getChannel() && extension.getChannel().equals(extensionTypeMap.get(s))) {
                 extensionType.setValue(s);
             }
         }
-        extensionType.setNullSelectionItemId("Select...");
+
+        extensionType.setNullSelectionItemId(bundle.getString("wavilon.form.select"));
         extensionType.addListener(new ComboBox.ValueChangeListener() {
             public void valueChange(Property.ValueChangeEvent event) {
                 String type = (String) event.getProperty().getValue();
@@ -192,7 +195,7 @@ public class ExtensionForm extends Window {
         if (null != model.getRevision() && !"".equals(model.getRevision())) {
             name.setValue(extension.getName());
             destination.setValue(extension.getDestination());
-            changeDestinationValidator(extension.getChannel(), destination, form);
+            changeDestinationValidator(CouchModelUtil.extensionTypeMapEject(bundle).get(extension.getChannel()), destination, form);
         }
 
         form.addField("extensionId", extensionId);
@@ -214,27 +217,17 @@ public class ExtensionForm extends Window {
             destination.setCaption(type);
 
             destination.setRequired(true);
-            destination.setRequiredError("Empty field \"" + type + "\"");
+            destination.setRequiredError(type + " " + bundle.getString("wavilon.error.massage.extensions.type"));
 
-            if ("Phone Number".equals(type)) {
+            if (bundle.getString("wavilon.form.extensions.type.phone.number").equals(type)) {
                 destination.addValidator(mobileValidator);
-            } else if ("Gtalk".equals(type)) {
+            } else if (bundle.getString("wavilon.form.extensions.type.gtalk").equals(type)) {
                 destination.addValidator(emailValidator);
             }
 
         } else {
             destination.setVisible(false);
         }
-    }
-
-    private List<String> createExtensionType() {
-        List<String> extensionTypeList = new LinkedList<String>();
-        extensionTypeList.add("Phone Number");
-        extensionTypeList.add("Gtalk");
-        extensionTypeList.add("SIP");
-        extensionTypeList.add(0, "Select...");
-
-        return extensionTypeList;
     }
 
     private HorizontalLayout createButtons(VerticalLayout content) {
@@ -249,4 +242,6 @@ public class ExtensionForm extends Window {
     public void setItem(Object item) {
         this.item = item;
     }
+
+
 }
