@@ -3,6 +3,7 @@ package com.aimprosoft.wavilon.ui.menuitems;
 import com.aimprosoft.wavilon.application.GenericPortletApplication;
 import com.aimprosoft.wavilon.couch.CouchModel;
 import com.aimprosoft.wavilon.couch.CouchModelLite;
+import com.aimprosoft.wavilon.couch.CouchTypes;
 import com.aimprosoft.wavilon.model.VirtualNumber;
 import com.aimprosoft.wavilon.service.AllPhoneNumbersDatabaseService;
 import com.aimprosoft.wavilon.service.VirtualNumberDatabaseService;
@@ -10,16 +11,18 @@ import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.ui.menuitems.forms.ConfirmingRemove;
 import com.aimprosoft.wavilon.ui.menuitems.forms.VirtualNumbersForm;
 import com.aimprosoft.wavilon.util.CouchModelUtil;
+import com.aimprosoft.wavilon.util.LayoutUtil;
 import com.liferay.portal.util.PortalUtil;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.terminal.Sizeable;
-import com.vaadin.ui.*;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Table;
+import com.vaadin.ui.VerticalLayout;
 
 import javax.portlet.PortletRequest;
-import java.io.IOException;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -35,6 +38,7 @@ public class VirtualNumbersContent extends VerticalLayout {
     private PortletRequest request;
     private VirtualNumberDatabaseService service = ObjectFactory.getBean(VirtualNumberDatabaseService.class);
     private AllPhoneNumbersDatabaseService allPhonesService  = ObjectFactory.getBean(AllPhoneNumbersDatabaseService.class);
+
     public VirtualNumbersContent(ResourceBundle bundle) {
         this.bundle = bundle;
     }
@@ -63,7 +67,7 @@ public class VirtualNumbersContent extends VerticalLayout {
     }
 
     private void initLayout() {
-        HorizontalLayout head = createHead();
+        HorizontalLayout head = LayoutUtil.createHead(bundle, virtualNumbers, CouchTypes.startnode, getWindow());
         setWidth(100, Sizeable.UNITS_PERCENTAGE);
         addComponent(head);
 
@@ -90,7 +94,7 @@ public class VirtualNumbersContent extends VerticalLayout {
                 if (event.isDoubleClick()) {
                     Item item = event.getItem();
                     if (null != item) {
-                        getForm((String) event.getItem().getItemProperty("id").getValue(), event.getItemId());
+                        LayoutUtil.getForm((String) event.getItem().getItemProperty("id").getValue(), event.getItemId(), getWindow(), new VirtualNumbersForm(bundle, virtualNumbers));
                     }
                 }
             }
@@ -114,22 +118,18 @@ public class VirtualNumbersContent extends VerticalLayout {
             for (final CouchModel couchModel : couchModels) {
                 final Object object = ic.addItem();
                 VirtualNumber virtualNumber  = getVirtualNumber(couchModel);
-                CouchModelLite forward = CouchModelUtil.getCouchModelLite((String) couchModel.getProperties().get("forward_to"));
+                CouchModelLite forward = CouchModelUtil.getCouchModelLite((String) couchModel.getProperties().get("forward_to"), bundle);
 
                 ic.getContainerProperty(object, bundle.getString("wavilon.table.virtualnumbers.column.number")).setValue(virtualNumber.getLocator());
                 ic.getContainerProperty(object, bundle.getString("wavilon.table.virtualnumbers.column.name")).setValue(virtualNumber.getName());
                 ic.getContainerProperty(object, "id").setValue(couchModel.getId());
-                ic.getContainerProperty(object, bundle.getString("wavilon.table.virtualnumbers.column.forward.calls.to")).setValue(forward);
+                ic.getContainerProperty(object, bundle.getString("wavilon.table.virtualnumbers.column.forward.calls.to")).setValue(forward.getId());
                 ic.getContainerProperty(object, "").setValue(new Button("", new Button.ClickListener() {
                     public void buttonClick(Button.ClickEvent event) {
                         virtualNumbers.select(object);
                         ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
                         getWindow().addWindow(confirmingRemove);
                         confirmingRemove.init(couchModel.getId(), virtualNumbers);
-                        confirmingRemove.center();
-                        confirmingRemove.setModal(true);
-                        confirmingRemove.setWidth("330px");
-                        confirmingRemove.setHeight("180px");
                     }
                 }));
             }
@@ -149,51 +149,12 @@ public class VirtualNumbersContent extends VerticalLayout {
         List<CouchModel> couchModelList = new LinkedList<CouchModel>();
 
         try {
-            couchModelList.addAll(service.getAllUsersCouchModelToVirtualNumber(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request)));
-            couchModelList.addAll(allPhonesService.getVirtualNumbers());
+            couchModelList.addAll(service.getAllUsersCouchModelToVirtualNumber(PortalUtil.getScopeGroupId(request)));
+//            couchModelList.addAll(allPhonesService.getVirtualNumbers());
         } catch (Exception ignored) {
         }
 
         return couchModelList;
-    }
-
-    public HorizontalLayout createHead() {
-        HorizontalLayout head = new HorizontalLayout();
-        head.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-        Label headLabel = new Label(bundle.getString("wavilon.menuitem.virtualnumbers"));
-        head.addComponent(headLabel);
-        head.setMargin(false);
-        head.addStyleName("head");
-        headLabel.addStyleName("label");
-
-        HorizontalLayout addRemoveButtons = createButtons();
-        head.addComponent(addRemoveButtons);
-
-        head.setComponentAlignment(headLabel, Alignment.TOP_LEFT);
-        head.setComponentAlignment(addRemoveButtons, Alignment.MIDDLE_RIGHT);
-
-        return head;
-    }
-
-    private HorizontalLayout createButtons() {
-        HorizontalLayout addButton = new HorizontalLayout();
-        addButton.addComponent(new Button(bundle.getString("wavilon.button.add"), new Button.ClickListener() {
-            public void buttonClick(Button.ClickEvent event) {
-                getForm("-1", "-1");
-            }
-        }));
-        return addButton;
-    }
-
-    private void getForm(String id, Object itemId) {
-        VirtualNumbersForm virtualNumbersForm = new VirtualNumbersForm(this.bundle, this.virtualNumbers);
-        virtualNumbersForm.setWidth("450px");
-        virtualNumbersForm.setHeight("300px");
-        virtualNumbersForm.center();
-        virtualNumbersForm.setModal(true);
-
-        getWindow().addWindow(virtualNumbersForm);
-        virtualNumbersForm.init(id, itemId);
     }
 
     private List<String> fillHiddenFields() {

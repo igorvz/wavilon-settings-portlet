@@ -19,7 +19,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
 
-public class AgentsForm extends Window {
+public class AgentsForm extends AbstractForm {
     private AgentDatabaseService service = ObjectFactory.getBean(AgentDatabaseService.class);
     private CouchModelLiteDatabaseService modelLiteService = ObjectFactory.getBean(CouchModelLiteDatabaseService.class);
     private ResourceBundle bundle;
@@ -35,6 +35,8 @@ public class AgentsForm extends Window {
     }
 
     public void init(String id, final Object itemId) {
+        removeAllComponents();
+
         application = getApplication();
         request = ((GenericPortletApplication) application).getPortletRequest();
         model = createModel(id);
@@ -89,10 +91,6 @@ public class AgentsForm extends Window {
                             ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
                             application.getMainWindow().addWindow(confirmingRemove);
                             confirmingRemove.init(phoneNumbersID, table);
-                            confirmingRemove.center();
-                            confirmingRemove.setModal(true);
-                            confirmingRemove.setWidth("330px");
-                            confirmingRemove.setHeight("180px");
                         }
                     };
 
@@ -177,7 +175,7 @@ public class AgentsForm extends Window {
 
     private List<CouchModelLite> getExtensions() {
         try {
-            return modelLiteService.getAllCouchModelsLite(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request), CouchTypes.extension);
+            return modelLiteService.getAllCouchModelsLite(PortalUtil.getScopeGroupId(request), CouchTypes.extension);
         } catch (Exception e) {
             return Collections.emptyList();
         }

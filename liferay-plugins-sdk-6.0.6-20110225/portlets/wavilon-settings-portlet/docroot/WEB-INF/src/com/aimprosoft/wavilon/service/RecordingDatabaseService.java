@@ -16,7 +16,7 @@ public interface RecordingDatabaseService {
 
     void updateRecording(Recording recording, CouchModel model) throws IOException;
 
-    List<CouchModel> getAllUsersCouchModelToRecording(Long userId, Long organizationId, boolean attachment) throws IOException;
+    List<CouchModel> getAllUsersCouchModelToRecording(Long organizationId, boolean attachment) throws IOException;
 
     void addRecording(Recording recording, CouchModel model) throws IOException;
 

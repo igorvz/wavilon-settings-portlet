@@ -1,7 +1,7 @@
 package com.aimprosoft.wavilon.couch;
 
 public enum CouchTypes {
-    phoneNumber,
+    VIRTUAL,
     virtualNumber,
     service,
     startnode,

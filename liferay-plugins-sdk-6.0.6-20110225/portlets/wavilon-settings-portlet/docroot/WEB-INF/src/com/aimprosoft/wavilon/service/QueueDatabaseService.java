@@ -16,7 +16,7 @@ public interface QueueDatabaseService {
 
     void updateQueue(Queue queue, CouchModel model, List<String> agents) throws IOException;
 
-    List<CouchModel> getAllUsersCouchModelQueue(Long userId, Long organizationId) throws IOException;
+    List<CouchModel> getAllUsersCouchModelQueue(Long organizationId) throws IOException;
 
     void addQueue(Queue queue, CouchModel model, List<String> agents) throws IOException;
 

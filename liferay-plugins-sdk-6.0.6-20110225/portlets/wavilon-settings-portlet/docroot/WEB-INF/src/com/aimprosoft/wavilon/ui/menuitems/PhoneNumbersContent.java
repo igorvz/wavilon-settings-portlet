@@ -3,19 +3,23 @@ package com.aimprosoft.wavilon.ui.menuitems;
 import com.aimprosoft.wavilon.application.GenericPortletApplication;
 import com.aimprosoft.wavilon.couch.CouchModel;
 import com.aimprosoft.wavilon.couch.CouchModelLite;
+import com.aimprosoft.wavilon.couch.CouchTypes;
 import com.aimprosoft.wavilon.model.PhoneNumber;
-import com.aimprosoft.wavilon.service.AllPhoneNumbersDatabaseService;
 import com.aimprosoft.wavilon.service.PhoneNumberDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.ui.menuitems.forms.ConfirmingRemove;
 import com.aimprosoft.wavilon.ui.menuitems.forms.PhoneNumbersForm;
 import com.aimprosoft.wavilon.util.CouchModelUtil;
+import com.aimprosoft.wavilon.util.LayoutUtil;
 import com.liferay.portal.util.PortalUtil;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.terminal.Sizeable;
-import com.vaadin.ui.*;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Table;
+import com.vaadin.ui.VerticalLayout;
 
 import javax.portlet.PortletRequest;
 import java.util.LinkedList;
@@ -29,7 +33,6 @@ public class PhoneNumbersContent extends VerticalLayout {
     private Table phoneNumbers = new Table();
     private PortletRequest request;
     private PhoneNumberDatabaseService service = ObjectFactory.getBean(PhoneNumberDatabaseService.class);
-    private AllPhoneNumbersDatabaseService allPhonesService = ObjectFactory.getBean(AllPhoneNumbersDatabaseService.class);
 
     private List<String> hiddenFields;
 
@@ -49,7 +52,7 @@ public class PhoneNumbersContent extends VerticalLayout {
     }
 
     private void initLayout() {
-        HorizontalLayout head = createHead();
+        HorizontalLayout head = LayoutUtil.createHead(bundle, phoneNumbers, CouchTypes.service, getWindow());
         setWidth(100, Sizeable.UNITS_PERCENTAGE);
         addComponent(head);
 
@@ -75,7 +78,7 @@ public class PhoneNumbersContent extends VerticalLayout {
                 if (event.isDoubleClick()) {
                     Item item = event.getItem();
                     if (null != item) {
-                        getForm((String) event.getItem().getItemProperty("id").getValue(), event.getItemId());
+                        LayoutUtil.getForm((String) event.getItem().getItemProperty("id").getValue(), event.getItemId(), getWindow(), new PhoneNumbersForm(bundle, phoneNumbers));
                     }
                 }
             }
@@ -99,7 +102,7 @@ public class PhoneNumbersContent extends VerticalLayout {
             for (final CouchModel couchModel : couchModels) {
                 final Object object = ic.addItem();
                 PhoneNumber phoneNumber = getPhoneNumber(couchModel);
-                CouchModelLite forward = CouchModelUtil.getCouchModelLite((String) couchModel.getOutputs().get("startnode"));
+                CouchModelLite forward = CouchModelUtil.getCouchModelLite((String) couchModel.getOutputs().get("startnode"), bundle);
 
                 ic.getContainerProperty(object, bundle.getString("wavilon.table.phonenumbers.column.number")).setValue(phoneNumber.getLocator());
                 ic.getContainerProperty(object, bundle.getString("wavilon.table.phonenumbers.column.name")).setValue(phoneNumber.getName());
@@ -125,45 +128,6 @@ public class PhoneNumbersContent extends VerticalLayout {
         } catch (Exception e) {
             return new PhoneNumber();
         }
-    }
-
-    public HorizontalLayout createHead() {
-        HorizontalLayout head = new HorizontalLayout();
-        head.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-        Label headLabel = new Label(bundle.getString("wavilon.menuitem.phonenumbers"));
-        head.addComponent(headLabel);
-        head.setMargin(false);
-        head.addStyleName("head");
-        headLabel.addStyleName("label");
-
-        HorizontalLayout addButton = createButton();
-        head.addComponent(addButton);
-
-        head.setComponentAlignment(headLabel, Alignment.TOP_LEFT);
-        head.setComponentAlignment(addButton, Alignment.MIDDLE_RIGHT);
-
-        return head;
-    }
-
-    private HorizontalLayout createButton() {
-        HorizontalLayout addButton = new HorizontalLayout();
-        addButton.addComponent(new Button(bundle.getString("wavilon.button.add"), new Button.ClickListener() {
-            public void buttonClick(Button.ClickEvent event) {
-                getForm("-1", "-1");
-            }
-        }));
-        return addButton;
-    }
-
-    private void getForm(String id, Object itemId) {
-        PhoneNumbersForm phoneNumbersForm = new PhoneNumbersForm(this.bundle, this.phoneNumbers);
-        phoneNumbersForm.setWidth("450px");
-        phoneNumbersForm.setHeight("350px");
-        phoneNumbersForm.center();
-        phoneNumbersForm.setModal(true);
-
-        getWindow().addWindow(phoneNumbersForm);
-        phoneNumbersForm.init(id, itemId);
     }
 
     private List<String> fillHiddenFields() {
@@ -193,8 +157,7 @@ public class PhoneNumbersContent extends VerticalLayout {
         List<CouchModel> couchModelList = new LinkedList<CouchModel>();
 
         try {
-            couchModelList.addAll(service.getAllUsersCouchModelToPhoneNumber(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request)));
-            couchModelList.addAll(allPhonesService.getPhoneNumbers());
+            couchModelList.addAll(service.getAllUsersCouchModelToPhoneNumber(PortalUtil.getScopeGroupId(request)));
 
         } catch (Exception ignored) {
         }

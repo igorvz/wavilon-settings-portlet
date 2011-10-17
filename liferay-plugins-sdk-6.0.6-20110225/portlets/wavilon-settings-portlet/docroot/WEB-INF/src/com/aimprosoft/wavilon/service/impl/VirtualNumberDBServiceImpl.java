@@ -6,8 +6,6 @@ import com.aimprosoft.wavilon.service.VirtualNumberDatabaseService;
 import com.aimprosoft.wavilon.util.FormatUtil;
 import com.fourspaces.couchdb.Document;
 import com.fourspaces.couchdb.ViewResults;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -16,13 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class VirtualNumberDBServiceImpl implements VirtualNumberDatabaseService {
-    @Autowired
-    private CouchDBService couchDBService;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
+public class VirtualNumberDBServiceImpl extends AbstractViewEntityService implements VirtualNumberDatabaseService {
 
     private VirtualNumber getVirtualNumber(String id) throws IOException {
         CouchModel model = getModel(id);
@@ -38,7 +30,7 @@ public class VirtualNumberDBServiceImpl implements VirtualNumberDatabaseService 
     }
 
     public List<VirtualNumber> getAllVirtualNumbers() throws IOException {
-        ViewResults viewResults = couchDBService.database.adhoc(couchDBService.functions.getAllVirtualNumbersFunction());
+        ViewResults viewResults = database.adhoc(functions.getAllVirtualNumbersFunction());
         List<VirtualNumber> virtualNumberList = new LinkedList<VirtualNumber>();
 
         for (Document doc : viewResults.getResults()) {
@@ -58,10 +50,10 @@ public class VirtualNumberDBServiceImpl implements VirtualNumberDatabaseService 
         couchDBService.updateModel(model);
     }
 
-    public List<CouchModel> getAllUsersCouchModelToVirtualNumber(Long userId, Long organizationId) throws IOException {
-        String formattedFunction = FormatUtil.formatFunction(couchDBService.functions.getBaseModelsByUserAndTypeFunction(), "startnode", userId, organizationId);
+    public List<CouchModel> getAllUsersCouchModelToVirtualNumber(Long organizationId) throws IOException {
+        String formattedFunction = FormatUtil.formatFunction(functions.getBaseModelsByUserAndTypeFunction(), "startnode",organizationId);
 
-        ViewResults viewResults = couchDBService.database.adhoc(formattedFunction);
+        ViewResults viewResults = database.adhoc(formattedFunction);
 
         List<CouchModel> modelList = new LinkedList<CouchModel>();
 

@@ -24,7 +24,6 @@
 
     <bean id="couchDBService" class="com.aimprosoft.wavilon.service.impl.CouchDBService">
         <property name="database" ref="databaseNode"/>
-        <property name="functions" ref="functions"/>
         <property name="serializeService" ref="serializeService"/>
         <property name="objectReader">
             <bean class="org.codehaus.jackson.map.ObjectReader" factory-bean="objectMapper" factory-method="reader">

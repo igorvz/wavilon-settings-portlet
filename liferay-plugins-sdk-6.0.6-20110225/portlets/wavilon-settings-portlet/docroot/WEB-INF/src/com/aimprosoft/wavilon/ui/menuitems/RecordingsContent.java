@@ -4,13 +4,14 @@ import com.aimprosoft.wavilon.application.GenericPortletApplication;
 import com.aimprosoft.wavilon.couch.Attachment;
 import com.aimprosoft.wavilon.couch.CouchModel;
 import com.aimprosoft.wavilon.couch.CouchModelLite;
+import com.aimprosoft.wavilon.couch.CouchTypes;
 import com.aimprosoft.wavilon.model.Recording;
-import com.aimprosoft.wavilon.service.CouchModelLiteDatabaseService;
 import com.aimprosoft.wavilon.service.RecordingDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.ui.menuitems.forms.ConfirmingRemove;
 import com.aimprosoft.wavilon.ui.menuitems.forms.RecordingsForm;
 import com.aimprosoft.wavilon.util.CouchModelUtil;
+import com.aimprosoft.wavilon.util.LayoutUtil;
 import com.liferay.portal.util.PortalUtil;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
@@ -27,7 +28,6 @@ public class RecordingsContent extends VerticalLayout {
     private ResourceBundle bundle;
     private static PortletRequest request;
     private RecordingDatabaseService service = ObjectFactory.getBean(RecordingDatabaseService.class);
-    private CouchModelLiteDatabaseService liteService = ObjectFactory.getBean(CouchModelLiteDatabaseService.class);
 
     private List<String> hiddenFields;
 
@@ -51,7 +51,7 @@ public class RecordingsContent extends VerticalLayout {
     }
 
     private void initLayout() {
-        HorizontalLayout head = createHead();
+        HorizontalLayout head = LayoutUtil.createHead(bundle, table, CouchTypes.recording, getWindow());
         setWidth(100, Sizeable.UNITS_PERCENTAGE);
         addComponent(head);
 
@@ -67,47 +67,6 @@ public class RecordingsContent extends VerticalLayout {
         addComponent(table);
     }
 
-    private HorizontalLayout createHead() {
-        HorizontalLayout head = new HorizontalLayout();
-        head.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-
-        Label headLabel = new Label(bundle.getString("wavilon.menuitem.recordings"));
-        head.addComponent(headLabel);
-        head.setMargin(false);
-        head.addStyleName("head");
-        headLabel.addStyleName("label");
-
-        HorizontalLayout addRemoveButtons = createButtons();
-        head.addComponent(addRemoveButtons);
-
-        head.setComponentAlignment(headLabel, Alignment.TOP_LEFT);
-        head.setComponentAlignment(addRemoveButtons, Alignment.MIDDLE_RIGHT);
-
-        return head;
-    }
-
-    private HorizontalLayout createButtons() {
-
-        HorizontalLayout addButton = new HorizontalLayout();
-        addButton.addComponent(new Button(bundle.getString("wavilon.button.add"), new Button.ClickListener() {
-            public void buttonClick(Button.ClickEvent event) {
-                getForm("-1", "-1");
-            }
-        }));
-        return addButton;
-    }
-
-    private void getForm(String id, Object itemId) {
-        RecordingsForm recordingsForm = new RecordingsForm(bundle, table);
-        recordingsForm.setWidth("450px");
-        recordingsForm.setHeight("400px");
-        recordingsForm.center();
-        recordingsForm.setModal(true);
-
-        getWindow().addWindow(recordingsForm);
-        recordingsForm.init(id, itemId);
-    }
-
     private void initRecording() {
 
         table.setContainerDataSource(tableData);
@@ -120,7 +79,8 @@ public class RecordingsContent extends VerticalLayout {
                 if (event.isDoubleClick()) {
                     Item item = event.getItem();
                     if (null != item) {
-                        getForm((String) event.getItem().getItemProperty("id").getValue(), event.getItemId());
+                        LayoutUtil.getForm((String) event.getItem().getItemProperty("id").getValue(), event.getItemId(), getWindow(), new RecordingsForm(bundle,table));
+
                     }
                 }
             }
@@ -195,7 +155,7 @@ public class RecordingsContent extends VerticalLayout {
 
     private CouchModelLite getForward(String id) {
         try {
-            return CouchModelUtil.getCouchModelLite(id);
+            return CouchModelUtil.getCouchModelLite(id, bundle);
         } catch (Exception e) {
             return (CouchModelLite) Collections.emptyList();
         }
@@ -203,7 +163,7 @@ public class RecordingsContent extends VerticalLayout {
 
     private List<CouchModel> getAllRecordingLite() {
         try {
-            return service.getAllUsersCouchModelToRecording(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request), false);
+            return service.getAllUsersCouchModelToRecording(PortalUtil.getScopeGroupId(request), false);
         } catch (Exception e) {
             return Collections.emptyList();
         }

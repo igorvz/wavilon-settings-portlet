@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class RecordingCouchDBServiceImpl implements RecordingDatabaseService {
+public class RecordingCouchDBServiceImpl extends AbstractViewEntityService implements RecordingDatabaseService {
     @Autowired
     private CouchDBService couchDBService;
 
@@ -37,7 +37,7 @@ public class RecordingCouchDBServiceImpl implements RecordingDatabaseService {
     }
 
     public List<Recording> getAllRecording() throws IOException {
-        ViewResults viewResults = couchDBService.database.adhoc(couchDBService.functions.getAllRecordingFunction());
+        ViewResults viewResults = database.adhoc(functions.getAllRecordingFunction());
         List<Recording> recordingList = new LinkedList<Recording>();
 
         for (Document doc : viewResults.getResults()) {
@@ -57,10 +57,10 @@ public class RecordingCouchDBServiceImpl implements RecordingDatabaseService {
         couchDBService.updateModel(model);
     }
 
-    public List<CouchModel> getAllUsersCouchModelToRecording(Long userId, Long organizationId, boolean attachment) throws IOException {
-        String formattedFunction = FormatUtil.formatFunction(couchDBService.functions.getBaseModelsByUserAndTypeFunction(), "recording", userId, organizationId);
+    public List<CouchModel> getAllUsersCouchModelToRecording(Long organizationId, boolean attachment) throws IOException {
+        String formattedFunction = FormatUtil.formatFunction(functions.getBaseModelsByUserAndTypeFunction(), "recording", organizationId);
 
-        ViewResults viewResults = couchDBService.database.adhoc(formattedFunction);
+        ViewResults viewResults = database.adhoc(formattedFunction);
 
         List<CouchModel> modelList = new LinkedList<CouchModel>();
 

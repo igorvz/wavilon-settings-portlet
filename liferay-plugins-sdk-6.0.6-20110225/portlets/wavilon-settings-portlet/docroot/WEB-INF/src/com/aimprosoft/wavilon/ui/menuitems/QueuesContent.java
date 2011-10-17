@@ -3,6 +3,7 @@ package com.aimprosoft.wavilon.ui.menuitems;
 import com.aimprosoft.wavilon.application.GenericPortletApplication;
 import com.aimprosoft.wavilon.couch.CouchModel;
 import com.aimprosoft.wavilon.couch.CouchModelLite;
+import com.aimprosoft.wavilon.couch.CouchTypes;
 import com.aimprosoft.wavilon.model.Queue;
 import com.aimprosoft.wavilon.service.QueueDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
@@ -10,13 +11,17 @@ import com.aimprosoft.wavilon.ui.menuitems.forms.ConfirmingRemove;
 import com.aimprosoft.wavilon.ui.menuitems.forms.QueuesDragAndDropAgents;
 import com.aimprosoft.wavilon.ui.menuitems.forms.QueuesForm;
 import com.aimprosoft.wavilon.util.CouchModelUtil;
+import com.aimprosoft.wavilon.util.LayoutUtil;
 import com.liferay.portal.util.PortalUtil;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.terminal.Sizeable;
-import com.vaadin.ui.*;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Table;
+import com.vaadin.ui.VerticalLayout;
 
 import javax.portlet.PortletRequest;
 import java.io.IOException;
@@ -57,7 +62,7 @@ public class QueuesContent extends VerticalLayout {
         bottom = new VerticalLayout();
         addComponent(bottom);
 
-        HorizontalLayout head = createHead();
+        HorizontalLayout head = LayoutUtil.createHead(bundle, queuesTable, CouchTypes.queue, getWindow());
         setWidth(100, Sizeable.UNITS_PERCENTAGE);
         top.addComponent(head);
 
@@ -91,7 +96,6 @@ public class QueuesContent extends VerticalLayout {
             }
         });
 
-
         this.queuesTable.addListener(new ItemClickEvent.ItemClickListener() {
             public void itemClick(ItemClickEvent event) {
                 if (event.isDoubleClick()) {
@@ -99,12 +103,11 @@ public class QueuesContent extends VerticalLayout {
                     if (null != item) {
                         String queueId = (String) item.getItemProperty("id").getValue();
                         getAgentsTwinColumns(queueId);
-                        getForm(queueId, event.getItemId());
+                        LayoutUtil.getForm(queueId, event.getItemId(), getWindow(), new QueuesForm(bundle, queuesTable));
                     }
                 }
             }
         });
-
     }
 
     private IndexedContainer createTableData() {
@@ -124,8 +127,8 @@ public class QueuesContent extends VerticalLayout {
 
             for (final CouchModel couchModel : couchModels) {
                 Queue queue = getQueue(couchModel);
-                CouchModelLite forwardToOnMaxLength = CouchModelUtil.getCouchModelLite(queue.getForwardToOnMaxLength());
-                CouchModelLite forwardToOnMaxTime = CouchModelUtil.getCouchModelLite(queue.getForwardToOnMaxTime());
+                CouchModelLite forwardToOnMaxLength = CouchModelUtil.getCouchModelLite(queue.getForwardToOnMaxLength(), bundle);
+                CouchModelLite forwardToOnMaxTime = CouchModelUtil.getCouchModelLite(queue.getForwardToOnMaxTime(), bundle);
                 final Object object = ic.addItem();
                 ic.getContainerProperty(object, bundle.getString("wavilon.table.queues.column.name")).setValue(queue.getName());
                 ic.getContainerProperty(object, bundle.getString("wavilon.table.queues.column.forward.to.on.max.time")).setValue(forwardToOnMaxTime);
@@ -137,10 +140,6 @@ public class QueuesContent extends VerticalLayout {
                         ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
                         getWindow().addWindow(confirmingRemove);
                         confirmingRemove.init(couchModel.getId(), queuesTable);
-                        confirmingRemove.center();
-                        confirmingRemove.setModal(true);
-                        confirmingRemove.setWidth("330px");
-                        confirmingRemove.setHeight("180px");
                     }
                 }));
 
@@ -159,38 +158,10 @@ public class QueuesContent extends VerticalLayout {
 
     private List<CouchModel> getCouchModels() {
         try {
-            return service.getAllUsersCouchModelQueue(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request));
+            return service.getAllUsersCouchModelQueue(PortalUtil.getScopeGroupId(request));
         } catch (Exception e) {
             return Collections.emptyList();
         }
-    }
-
-    public HorizontalLayout createHead() {
-        HorizontalLayout head = new HorizontalLayout();
-        head.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-        Label headLabel = new Label(bundle.getString("wavilon.menuitem.queues"));
-        head.addComponent(headLabel);
-        head.setMargin(false);
-        head.addStyleName("head");
-        headLabel.addStyleName("label");
-
-        HorizontalLayout addRemoveButtons = createButtons();
-        head.addComponent(addRemoveButtons);
-
-        head.setComponentAlignment(headLabel, Alignment.TOP_LEFT);
-        head.setComponentAlignment(addRemoveButtons, Alignment.MIDDLE_RIGHT);
-
-        return head;
-    }
-
-    private HorizontalLayout createButtons() {
-        HorizontalLayout addButton = new HorizontalLayout();
-        addButton.addComponent(new Button(bundle.getString("wavilon.button.add"), new Button.ClickListener() {
-            public void buttonClick(Button.ClickEvent event) {
-                getForm("-1", "-1");
-            }
-        }));
-        return addButton;
     }
 
     private void getAgentsTwinColumns(String id) {
@@ -199,17 +170,6 @@ public class QueuesContent extends VerticalLayout {
         this.bottom.removeAllComponents();
         this.bottom.addComponent(agentsLayout);
         agentsLayout.init(id);
-    }
-
-    private void getForm(String id, Object itemId) {
-        QueuesForm queuesForm = new QueuesForm(this.bundle, this.queuesTable);
-        queuesForm.setWidth("480px");
-        queuesForm.setHeight("400px");
-        queuesForm.center();
-        queuesForm.setModal(true);
-
-        getWindow().addWindow(queuesForm);
-        queuesForm.init(id, itemId);
     }
 
     private List<String> fillHiddenFields() {

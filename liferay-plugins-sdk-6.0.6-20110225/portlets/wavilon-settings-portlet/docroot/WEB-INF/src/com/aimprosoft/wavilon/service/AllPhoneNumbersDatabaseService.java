@@ -8,17 +8,18 @@ import java.util.List;
 
 public interface AllPhoneNumbersDatabaseService {
 
-    public void updateModel(PhoneModel phoneModel) throws IOException;
+    void updateModel(PhoneModel phoneModel) throws IOException;
 
-    public void updateModel(Long liferayOrganizationId, String id) throws IOException;
+    void updateModel(Long liferayOrganizationId, String id) throws IOException;
 
+    List<CouchModel> getVirtualNumbers() throws IOException;
 
-    public List<CouchModel> getVirtualNumbers() throws IOException;
+    List<CouchModel> getPhoneNumbers() throws IOException;
 
-    public List<CouchModel> getPhoneNumbers() throws IOException;
+    List<String> getOnlyPhoneNumbers() throws IOException;
 
-    public CouchModel getVirtualNumber(String documentId) throws IOException;
+    CouchModel getVirtualNumber(String documentId) throws IOException;
 
-    public CouchModel getPhoneNumber(String documentId) throws IOException;
+    CouchModel getPhoneNumber(String documentId) throws IOException;
 
 }

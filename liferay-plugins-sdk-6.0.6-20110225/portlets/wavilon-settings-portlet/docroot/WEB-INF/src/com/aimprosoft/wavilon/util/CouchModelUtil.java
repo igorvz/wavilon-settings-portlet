@@ -13,7 +13,6 @@ import java.util.*;
 public class CouchModelUtil {
     private static CouchModelLiteDatabaseService modelLiteService = ObjectFactory.getBean(CouchModelLiteDatabaseService.class);
 
-
     public static CouchModel newCouchModel(PortletRequest request, CouchTypes couchTypes) {
         CouchModel newCouchModel = new CouchModel();
 
@@ -29,25 +28,25 @@ public class CouchModelUtil {
         return newCouchModel;
     }
 
-    public static CouchModelLite getCouchModelLite(String id) {
+    public static CouchModelLite getCouchModelLite(String id, ResourceBundle bundle) {
         try {
             return modelLiteService.getCouchLiteModel(id);
         } catch (Exception e) {
             CouchModelLite modelLite = new CouchModelLite();
             modelLite.setId(id);
-            modelLite.setName("This entity has been removed!");
+            modelLite.setName(bundle.getString("wavilon.error.massage.entity.removed"));
             return modelLite;
         }
     }
 
-    public static List<CouchModelLite> getForwards(Long userId, Long organizationId) {
+    public static List<CouchModelLite> getForwards(Long organizationId) {
         List<CouchModelLite> modelLiteList = new LinkedList<CouchModelLite>();
 
         try {
-            modelLiteList.addAll(modelLiteService.getAllCouchModelsLite(userId, organizationId, CouchTypes.queue));
-            modelLiteList.addAll(modelLiteService.getAllCouchModelsLite(userId, organizationId, CouchTypes.agent));
-            modelLiteList.addAll(modelLiteService.getAllCouchModelsLite(userId, organizationId, CouchTypes.extension));
-            modelLiteList.addAll(modelLiteService.getAllCouchModelsLite(userId, organizationId, CouchTypes.recording));
+            modelLiteList.addAll(modelLiteService.getAllCouchModelsLite(organizationId, CouchTypes.queue));
+            modelLiteList.addAll(modelLiteService.getAllCouchModelsLite(organizationId, CouchTypes.agent));
+            modelLiteList.addAll(modelLiteService.getAllCouchModelsLite(organizationId, CouchTypes.extension));
+            modelLiteList.addAll(modelLiteService.getAllCouchModelsLite(organizationId, CouchTypes.recording));
         } catch (Exception e) {
             Collections.emptyList();
         }

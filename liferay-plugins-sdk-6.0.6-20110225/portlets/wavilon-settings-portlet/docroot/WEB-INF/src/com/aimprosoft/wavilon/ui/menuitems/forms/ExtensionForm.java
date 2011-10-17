@@ -19,12 +19,11 @@ import javax.portlet.PortletRequest;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-public class ExtensionForm extends Window {
+public class ExtensionForm extends AbstractForm {
     private ExtensionDatabaseService service = ObjectFactory.getBean(ExtensionDatabaseService.class);
     private ResourceBundle bundle;
     private PortletRequest request;
     private Table table;
-    private Object item;
     private Validator mobileValidator = null;
     private Validator emailValidator = null;
     private Application application;
@@ -38,91 +37,6 @@ public class ExtensionForm extends Window {
         this.table = table;
         mobileValidator = new RegexpValidator("[+][0-9]{10}", bundle.getString("wavilon.error.massage.extensions.phonenumber.wrong"));
         emailValidator = new EmailValidator(bundle.getString("wavilon.error.massage.extensions.email.wrong"));
-    }
-
-    public void init(String id) {
-        application = getApplication();
-        request = ((GenericPortletApplication) application).getPortletRequest();
-
-        model = createModel(id);
-        extension = createExtension(model);
-
-        if (!"".equals(extension.getName())) {
-            setCaption(bundle.getString("wavilon.form.extensions.edit.extension"));
-        } else {
-            setCaption(bundle.getString("wavilon.form.extensions.new.extension"));
-        }
-
-        VerticalLayout content = new VerticalLayout();
-        content.addStyleName("formRegion");
-
-        addComponent(content);
-
-        final Form form = createForm();
-        content.addComponent(form);
-
-        HorizontalLayout buttons = createButtons(content);
-
-        Button cancel = new Button(bundle.getString("wavilon.button.cancel"), new Button.ClickListener() {
-            public void buttonClick(Button.ClickEvent event) {
-                close();
-            }
-        });
-        buttons.addComponent(cancel);
-
-        Button save = new Button(bundle.getString("wavilon.button.save"), new Button.ClickListener() {
-            public void buttonClick(Button.ClickEvent event) {
-                try {
-                    form.commit();
-
-                    String name = (String) form.getField("name").getValue();
-                    String extensionType = (String) form.getField("extensionType").getValue();
-                    String destination = (String) form.getField("destination").getValue();
-
-                    final Object object = table.addItem();
-
-                    Button.ClickListener listener = new Button.ClickListener() {
-                        public void buttonClick(Button.ClickEvent event) {
-
-                            table.select(object);
-                            String phoneNumbersID = (String) table.getItem(object).getItemProperty("id").getValue();
-                            ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
-                            application.getMainWindow().addWindow(confirmingRemove);
-                            confirmingRemove.init(phoneNumbersID, table);
-                            confirmingRemove.center();
-                            confirmingRemove.setModal(true);
-                            confirmingRemove.setWidth("330px");
-                            confirmingRemove.setHeight("180px");
-                        }
-                    };
-
-                    extension.setChannel(extensionTypeMap.get(extensionType));
-                    extension.setName(name);
-                    extension.setDestination(destination);
-
-                    service.addExtension(extension, model);
-
-                    if (null != model.getRevision()) {
-                        table.removeItem(item);
-                        table.select(null);
-                    }
-
-                    table.getContainerProperty(object, "extensionId").setValue(model.getId());
-                    table.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.id")).setValue(model.getLiferayOrganizationId());
-                    table.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.name")).setValue(extension.getName());
-                    table.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.extension.type")).setValue(CouchModelUtil.extensionTypeMapEject(bundle).get(extension.getChannel()));
-                    table.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.destination")).setValue(extension.getDestination());
-                    table.getContainerProperty(object, "").setValue(new Button("", listener));
-
-                    getWindow().showNotification(bundle.getString("wavilon.well.done"));
-                    close();
-                } catch (Exception ignored) {
-                }
-            }
-        });
-        save.setClickShortcut(ShortcutAction.KeyCode.ENTER);
-        save.addStyleName("saveButton");
-        buttons.addComponent(save);
     }
 
     private CouchModel createModel(String id) {
@@ -241,9 +155,86 @@ public class ExtensionForm extends Window {
         return buttons;
     }
 
-    public void setItem(Object item) {
-        this.item = item;
+    @Override
+    public void init(String id, final Object itemId) {
+        removeAllComponents();
+        application = getApplication();
+        request = ((GenericPortletApplication) application).getPortletRequest();
+
+        model = createModel(id);
+        extension = createExtension(model);
+
+        if (!"".equals(extension.getName())) {
+            setCaption(bundle.getString("wavilon.form.extensions.edit.extension"));
+        } else {
+            setCaption(bundle.getString("wavilon.form.extensions.new.extension"));
+        }
+
+        VerticalLayout content = new VerticalLayout();
+        content.addStyleName("formRegion");
+
+        addComponent(content);
+
+        final Form form = createForm();
+        content.addComponent(form);
+
+        HorizontalLayout buttons = createButtons(content);
+
+        Button cancel = new Button(bundle.getString("wavilon.button.cancel"), new Button.ClickListener() {
+            public void buttonClick(Button.ClickEvent event) {
+                close();
+            }
+        });
+        buttons.addComponent(cancel);
+
+        Button save = new Button(bundle.getString("wavilon.button.save"), new Button.ClickListener() {
+            public void buttonClick(Button.ClickEvent event) {
+                try {
+                    form.commit();
+
+                    String name = (String) form.getField("name").getValue();
+                    String extensionType = (String) form.getField("extensionType").getValue();
+                    String destination = (String) form.getField("destination").getValue();
+
+                    final Object object = table.addItem();
+
+                    Button.ClickListener listener = new Button.ClickListener() {
+                        public void buttonClick(Button.ClickEvent event) {
+
+                            table.select(object);
+                            String phoneNumbersID = (String) table.getItem(object).getItemProperty("extensionId").getValue();
+                            ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
+                            application.getMainWindow().addWindow(confirmingRemove);
+                            confirmingRemove.init(phoneNumbersID, table);
+                        }
+                    };
+
+                    extension.setChannel(extensionTypeMap.get(extensionType));
+                    extension.setName(name);
+                    extension.setDestination(destination);
+
+                    service.addExtension(extension, model);
+
+                    if (null != model.getRevision()) {
+                        table.removeItem(itemId);
+                        table.select(null);
+                    }
+
+                    table.getContainerProperty(object, "extensionId").setValue(model.getId());
+                    table.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.id")).setValue(model.getLiferayOrganizationId());
+                    table.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.name")).setValue(extension.getName());
+                    table.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.extension.type")).setValue(CouchModelUtil.extensionTypeMapEject(bundle).get(extension.getChannel()));
+                    table.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.destination")).setValue(extension.getDestination());
+                    table.getContainerProperty(object, "").setValue(new Button("", listener));
+
+                    getWindow().showNotification(bundle.getString("wavilon.well.done"));
+                    close();
+                } catch (Exception ignored) {
+                }
+            }
+        });
+        save.setClickShortcut(ShortcutAction.KeyCode.ENTER);
+        save.addStyleName("saveButton");
+        buttons.addComponent(save);
     }
-
-
 }

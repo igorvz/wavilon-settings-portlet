@@ -3,18 +3,23 @@ package com.aimprosoft.wavilon.ui.menuitems;
 import com.aimprosoft.wavilon.application.GenericPortletApplication;
 import com.aimprosoft.wavilon.couch.CouchModel;
 import com.aimprosoft.wavilon.couch.CouchModelLite;
+import com.aimprosoft.wavilon.couch.CouchTypes;
 import com.aimprosoft.wavilon.model.Agent;
 import com.aimprosoft.wavilon.service.AgentDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.ui.menuitems.forms.AgentsForm;
 import com.aimprosoft.wavilon.ui.menuitems.forms.ConfirmingRemove;
 import com.aimprosoft.wavilon.util.CouchModelUtil;
+import com.aimprosoft.wavilon.util.LayoutUtil;
 import com.liferay.portal.util.PortalUtil;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.terminal.Sizeable;
-import com.vaadin.ui.*;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Table;
+import com.vaadin.ui.VerticalLayout;
 
 import javax.portlet.PortletRequest;
 import java.util.Collections;
@@ -36,6 +41,7 @@ public class AgentsContent extends VerticalLayout {
     }
 
     public void init() {
+        removeAllComponents();
         request = ((GenericPortletApplication) getApplication()).getPortletRequest();
         tableFields = fillFields();
         hiddenFields = fillHiddenFields();
@@ -47,7 +53,7 @@ public class AgentsContent extends VerticalLayout {
     }
 
     private void initLayout() {
-        HorizontalLayout head = createHead();
+        HorizontalLayout head = LayoutUtil.createHead(bundle, table, CouchTypes.agent, getWindow());
         setWidth(100, Sizeable.UNITS_PERCENTAGE);
         addComponent(head);
 
@@ -60,7 +66,6 @@ public class AgentsContent extends VerticalLayout {
     }
 
     private void initAgents() {
-//        table.setContainerDataSource(this.tableData);
         table.setVisibleColumns(this.tableFields.toArray());
         table.setSelectable(true);
         table.setImmediate(true);
@@ -70,21 +75,11 @@ public class AgentsContent extends VerticalLayout {
                 if (event.isDoubleClick()) {
                     Item item = event.getItem();
                     if (null != item) {
-                        getForm((String) event.getItem().getItemProperty("id").getValue(), event.getItemId());
+                        LayoutUtil.getForm((String) event.getItem().getItemProperty("id").getValue(), event.getItemId(), getWindow(), new AgentsForm(bundle, table));
                     }
                 }
             }
         });
-    }
-
-    private HorizontalLayout createButton() {
-        HorizontalLayout addButton = new HorizontalLayout();
-        addButton.addComponent(new Button(bundle.getString("wavilon.button.add"), new Button.ClickListener() {
-            public void buttonClick(Button.ClickEvent event) {
-                getForm("-1", "-1");
-            }
-        }));
-        return addButton;
     }
 
     private IndexedContainer createTableData() {
@@ -104,7 +99,7 @@ public class AgentsContent extends VerticalLayout {
 
             for (final CouchModel couchModel : couchModels) {
                 Agent agent = getAgent(couchModel);
-                CouchModelLite extension = CouchModelUtil.getCouchModelLite((String) couchModel.getOutputs().get("extension"));
+                CouchModelLite extension = CouchModelUtil.getCouchModelLite((String) couchModel.getOutputs().get("extension"), bundle);
                 final Object object = ic.addItem();
                 ic.getContainerProperty(object, bundle.getString("wavilon.table.agents.column.name")).setValue(agent.getName());
                 ic.getContainerProperty(object, bundle.getString("wavilon.table.agents.column.current.extension")).setValue(extension);
@@ -118,14 +113,13 @@ public class AgentsContent extends VerticalLayout {
                     }
                 }));
             }
-
         }
         return ic;
     }
 
     private List<CouchModel> getCouchModels() {
         try {
-            return service.getAllUsersCouchModelAgent(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request));
+            return service.getAllUsersCouchModelAgent(PortalUtil.getScopeGroupId(request));
         } catch (Exception e) {
             return Collections.emptyList();
         }
@@ -137,35 +131,6 @@ public class AgentsContent extends VerticalLayout {
         } catch (Exception e) {
             return new Agent();
         }
-    }
-
-    private void getForm(String id, Object itemId) {
-        AgentsForm agentsForm = new AgentsForm(bundle, table);
-        agentsForm.setWidth("450px");
-        agentsForm.setHeight("320px");
-        agentsForm.center();
-        agentsForm.setModal(true);
-
-        getWindow().addWindow(agentsForm);
-        agentsForm.init(id, itemId);
-    }
-
-    public HorizontalLayout createHead() {
-        HorizontalLayout head = new HorizontalLayout();
-        head.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-        Label headLabel = new Label(bundle.getString("wavilon.menuitem.agents"));
-        head.addComponent(headLabel);
-        head.setMargin(false);
-        head.addStyleName("head");
-        headLabel.addStyleName("label");
-
-        HorizontalLayout addButton = createButton();
-        head.addComponent(addButton);
-
-        head.setComponentAlignment(headLabel, Alignment.TOP_LEFT);
-        head.setComponentAlignment(addButton, Alignment.MIDDLE_RIGHT);
-
-        return head;
     }
 
     private List<String> fillHiddenFields() {

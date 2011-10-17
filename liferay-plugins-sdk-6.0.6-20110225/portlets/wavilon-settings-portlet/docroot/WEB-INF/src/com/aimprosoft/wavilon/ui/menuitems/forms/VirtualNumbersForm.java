@@ -15,12 +15,10 @@ import com.vaadin.data.validator.RegexpValidator;
 import com.vaadin.ui.*;
 
 import javax.portlet.PortletRequest;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.io.IOException;
+import java.util.*;
 
-public class VirtualNumbersForm extends Window {
+public class VirtualNumbersForm extends AbstractForm {
     private VirtualNumberDatabaseService service = ObjectFactory.getBean(VirtualNumberDatabaseService.class);
     private AllPhoneNumbersDatabaseService allPhonesService = ObjectFactory.getBean(AllPhoneNumbersDatabaseService.class);
     private ResourceBundle bundle;
@@ -37,6 +35,7 @@ public class VirtualNumbersForm extends Window {
     }
 
     public void init(String id, final Object itemId) {
+        removeAllComponents();
         request = ((GenericPortletApplication) getApplication()).getPortletRequest();
         virtualNumber = new VirtualNumber();
         model = createModel(id);
@@ -74,18 +73,19 @@ public class VirtualNumbersForm extends Window {
 
                     String name = (String) form.getField("name").getValue();
                     String number = (String) form.getField("number").getValue();
-                    CouchModelLite forwardCallTo = (CouchModelLite) form.getField("forwardCallTo").getValue();
+                    String forwardCallTo = (String) form.getField("forwardCallTo").getValue();
+//                    CouchModelLite forwardCallTo = (CouchModelLite) form.getField("forwardCallTo").getValue();
                     virtualNumber.setName(name);
                     virtualNumber.setLocator(number);
-                    virtualNumber.setForwardTo(forwardCallTo.getId());
+                    virtualNumber.setForwardTo(forwardCallTo);
 
                     model.setType(CouchTypes.startnode);
 
                     service.addVirtualNumber(virtualNumber, model);
 
-                    if (!"".equals(anotherPhoneId)) {
-                        allPhonesService.updateModel(model.getLiferayOrganizationId(), anotherPhoneId);
-                    }
+//                    if (!"".equals(anotherPhoneId)) {
+//                        allPhonesService.updateModel(model.getLiferayOrganizationId(), anotherPhoneId);
+//                    }
 
                     if (null != model.getRevision() || !"".equals(anotherPhoneId)) {
                         table.removeItem(itemId);
@@ -101,17 +101,13 @@ public class VirtualNumbersForm extends Window {
                             ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
                             application.getMainWindow().addWindow(confirmingRemove);
                             confirmingRemove.init(phoneNumbersID, table);
-                            confirmingRemove.center();
-                            confirmingRemove.setModal(true);
-                            confirmingRemove.setWidth("330px");
-                            confirmingRemove.setHeight("180px");
                         }
                     };
 
                     table.getContainerProperty(object, bundle.getString("wavilon.table.virtualnumbers.column.number")).setValue(model.getProperties().get("locator"));
                     table.getContainerProperty(object, bundle.getString("wavilon.table.virtualnumbers.column.name")).setValue(virtualNumber.getName());
                     table.getContainerProperty(object, "id").setValue(model.getId());
-                    table.getContainerProperty(object, bundle.getString("wavilon.table.virtualnumbers.column.forward.calls.to")).setValue(forwardCallTo.getName());
+                    table.getContainerProperty(object, bundle.getString("wavilon.table.virtualnumbers.column.forward.calls.to")).setValue(forwardCallTo);
                     table.getContainerProperty(object, "").setValue(new Button("", listener));
 
                     getWindow().showNotification(bundle.getString("wavilon.well.done"));
@@ -162,17 +158,21 @@ public class VirtualNumbersForm extends Window {
         number.addValidator(new RegexpValidator("[0-9]{11}", bundle.getString("wavilon.error.massage.virtualnumbers.wrong")));
 
 
-        List<CouchModelLite> forwards = getForward();
+//        List<CouchModelLite> forwards = getForward();
         ComboBox forwardCallTo = new ComboBox(bundle.getString("wavilon.form.virtualnumbers.forward.calls.to"));
         forwardCallTo.addItem(bundle.getString("wavilon.form.select"));
-        for (CouchModelLite forward : forwards) {
-            forwardCallTo.addItem(forward);
+//        for (CouchModelLite forward : forwards) {
+//            forwardCallTo.addItem(forward);
+//        }
+        List<String> virtualNumbers = createVirtualNumbers();
+        for (String virtualNumber : virtualNumbers) {
+            forwardCallTo.addItem(virtualNumber);
         }
         forwardCallTo.setNullSelectionItemId(bundle.getString("wavilon.form.select"));
         forwardCallTo.setRequired(true);
         forwardCallTo.setRequiredError(bundle.getString("wavilon.error.massage.virtualnumbers.forward.empty"));
 
-        if ((null != model.getRevision() && !"".equals(model.getRevision())) || null!= model.getProperties()) {
+        if ((null != model.getRevision() && !"".equals(model.getRevision())) || null != model.getProperties()) {
             name.setValue(model.getProperties().get("name"));
             number.setValue(model.getProperties().get("locator"));
             number.setReadOnly(true);
@@ -196,8 +196,26 @@ public class VirtualNumbersForm extends Window {
     private List<CouchModelLite> getForward() {
 
         try {
-            return CouchModelUtil.getForwards(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request));
+            return CouchModelUtil.getForwards(PortalUtil.getScopeGroupId(request));
         } catch (Exception e) {
+            return Collections.emptyList();
+        }
+    }
+
+    private List<String> createVirtualNumbers() {
+        List virtualNumbersList = new LinkedList<String>();
+        List<CouchModel> couchModelList = getAllVirtualNumbers();
+
+        for (CouchModel model : couchModelList) {
+            virtualNumbersList.add(model.getProperties().get("locator"));
+        }
+        return virtualNumbersList;
+    }
+
+    private List<CouchModel> getAllVirtualNumbers() {
+        try {
+            return allPhonesService.getVirtualNumbers();
+        } catch (IOException e) {
             return Collections.emptyList();
         }
     }

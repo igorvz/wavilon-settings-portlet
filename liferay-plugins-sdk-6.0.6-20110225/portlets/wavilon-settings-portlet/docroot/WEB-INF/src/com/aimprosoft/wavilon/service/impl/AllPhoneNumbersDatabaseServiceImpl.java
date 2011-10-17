@@ -94,6 +94,18 @@ public class AllPhoneNumbersDatabaseServiceImpl implements AllPhoneNumbersDataba
         return modelList;
     }
 
+    public List<String> getOnlyPhoneNumbers() throws IOException {
+        ViewResults viewResults = database.adhoc(functions.getAllPhonesPhoneNumbers());
+        List<String> modelList = new LinkedList<String>();
+
+        for (Document doc : viewResults.getResults()) {
+            PhoneModel phoneModel = getPhoneModel(doc.getId());
+            modelList.add(phoneModel.getLocator());
+        }
+
+        return modelList;
+    }
+
     public CouchModel getVirtualNumber(String documentId) throws IOException {
         return toVirtualNumber(getPhoneModel(documentId));
     }

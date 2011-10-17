@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-public class RecordingsForm extends Window {
+public class RecordingsForm extends AbstractForm {
     private ResourceBundle bundle;
 
     private RecordingDatabaseService service = ObjectFactory.getBean(RecordingDatabaseService.class);
@@ -40,6 +40,7 @@ public class RecordingsForm extends Window {
     }
 
     public void init(String id, final Object itemId) {
+        removeAllComponents();
         request = ((GenericPortletApplication) getApplication()).getPortletRequest();
         application = getApplication();
 
@@ -53,7 +54,6 @@ public class RecordingsForm extends Window {
 
         final Form form = createForm();
         content.addComponent(form);
-
 
         if (model.getRevision() != null) {
             setCaption(bundle.getString("wavilon.form.recordings.edit.recording"));
@@ -85,7 +85,6 @@ public class RecordingsForm extends Window {
                 try {
                     form.commit();
 
-
                     String name = (String) form.getField("name").getValue();
                     CouchModelLite forwardModel = (CouchModelLite) form.getField("forward").getValue();
 
@@ -114,10 +113,6 @@ public class RecordingsForm extends Window {
                                 ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
                                 application.getMainWindow().addWindow(confirmingRemove);
                                 confirmingRemove.init(phoneNumbersID, table);
-                                confirmingRemove.center();
-                                confirmingRemove.setModal(true);
-                                confirmingRemove.setWidth("330px");
-                                confirmingRemove.setHeight("180px");
                             }
                         });
 
@@ -207,7 +202,7 @@ public class RecordingsForm extends Window {
 
     private List<CouchModelLite> getLiteForward() {
         try {
-            return CouchModelUtil.getForwards(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request));
+            return CouchModelUtil.getForwards(PortalUtil.getScopeGroupId(request));
         } catch (Exception e) {
             return Collections.emptyList();
         }

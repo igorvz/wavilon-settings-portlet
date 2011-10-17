@@ -1,6 +1,5 @@
 package com.aimprosoft.wavilon.service.impl;
 
-import com.aimprosoft.wavilon.config.Functions;
 import com.aimprosoft.wavilon.couch.Attachment;
 import com.aimprosoft.wavilon.couch.CouchModel;
 import com.aimprosoft.wavilon.model.Agent;
@@ -18,22 +17,15 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class CouchDBService {
-    protected Database database;
+    private Database database;
 
-    protected ObjectReader objectReader;
-
-    protected Functions functions;
+    private ObjectReader objectReader;
 
     protected SerializeService serializeService;
 
     @Required
     public void setDatabase(Database database) {
         this.database = database;
-    }
-
-    @Required
-    public void setFunctions(Functions functions) {
-        this.functions = functions;
     }
 
     @Required

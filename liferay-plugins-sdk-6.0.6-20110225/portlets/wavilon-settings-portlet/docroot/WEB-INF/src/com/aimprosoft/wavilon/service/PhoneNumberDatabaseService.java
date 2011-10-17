@@ -17,7 +17,7 @@ public interface PhoneNumberDatabaseService {
 
     void updatePhoneNumber(PhoneNumber number, CouchModel model, String id) throws IOException;
 
-    List<CouchModel> getAllUsersCouchModelToPhoneNumber(Long userId, Long organizationId) throws IOException;
+    List<CouchModel> getAllUsersCouchModelToPhoneNumber(Long organizationId) throws IOException;
 
     void addPhoneNumber(PhoneNumber number, CouchModel model, String forwardId) throws IOException;
 

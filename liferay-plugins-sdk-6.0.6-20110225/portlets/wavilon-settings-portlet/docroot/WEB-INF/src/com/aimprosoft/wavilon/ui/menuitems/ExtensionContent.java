@@ -2,19 +2,24 @@ package com.aimprosoft.wavilon.ui.menuitems;
 
 import com.aimprosoft.wavilon.application.GenericPortletApplication;
 import com.aimprosoft.wavilon.couch.CouchModel;
+import com.aimprosoft.wavilon.couch.CouchTypes;
 import com.aimprosoft.wavilon.model.Extension;
 import com.aimprosoft.wavilon.service.ExtensionDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.ui.menuitems.forms.ConfirmingRemove;
 import com.aimprosoft.wavilon.ui.menuitems.forms.ExtensionForm;
 import com.aimprosoft.wavilon.util.CouchModelUtil;
+import com.aimprosoft.wavilon.util.LayoutUtil;
 import com.liferay.portal.util.PortalUtil;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.terminal.Sizeable;
-import com.vaadin.ui.*;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Table;
+import com.vaadin.ui.VerticalLayout;
 
 import javax.portlet.PortletRequest;
 import java.util.*;
@@ -34,11 +39,11 @@ public class ExtensionContent extends VerticalLayout {
     }
 
     public void init() {
+        removeAllComponents();
         request = ((GenericPortletApplication) getApplication()).getPortletRequest();
         tableFields = fillFields();
         hiddenFields = fillHiddenFields();
         tableData = createTableData();
-
 
         setSizeUndefined();
         initLayout();
@@ -46,7 +51,7 @@ public class ExtensionContent extends VerticalLayout {
     }
 
     private void initLayout() {
-        HorizontalLayout head = createHead();
+        HorizontalLayout head = LayoutUtil.createHead(bundle, table, CouchTypes.extension, getWindow());
         setWidth(100, Sizeable.UNITS_PERCENTAGE);
         addComponent(head);
 
@@ -64,35 +69,6 @@ public class ExtensionContent extends VerticalLayout {
         addComponent(table);
     }
 
-    private HorizontalLayout createHead() {
-        HorizontalLayout head = new HorizontalLayout();
-        head.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-
-        Label headLabel = new Label(bundle.getString("wavilon.menuitem.extensions"));
-        head.addComponent(headLabel);
-        head.setMargin(false);
-        head.addStyleName("head");
-        headLabel.addStyleName("label");
-
-        HorizontalLayout addButton = createButton();
-        head.addComponent(addButton);
-
-        head.setComponentAlignment(headLabel, Alignment.TOP_LEFT);
-        head.setComponentAlignment(addButton, Alignment.MIDDLE_RIGHT);
-
-        return head;
-    }
-
-    private HorizontalLayout createButton() {
-        HorizontalLayout addButton = new HorizontalLayout();
-        addButton.addComponent(new Button(bundle.getString("wavilon.button.add"), new Button.ClickListener() {
-            public void buttonClick(Button.ClickEvent event) {
-                getForm("-1");
-            }
-        }));
-        return addButton;
-    }
-
     private void initExtension() {
 
         table.setContainerDataSource(tableData);
@@ -105,7 +81,7 @@ public class ExtensionContent extends VerticalLayout {
                 if (event.isDoubleClick()) {
                     Item item = event.getItem();
                     if (null != item) {
-                        getForm((String) event.getItem().getItemProperty("extensionId").getValue());
+                        LayoutUtil.getForm((String) event.getItem().getItemProperty("extensionId").getValue(), event.getItemId(), getWindow(), new ExtensionForm(bundle, table));
                     }
                 }
             }
@@ -152,7 +128,6 @@ public class ExtensionContent extends VerticalLayout {
                         confirmingRemove.init(couchModel.getId(), table);
                     }
                 }));
-
             }
         }
         return ic;
@@ -168,22 +143,10 @@ public class ExtensionContent extends VerticalLayout {
 
     private List<CouchModel> getCouchModels() {
         try {
-            return extensionService.getAllUsersCouchModelToExtension(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request));
+            return extensionService.getAllUsersCouchModelToExtension(PortalUtil.getScopeGroupId(request));
         } catch (Exception e) {
             return Collections.emptyList();
         }
-    }
-
-    private void getForm(String id) {
-        ExtensionForm extensionForm = new ExtensionForm(bundle, this.table);
-        extensionForm.setItem(this.item);
-        extensionForm.setWidth("450px");
-        extensionForm.setHeight("320px");
-        extensionForm.center();
-        extensionForm.setModal(true);
-
-        getWindow().addWindow(extensionForm);
-        extensionForm.init(id);
     }
 
     private List<String> fillHiddenFields() {

@@ -56,7 +56,7 @@ public class QueuesDragAndDropAgents extends HorizontalLayout {
 
         List<CouchModel> availableAgentList = Collections.emptyList();
         try {
-            availableAgentList = agentService.getAllUsersCouchModelAgent(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request));
+            availableAgentList = agentService.getAllUsersCouchModelAgent(PortalUtil.getScopeGroupId(request));
         } catch (Exception ignored) {
         }
 
@@ -319,7 +319,7 @@ public class QueuesDragAndDropAgents extends HorizontalLayout {
         for (CouchModel agent : agentList) {
             Object object = ic.addItem();
             ic.getContainerProperty(object, bundle.getString("wavilon.table.agents.column.name")).setValue(agent.getProperties().get("name"));
-            CouchModelLite extension = CouchModelUtil.getCouchModelLite((String) agent.getOutputs().get("extension"));
+            CouchModelLite extension = CouchModelUtil.getCouchModelLite((String) agent.getOutputs().get("extension"), bundle);
 
             ic.getContainerProperty(object, bundle.getString("wavilon.table.agents.column.current.extension")).setValue(extension);
             ic.getContainerProperty(object, "id").setValue(agent.getId());

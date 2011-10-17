@@ -21,7 +21,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-public class QueuesForm extends Window {
+public class QueuesForm extends AbstractForm {
 
     private QueueDatabaseService service = ObjectFactory.getBean(QueueDatabaseService.class);
     private ResourceBundle bundle;
@@ -36,6 +36,7 @@ public class QueuesForm extends Window {
     }
 
     public void init(String id, final Object itemId) {
+        removeAllComponents();
         final Application application = getApplication();
         request = ((GenericPortletApplication) application).getPortletRequest();
         model = createModel(id);
@@ -101,16 +102,12 @@ public class QueuesForm extends Window {
                             ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
                             application.getMainWindow().addWindow(confirmingRemove);
                             confirmingRemove.init(phoneNumbersID, table);
-                            confirmingRemove.center();
-                            confirmingRemove.setModal(true);
-                            confirmingRemove.setWidth("330px");
-                            confirmingRemove.setHeight("180px");
                         }
                     };
 
                     table.getContainerProperty(object, bundle.getString("wavilon.table.queues.column.name")).setValue(queue.getName());
-                    table.getContainerProperty(object, bundle.getString("wavilon.table.queues.column.forward.to.on.max.time")).setValue(CouchModelUtil.getCouchModelLite(queue.getForwardToOnMaxTime()));
-                    table.getContainerProperty(object, bundle.getString("wavilon.table.queues.column.forward.to.on.max.length")).setValue(CouchModelUtil.getCouchModelLite(queue.getForwardToOnMaxLength()));
+                    table.getContainerProperty(object, bundle.getString("wavilon.table.queues.column.forward.to.on.max.time")).setValue(CouchModelUtil.getCouchModelLite(queue.getForwardToOnMaxTime(), bundle));
+                    table.getContainerProperty(object, bundle.getString("wavilon.table.queues.column.forward.to.on.max.length")).setValue(CouchModelUtil.getCouchModelLite(queue.getForwardToOnMaxLength(), bundle));
                     table.getContainerProperty(object, "id").setValue(model.getId());
                     table.getContainerProperty(object, "").setValue(new Button("", listener));
 
@@ -173,12 +170,12 @@ public class QueuesForm extends Window {
         List<CouchModelLite> forwards = getForwards();
 
         //fourth
-        ComboBox forwardToOnMaxTimeInput = new ComboBox(bundle.getString("wavilon.form.queues.forward.to.on.max.time.label"));
+        ComboBox forwardToOnMaxTimeInput = new ComboBox();
         fillForward(forwards, forwardToOnMaxTimeInput);
         forwardToOnMaxTimeInput.setRequiredError(bundle.getString("wavilon.error.massage.queues.max.time.empty"));
 
         //fifth
-        ComboBox forwardToOnMaxLengthInput = new ComboBox(bundle.getString("wavilon.form.queues.forward.to.on.max.length.label"));
+        ComboBox forwardToOnMaxLengthInput = new ComboBox();
         fillForward(forwards, forwardToOnMaxLengthInput);
         forwardToOnMaxLengthInput.setRequiredError(bundle.getString("wavilon.error.massage.queues.max.length.empty"));
 
@@ -245,7 +242,7 @@ public class QueuesForm extends Window {
 
     private List<CouchModelLite> getForwards() {
         try {
-            return CouchModelUtil.getForwards(PortalUtil.getUserId(request), PortalUtil.getScopeGroupId(request));
+            return CouchModelUtil.getForwards(PortalUtil.getScopeGroupId(request));
         } catch (Exception ignored) {
             return Collections.emptyList();
         }
@@ -253,9 +250,7 @@ public class QueuesForm extends Window {
 
     private static class QueuesFormLayout extends Form {
         private GridLayout layout;
-        private ResourceBundle bundle;
         QueuesFormLayout(final ResourceBundle bundle) {
-            this.bundle = bundle;
             layout = new GridLayout(3, 6);
             layout.setMargin(true, false, false, true);
             layout.setSpacing(true);
@@ -276,8 +271,8 @@ public class QueuesForm extends Window {
             layout.addComponent(calls, 2, 2);
             layout.setComponentAlignment(calls, Alignment.MIDDLE_RIGHT);
 
-            layout.addComponent(new Label(bundle.getString("wavilon.form.queues.extension.on.max.time")), 0, 3);
-            layout.addComponent(new Label(bundle.getString("wavilon.form.queues.extension.on.max.length")), 0, 4);
+            layout.addComponent(new Label(bundle.getString("wavilon.form.queues.forward.to.on.max.time.label")), 0, 3);
+            layout.addComponent(new Label(bundle.getString("wavilon.form.queues.forward.to.on.max.length.label")), 0, 4);
             layout.addComponent(new Label(bundle.getString("wavilon.form.queues.music.on.hold")), 0, 5);
         }
 

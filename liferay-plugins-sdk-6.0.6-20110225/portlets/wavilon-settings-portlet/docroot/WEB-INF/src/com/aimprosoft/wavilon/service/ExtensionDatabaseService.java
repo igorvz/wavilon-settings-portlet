@@ -16,7 +16,7 @@ public interface ExtensionDatabaseService {
 
     void updateExtension(Extension extension, CouchModel model) throws IOException;
 
-    List<CouchModel> getAllUsersCouchModelToExtension(Long userId, Long organizationId) throws IOException;
+    List<CouchModel> getAllUsersCouchModelToExtension(Long organizationId) throws IOException;
 
     void addExtension(Extension extension, CouchModel model) throws IOException;
 

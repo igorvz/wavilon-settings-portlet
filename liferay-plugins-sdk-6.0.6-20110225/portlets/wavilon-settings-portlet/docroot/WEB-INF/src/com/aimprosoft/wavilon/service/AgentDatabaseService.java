@@ -18,7 +18,7 @@ public interface AgentDatabaseService {
 
     void updateAgent(Agent agent, CouchModel model, String extension) throws IOException;
 
-    List<CouchModel> getAllUsersCouchModelAgent(Long userId, Long organizationId) throws IOException;
+    List<CouchModel> getAllUsersCouchModelAgent(Long organizationId) throws IOException;
 
     void addAgent(Agent agent, CouchModel model, String extension) throws IOException;
 

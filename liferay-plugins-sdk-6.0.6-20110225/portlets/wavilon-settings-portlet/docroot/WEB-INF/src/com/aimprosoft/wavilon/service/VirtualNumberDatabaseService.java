@@ -17,7 +17,7 @@ public interface VirtualNumberDatabaseService {
 
     void updateVirtualNumber(VirtualNumber virtualNumber, CouchModel model) throws IOException;
 
-    List<CouchModel> getAllUsersCouchModelToVirtualNumber(Long userId, Long organizationId) throws IOException;
+    List<CouchModel> getAllUsersCouchModelToVirtualNumber(Long organizationId) throws IOException;
 
     void addVirtualNumber(VirtualNumber virtualNumber, CouchModel model) throws IOException;
 

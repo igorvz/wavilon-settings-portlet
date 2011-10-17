@@ -7,8 +7,6 @@ import com.aimprosoft.wavilon.service.AgentDatabaseService;
 import com.aimprosoft.wavilon.util.FormatUtil;
 import com.fourspaces.couchdb.Document;
 import com.fourspaces.couchdb.ViewResults;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -18,13 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class AgentCouchDBServiceImpl implements AgentDatabaseService {
-    @Autowired
-    private CouchDBService couchDBService;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
+public class AgentCouchDBServiceImpl extends AbstractViewEntityService implements AgentDatabaseService {
 
     public Agent getAgent(String id) throws IOException {
         CouchModel model = getModel(id);
@@ -41,7 +33,7 @@ public class AgentCouchDBServiceImpl implements AgentDatabaseService {
 
     public List<Agent> getAllAgent() throws IOException {
 
-        ViewResults viewResults = couchDBService.database.adhoc(couchDBService.functions.getAllAgentFunction());
+        ViewResults viewResults = database.adhoc(functions.getAllAgentFunction());
         List<Agent> extensionList = new LinkedList<Agent>();
 
         for (Document doc : viewResults.getResults()) {
@@ -64,11 +56,11 @@ public class AgentCouchDBServiceImpl implements AgentDatabaseService {
         couchDBService.updateModel(model);
     }
 
-    public List<CouchModel> getAllUsersCouchModelAgent(Long userId, Long organizationId) throws IOException {
+    public List<CouchModel> getAllUsersCouchModelAgent(Long organizationId) throws IOException {
 
-        String formattedFunction = FormatUtil.formatFunction(couchDBService.functions.getBaseModelsByUserAndTypeFunction(), CouchTypes.agent, userId, organizationId);
+        String formattedFunction = FormatUtil.formatFunction(functions.getBaseModelsByUserAndTypeFunction(), CouchTypes.agent,organizationId);
 
-        ViewResults viewResults = couchDBService.database.adhoc(formattedFunction);
+        ViewResults viewResults = database.adhoc(formattedFunction);
 
         List<CouchModel> modelList = new LinkedList<CouchModel>();
 
