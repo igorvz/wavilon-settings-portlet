@@ -2,8 +2,8 @@ package com.aimprosoft.wavilon.service.impl;
 
 import com.aimprosoft.wavilon.couch.CouchModelLite;
 import com.aimprosoft.wavilon.service.CouchModelLiteDatabaseService;
-import com.aimprosoft.wavilon.util.FormatUtil;
 import com.fourspaces.couchdb.Document;
+import com.fourspaces.couchdb.View;
 import com.fourspaces.couchdb.ViewResults;
 import org.springframework.stereotype.Service;
 
@@ -15,18 +15,18 @@ import java.util.List;
 public class CouchLiteModelDatabaseServiceImpl extends AbstractViewEntityService implements CouchModelLiteDatabaseService {
 
     public CouchModelLite getCouchLiteModel(String id) throws IOException {
-        String formattedFunction = FormatUtil.formatFunction(functions.getCouchModelLiteName(), id);
-        ViewResults viewResults = database.adhoc(formattedFunction);
+        View view = database.getDocument(functions.getDesignDocumentNodes()).getView(functions.getCouchModelLiteName());
+        view.setKey(urlEncoder.encode("\"" + id + "\""));
+        ViewResults viewResults = database.view(view);
         String modelLiteName = (String) viewResults.getResults().get(0).get("value");
 
         return createCouchModelLite(id, modelLiteName);
     }
 
     public List<CouchModelLite> getAllCouchModelsLite(Long organizationId, Object type) throws IOException {
-
-        String formattedFunction = FormatUtil.formatFunction(functions.getAllCouchModelLite(), type, organizationId);
-
-        ViewResults viewResults = database.adhoc(formattedFunction);
+        View view = database.getDocument(functions.getDesignDocumentNodes()).getView(functions.getAllCouchModelLite());
+        view.setKey(urlEncoder.encode("[\"" + type + "\"," + organizationId + "]"));
+        ViewResults viewResults = database.view(view);
 
         List<CouchModelLite> modelList = new LinkedList<CouchModelLite>();
 

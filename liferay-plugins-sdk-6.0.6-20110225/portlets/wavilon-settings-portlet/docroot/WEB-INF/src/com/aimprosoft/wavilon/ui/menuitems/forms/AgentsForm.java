@@ -175,7 +175,7 @@ public class AgentsForm extends AbstractForm {
 
     private List<CouchModelLite> getExtensions() {
         try {
-            return modelLiteService.getAllCouchModelsLite(PortalUtil.getScopeGroupId(request), CouchTypes.extension);
+            return modelLiteService.getAllCouchModelsLite(CouchModelUtil.getOrganizationId(request), CouchTypes.extension);
         } catch (Exception e) {
             return Collections.emptyList();
         }

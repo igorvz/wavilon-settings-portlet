@@ -56,7 +56,7 @@ public class QueuesDragAndDropAgents extends HorizontalLayout {
 
         List<CouchModel> availableAgentList = Collections.emptyList();
         try {
-            availableAgentList = agentService.getAllUsersCouchModelAgent(PortalUtil.getScopeGroupId(request));
+            availableAgentList = agentService.getAllUsersCouchModelAgent(CouchModelUtil.getOrganizationId(request));
         } catch (Exception ignored) {
         }
 

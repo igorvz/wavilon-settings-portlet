@@ -242,7 +242,7 @@ public class QueuesForm extends AbstractForm {
 
     private List<CouchModelLite> getForwards() {
         try {
-            return CouchModelUtil.getForwards(PortalUtil.getScopeGroupId(request));
+            return CouchModelUtil.getForwards(CouchModelUtil.getOrganizationId(request));
         } catch (Exception ignored) {
             return Collections.emptyList();
         }

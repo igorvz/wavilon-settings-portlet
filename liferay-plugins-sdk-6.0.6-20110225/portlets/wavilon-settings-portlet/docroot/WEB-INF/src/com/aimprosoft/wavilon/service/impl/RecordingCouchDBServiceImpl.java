@@ -3,8 +3,8 @@ package com.aimprosoft.wavilon.service.impl;
 import com.aimprosoft.wavilon.couch.CouchModel;
 import com.aimprosoft.wavilon.model.Recording;
 import com.aimprosoft.wavilon.service.RecordingDatabaseService;
-import com.aimprosoft.wavilon.util.FormatUtil;
 import com.fourspaces.couchdb.Document;
+import com.fourspaces.couchdb.View;
 import com.fourspaces.couchdb.ViewResults;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +37,7 @@ public class RecordingCouchDBServiceImpl extends AbstractViewEntityService imple
     }
 
     public List<Recording> getAllRecording() throws IOException {
-        ViewResults viewResults = database.adhoc(functions.getAllRecordingFunction());
+        ViewResults viewResults = database.adhoc(functions.getAllUniqueEntitiess());
         List<Recording> recordingList = new LinkedList<Recording>();
 
         for (Document doc : viewResults.getResults()) {
@@ -58,9 +58,9 @@ public class RecordingCouchDBServiceImpl extends AbstractViewEntityService imple
     }
 
     public List<CouchModel> getAllUsersCouchModelToRecording(Long organizationId, boolean attachment) throws IOException {
-        String formattedFunction = FormatUtil.formatFunction(functions.getBaseModelsByUserAndTypeFunction(), "recording", organizationId);
-
-        ViewResults viewResults = database.adhoc(formattedFunction);
+        View view = database.getDocument(functions.getDesignDocumentNodes()).getView(functions.getAllUniqueEntitiess());
+        view.setKey(urlEncoder.encode("[\"recording\"," + organizationId + "]"));
+        ViewResults viewResults = database.view(view);
 
         List<CouchModel> modelList = new LinkedList<CouchModel>();
 

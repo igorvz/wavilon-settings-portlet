@@ -202,7 +202,7 @@ public class RecordingsForm extends AbstractForm {
 
     private List<CouchModelLite> getLiteForward() {
         try {
-            return CouchModelUtil.getForwards(PortalUtil.getScopeGroupId(request));
+            return CouchModelUtil.getForwards(CouchModelUtil.getOrganizationId(request));
         } catch (Exception e) {
             return Collections.emptyList();
         }

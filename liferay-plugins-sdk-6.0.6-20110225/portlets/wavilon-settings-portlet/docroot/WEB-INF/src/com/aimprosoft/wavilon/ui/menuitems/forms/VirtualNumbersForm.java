@@ -154,8 +154,8 @@ public class VirtualNumbersForm extends AbstractForm {
         TextField number = new TextField(bundle.getString("wavilon.form.number"));
         number.setRequired(true);
         number.setRequiredError(bundle.getString("wavilon.error.massage.virtualnumbers.number.empty"));
-//        number.addValidator(new RegexpValidator("[+][0-9]{10}", bundle.getString("wavilon.error.massage.virtualnumbers.wrong")));
-        number.addValidator(new RegexpValidator("[0-9]{11}", bundle.getString("wavilon.error.massage.virtualnumbers.wrong")));
+        number.addValidator(new RegexpValidator("[+][0-9]{10}", bundle.getString("wavilon.error.massage.virtualnumbers.wrong")));
+//        number.addValidator(new RegexpValidator("[0-9]{11}", bundle.getString("wavilon.error.massage.virtualnumbers.wrong")));
 
 
 //        List<CouchModelLite> forwards = getForward();
@@ -196,7 +196,7 @@ public class VirtualNumbersForm extends AbstractForm {
     private List<CouchModelLite> getForward() {
 
         try {
-            return CouchModelUtil.getForwards(PortalUtil.getScopeGroupId(request));
+            return CouchModelUtil.getForwards(CouchModelUtil.getOrganizationId(request));
         } catch (Exception e) {
             return Collections.emptyList();
         }

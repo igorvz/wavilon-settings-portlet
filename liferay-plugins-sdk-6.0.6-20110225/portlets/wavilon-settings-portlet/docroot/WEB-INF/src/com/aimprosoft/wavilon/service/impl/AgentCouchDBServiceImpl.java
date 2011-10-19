@@ -1,11 +1,10 @@
 package com.aimprosoft.wavilon.service.impl;
 
 import com.aimprosoft.wavilon.couch.CouchModel;
-import com.aimprosoft.wavilon.couch.CouchTypes;
 import com.aimprosoft.wavilon.model.Agent;
 import com.aimprosoft.wavilon.service.AgentDatabaseService;
-import com.aimprosoft.wavilon.util.FormatUtil;
 import com.fourspaces.couchdb.Document;
+import com.fourspaces.couchdb.View;
 import com.fourspaces.couchdb.ViewResults;
 import org.springframework.stereotype.Service;
 
@@ -33,7 +32,7 @@ public class AgentCouchDBServiceImpl extends AbstractViewEntityService implement
 
     public List<Agent> getAllAgent() throws IOException {
 
-        ViewResults viewResults = database.adhoc(functions.getAllAgentFunction());
+        ViewResults viewResults = database.adhoc(functions.getAllUniqueEntitiess());
         List<Agent> extensionList = new LinkedList<Agent>();
 
         for (Document doc : viewResults.getResults()) {
@@ -58,9 +57,9 @@ public class AgentCouchDBServiceImpl extends AbstractViewEntityService implement
 
     public List<CouchModel> getAllUsersCouchModelAgent(Long organizationId) throws IOException {
 
-        String formattedFunction = FormatUtil.formatFunction(functions.getBaseModelsByUserAndTypeFunction(), CouchTypes.agent,organizationId);
-
-        ViewResults viewResults = database.adhoc(formattedFunction);
+        View view = database.getDocument(functions.getDesignDocumentNodes()).getView(functions.getAllUniqueEntitiess());
+        view.setKey(urlEncoder.encode("[\"agent\"," + organizationId + "]"));
+        ViewResults viewResults = database.view(view);
 
         List<CouchModel> modelList = new LinkedList<CouchModel>();
 

@@ -158,7 +158,7 @@ public class QueuesContent extends VerticalLayout {
 
     private List<CouchModel> getCouchModels() {
         try {
-            return service.getAllUsersCouchModelQueue(PortalUtil.getScopeGroupId(request));
+            return service.getAllUsersCouchModelQueue(CouchModelUtil.getOrganizationId(request));
         } catch (Exception e) {
             return Collections.emptyList();
         }

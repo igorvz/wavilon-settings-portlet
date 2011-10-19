@@ -3,8 +3,8 @@ package com.aimprosoft.wavilon.service.impl;
 import com.aimprosoft.wavilon.couch.CouchModel;
 import com.aimprosoft.wavilon.model.VirtualNumber;
 import com.aimprosoft.wavilon.service.VirtualNumberDatabaseService;
-import com.aimprosoft.wavilon.util.FormatUtil;
 import com.fourspaces.couchdb.Document;
+import com.fourspaces.couchdb.View;
 import com.fourspaces.couchdb.ViewResults;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +30,7 @@ public class VirtualNumberDBServiceImpl extends AbstractViewEntityService implem
     }
 
     public List<VirtualNumber> getAllVirtualNumbers() throws IOException {
-        ViewResults viewResults = database.adhoc(functions.getAllVirtualNumbersFunction());
+        ViewResults viewResults = database.adhoc(functions.getAllUniqueEntitiess());
         List<VirtualNumber> virtualNumberList = new LinkedList<VirtualNumber>();
 
         for (Document doc : viewResults.getResults()) {
@@ -51,10 +51,9 @@ public class VirtualNumberDBServiceImpl extends AbstractViewEntityService implem
     }
 
     public List<CouchModel> getAllUsersCouchModelToVirtualNumber(Long organizationId) throws IOException {
-        String formattedFunction = FormatUtil.formatFunction(functions.getBaseModelsByUserAndTypeFunction(), "startnode",organizationId);
-
-        ViewResults viewResults = database.adhoc(formattedFunction);
-
+        View view = database.getDocument(functions.getDesignDocumentNodes()).getView(functions.getAllUniqueEntitiess());
+        view.setKey(urlEncoder.encode("[\"startnode\"," + organizationId + "]"));
+        ViewResults viewResults = database.view(view);
         List<CouchModel> modelList = new LinkedList<CouchModel>();
 
         for (Document doc : viewResults.getResults()) {

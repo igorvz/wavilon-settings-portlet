@@ -143,7 +143,7 @@ public class ExtensionContent extends VerticalLayout {
 
     private List<CouchModel> getCouchModels() {
         try {
-            return extensionService.getAllUsersCouchModelToExtension(PortalUtil.getScopeGroupId(request));
+            return extensionService.getAllUsersCouchModelToExtension(CouchModelUtil.getOrganizationId(request));
         } catch (Exception e) {
             return Collections.emptyList();
         }

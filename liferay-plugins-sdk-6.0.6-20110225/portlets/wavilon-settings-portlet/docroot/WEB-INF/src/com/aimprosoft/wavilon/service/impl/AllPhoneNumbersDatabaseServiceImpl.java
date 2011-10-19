@@ -1,13 +1,11 @@
 package com.aimprosoft.wavilon.service.impl;
 
-import com.aimprosoft.wavilon.config.Functions;
 import com.aimprosoft.wavilon.couch.CouchModel;
 import com.aimprosoft.wavilon.couch.PhoneModel;
-import com.aimprosoft.wavilon.model.Agent;
 import com.aimprosoft.wavilon.service.AllPhoneNumbersDatabaseService;
-import com.aimprosoft.wavilon.service.SerializeService;
 import com.fourspaces.couchdb.Database;
 import com.fourspaces.couchdb.Document;
+import com.fourspaces.couchdb.View;
 import com.fourspaces.couchdb.ViewResults;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
@@ -21,7 +19,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class AllPhoneNumbersDatabaseServiceImpl implements AllPhoneNumbersDatabaseService {
+public class AllPhoneNumbersDatabaseServiceImpl extends AbstractViewEntityService implements AllPhoneNumbersDatabaseService {
 
     private Database database;
 
@@ -29,16 +27,9 @@ public class AllPhoneNumbersDatabaseServiceImpl implements AllPhoneNumbersDataba
 
     private ObjectWriter objectWriter;
 
-    private Functions functions;
-
     @Required
     public void setDatabase(Database database) {
         this.database = database;
-    }
-
-    @Required
-    public void setFunctions(Functions functions) {
-        this.functions = functions;
     }
 
     @Required
@@ -71,7 +62,8 @@ public class AllPhoneNumbersDatabaseServiceImpl implements AllPhoneNumbersDataba
     }
 
     public List<CouchModel> getVirtualNumbers() throws IOException {
-        ViewResults viewResults = database.adhoc(functions.getAllPhonesVirtualNumbers());
+        View view = database.getDocument(functions.getDesignDocumentPhonenumbers()).getView(functions.getAllPhonesVirtualNumber());;
+        ViewResults viewResults = database.view(view);
         List<CouchModel> modelList = new LinkedList<CouchModel>();
 
         for (Document doc : viewResults.getResults()) {
@@ -83,7 +75,8 @@ public class AllPhoneNumbersDatabaseServiceImpl implements AllPhoneNumbersDataba
     }
 
     public List<CouchModel> getPhoneNumbers() throws IOException {
-        ViewResults viewResults = database.adhoc(functions.getAllPhonesPhoneNumbers());
+        View view = database.getDocument(functions.getDesignDocumentPhonenumbers()).getView(functions.getAllPhonesPhoneNumber());
+        ViewResults viewResults = database.view(view);
         List<CouchModel> modelList = new LinkedList<CouchModel>();
 
         for (Document doc : viewResults.getResults()) {
@@ -95,7 +88,8 @@ public class AllPhoneNumbersDatabaseServiceImpl implements AllPhoneNumbersDataba
     }
 
     public List<String> getOnlyPhoneNumbers() throws IOException {
-        ViewResults viewResults = database.adhoc(functions.getAllPhonesPhoneNumbers());
+        View view = database.getDocument(functions.getDesignDocumentPhonenumbers()).getView(functions.getAllPhonesPhoneNumber());
+        ViewResults viewResults = database.view(view);
         List<String> modelList = new LinkedList<String>();
 
         for (Document doc : viewResults.getResults()) {

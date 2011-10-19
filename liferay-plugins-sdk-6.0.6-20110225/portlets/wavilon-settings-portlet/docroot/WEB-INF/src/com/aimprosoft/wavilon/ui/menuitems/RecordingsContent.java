@@ -163,7 +163,7 @@ public class RecordingsContent extends VerticalLayout {
 
     private List<CouchModel> getAllRecordingLite() {
         try {
-            return service.getAllUsersCouchModelToRecording(PortalUtil.getScopeGroupId(request), false);
+            return service.getAllUsersCouchModelToRecording(CouchModelUtil.getOrganizationId(request), false);
         } catch (Exception e) {
             return Collections.emptyList();
         }

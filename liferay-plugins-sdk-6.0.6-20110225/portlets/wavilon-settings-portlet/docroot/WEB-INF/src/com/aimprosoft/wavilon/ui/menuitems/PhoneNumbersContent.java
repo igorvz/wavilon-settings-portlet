@@ -157,8 +157,7 @@ public class PhoneNumbersContent extends VerticalLayout {
         List<CouchModel> couchModelList = new LinkedList<CouchModel>();
 
         try {
-            couchModelList.addAll(service.getAllUsersCouchModelToPhoneNumber(PortalUtil.getScopeGroupId(request)));
-
+            couchModelList.addAll(service.getAllUsersCouchModelToPhoneNumber(CouchModelUtil.getOrganizationId(request)));
         } catch (Exception ignored) {
         }
 

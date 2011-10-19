@@ -5,27 +5,46 @@ import com.aimprosoft.wavilon.couch.CouchModelLite;
 import com.aimprosoft.wavilon.couch.CouchTypes;
 import com.aimprosoft.wavilon.service.CouchModelLiteDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
+import com.liferay.portal.model.User;
+import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portal.util.PortalUtil;
 
 import javax.portlet.PortletRequest;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class CouchModelUtil {
     private static CouchModelLiteDatabaseService modelLiteService = ObjectFactory.getBean(CouchModelLiteDatabaseService.class);
 
     public static CouchModel newCouchModel(PortletRequest request, CouchTypes couchTypes) {
         CouchModel newCouchModel = new CouchModel();
-
         try {
             newCouchModel.setId(UUID.randomUUID().toString());
             newCouchModel.setLiferayUserId(PortalUtil.getUserId(request));
-            newCouchModel.setLiferayOrganizationId(PortalUtil.getScopeGroupId(request));
+            newCouchModel.setLiferayOrganizationId(getOrganizationId(request));
             newCouchModel.setLiferayPortalId(PortalUtil.getCompany(request).getWebId());
         } catch (Exception ignored) {
         }
         newCouchModel.setType(couchTypes);
 
         return newCouchModel;
+    }
+
+    public static Long getOrganizationId(PortletRequest request) {
+        try {
+            Long userId = PortalUtil.getUserId(request);
+            Long companyId = PortalUtil.getDefaultCompanyId();
+            User currentUser = UserLocalServiceUtil.getUserById(companyId, userId);
+            long organizationIds[] = currentUser.getOrganizationIds();
+
+            if (organizationIds.length != 0) {
+                return organizationIds[0];
+            } else {
+                return -1l;
+            }
+        } catch (Exception ignored) {
+            return -1l;
+        }
     }
 
     public static CouchModelLite getCouchModelLite(String id, ResourceBundle bundle) {
@@ -69,7 +88,7 @@ public class CouchModelUtil {
         Map<String, String> extensionTypeMap = new LinkedHashMap<String, String>();
 
         extensionTypeMap.put("phone", bundle.getString("wavilon.form.extensions.type.phone.number"));
-        extensionTypeMap.put("gtalk",bundle.getString("wavilon.form.extensions.type.gtalk"));
+        extensionTypeMap.put("gtalk", bundle.getString("wavilon.form.extensions.type.gtalk"));
         extensionTypeMap.put("sip", bundle.getString("wavilon.form.extensions.type.sip"));
 
 

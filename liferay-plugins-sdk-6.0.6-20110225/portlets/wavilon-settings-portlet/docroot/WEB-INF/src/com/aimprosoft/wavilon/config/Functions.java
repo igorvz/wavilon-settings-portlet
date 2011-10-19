@@ -4,110 +4,52 @@ import org.springframework.beans.factory.annotation.Value;
 
 public class Functions {
 
-    @Value("${fetch.all.documents}")
-    private String allDocumentFunction;
+    @Value("${db.design.document.phonenumbers}")
+    private String designDocumentPhonenumbers;
 
-    @Value("${fetch.all.agents}")
-    private String allAgentFunction;
+    @Value("${db.design.document.nodes}")
+    private String designDocumentNodes;
 
-    @Value("${fetch.all.base.model.by.user.and.type}")
-    private String baseModelsByUserAndTypeFunction;
-
-    @Value("${fetch.all.queues}")
-    private String allQueueFunction;
-
-    @Value("${fetch.all.extensions}")
-    private String allExtensionFunction;
-
-    @Value("${fetch.all.recordings}")
-    private String allRecordingFunction;
-
-    @Value("${fetch.all.phone.numbers}")
-    private String allPhoneNumbers;
-
-    @Value("${fetch.all.extensions.gtalk}")
-    private String allExtensionGtalkFunction;
-
-    @Value("${fetch.all.extensions.phone.number}")
-    private String allExtensionPhoneNumberFunction;
-
-    @Value("${fetch.all.extensions.sipUrl}")
-    private String allExtensionSipURLFunction;
-
-    @Value("${fetch.all.virtual.numbers}")
-    private String allVirtualNumbers;
-
-    @Value("${fetch.all.couch.model.lite.name}")
-    private String couchModelLiteName;
+    @Value("${fetch.all.unique.entities}")
+    private String allUniqueEntitiess;
 
     @Value("${fetch.all.couch.model.lite}")
     private String allCouchModelLite;
 
+    @Value("${couch.model.lite.name}")
+    private String couchModelLiteName;
+
     @Value("${fetch.all.phones.virtual.number}")
-    private String allPhonesVirtualNumbers;
+    private String allPhonesVirtualNumber;
 
     @Value("${fetch.all.phones.phone.number}")
-    private String allPhonesPhoneNumbers;
+    private String allPhonesPhoneNumber;
 
-
-
-    public String getAllDocumentFunction() {
-        return allDocumentFunction;
+    public String getDesignDocumentPhonenumbers() {
+        return designDocumentPhonenumbers;
     }
 
-    public String getAllAgentFunction() {
-        return allAgentFunction;
+    public String getDesignDocumentNodes() {
+        return designDocumentNodes;
     }
 
-    public String getBaseModelsByUserAndTypeFunction() {
-        return baseModelsByUserAndTypeFunction;
-    }
-
-    public String getAllQueueFunction() {
-        return allQueueFunction;
-    }
-
-    public String getAllExtensionFunction() {
-        return allExtensionFunction;
-    }
-
-    public String getAllRecordingFunction() {
-        return allRecordingFunction;
-    }
-
-    public String getAllPhoneNumbersFunction() {
-        return allPhoneNumbers;
-    }
-
-    public String getAllExtensionGtalkFunction() {
-        return allExtensionGtalkFunction;
-    }
-
-    public String getAllExtensionPhoneNumberFunction() {
-        return allExtensionPhoneNumberFunction;
-    }
-
-    public String getAllExtensionSipURLFunction() {
-        return allExtensionSipURLFunction;
-    }
-
-    public String getAllVirtualNumbersFunction(){
-       return allVirtualNumbers;
-    }
-
-    public String getCouchModelLiteName() {
-        return couchModelLiteName;
+    public String getAllUniqueEntitiess() {
+        return allUniqueEntitiess;
     }
 
     public String getAllCouchModelLite() {
         return allCouchModelLite;
     }
 
-    public String getAllPhonesVirtualNumbers() {
-        return allPhonesVirtualNumbers;
+    public String getCouchModelLiteName() {
+        return couchModelLiteName;
     }
 
-    public String getAllPhonesPhoneNumbers() {
-        return allPhonesPhoneNumbers;
+    public String getAllPhonesVirtualNumber() {
+        return allPhonesVirtualNumber;
+    }
+
+    public String getAllPhonesPhoneNumber() {
+        return allPhonesPhoneNumber;
     }
 }

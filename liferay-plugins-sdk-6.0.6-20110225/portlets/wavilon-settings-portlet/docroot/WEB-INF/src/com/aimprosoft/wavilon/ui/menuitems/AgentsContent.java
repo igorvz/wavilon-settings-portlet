@@ -119,7 +119,7 @@ public class AgentsContent extends VerticalLayout {
 
     private List<CouchModel> getCouchModels() {
         try {
-            return service.getAllUsersCouchModelAgent(PortalUtil.getScopeGroupId(request));
+            return service.getAllUsersCouchModelAgent(CouchModelUtil.getOrganizationId(request));
         } catch (Exception e) {
             return Collections.emptyList();
         }
