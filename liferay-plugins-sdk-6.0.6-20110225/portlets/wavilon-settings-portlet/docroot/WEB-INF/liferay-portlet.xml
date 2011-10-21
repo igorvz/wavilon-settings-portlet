@@ -11,6 +11,16 @@
 		<footer-portlet-javascript>/js/main.js</footer-portlet-javascript>
 		<css-class-wrapper>wavilon-settings-portlet</css-class-wrapper>
 	</portlet>
+    <portlet>
+		<portlet-name>wavilon-activity</portlet-name>
+		<icon>/icon.png</icon>
+		<instanceable>true</instanceable>
+		<header-portlet-css>/css/activity.css</header-portlet-css>
+		<footer-portlet-javascript>https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js</footer-portlet-javascript>
+		<footer-portlet-javascript>/js/main.js</footer-portlet-javascript>
+		<css-class-wrapper>wavilon-activity-portlet</css-class-wrapper>
+	</portlet>
+
 	<role-mapper>
 		<role-name>administrator</role-name>
 		<role-link>Administrator</role-link>

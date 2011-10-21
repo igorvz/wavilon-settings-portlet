@@ -109,6 +109,32 @@
     color: #FFFFFF;
 }
 
+
+
+.leftcolumn .v-nativebutton-realTimeCallsFeedButton {
+    background-position: 17px 50%;
+}
+
+.leftcolumn .v-nativebutton-filterCallsByLabelsButtonSelect {
+    background-color: #6093e0;
+    background-position: 17px 50%;
+    color: #FFFFFF;
+}
+
+
+.leftcolumn .v-nativebutton-filterCallsByLabelsButton {
+    background-position: 17px 50%;
+}
+
+.leftcolumn .v-nativebutton-filterCallsByLabelsButtonSelect {
+    background-color: #6093e0;
+    background-position: 17px 50%;
+    color: #FFFFFF;
+}
+
+
+
+
 /*******************************************************************************************************************************/
 /*-----------------------------------------------------Right Column Design----------------------------------------------------*/
 /*****************************************************************************************************************************/

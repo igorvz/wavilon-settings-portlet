@@ -9,7 +9,6 @@ import com.aimprosoft.wavilon.service.AgentDatabaseService;
 import com.aimprosoft.wavilon.service.CouchModelLiteDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.util.CouchModelUtil;
-import com.liferay.portal.util.PortalUtil;
 import com.vaadin.Application;
 import com.vaadin.ui.*;
 
@@ -99,7 +98,7 @@ public class AgentsForm extends AbstractForm {
                     table.getContainerProperty(object, "id").setValue(model.getId());
                     table.getContainerProperty(object, "").setValue(new Button("", listener));
 
-                    getWindow().showNotification(bundle.getString("wavilon.well.done"));
+                    getParent().getWindow().showNotification(bundle.getString("wavilon.well.done"));
                     close();
                 } catch (Exception ignored) {
                 }

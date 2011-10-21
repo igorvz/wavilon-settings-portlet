@@ -9,7 +9,6 @@ import com.aimprosoft.wavilon.service.AllPhoneNumbersDatabaseService;
 import com.aimprosoft.wavilon.service.PhoneNumberDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.util.CouchModelUtil;
-import com.liferay.portal.util.PortalUtil;
 import com.vaadin.Application;
 import com.vaadin.ui.*;
 
@@ -117,7 +116,7 @@ public class PhoneNumbersForm extends AbstractForm {
                     removeButton.addStyleName("removeButton");
                     table.getContainerProperty(object, "").setValue(removeButton);
 
-                    getWindow().showNotification(bundle.getString("wavilon.well.done"));
+                    getParent().getWindow().showNotification(bundle.getString("wavilon.well.done"));
                     close();
                 } catch (Exception ignored) {
                 }

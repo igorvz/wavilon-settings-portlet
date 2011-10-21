@@ -2,7 +2,8 @@
 <!DOCTYPE display PUBLIC "-//Liferay//DTD Display 6.0.0//EN" "http://www.liferay.com/dtd/liferay-display_6_0_0.dtd">
 
 <display>
-	<category name="Wavilon">
-		<portlet id="wavilon-settings" />
-	</category>
+    <category name="Wavilon">
+        <portlet id="wavilon-settings"/>
+        <portlet id="wavilon-activity"/>
+    </category>
 </display>

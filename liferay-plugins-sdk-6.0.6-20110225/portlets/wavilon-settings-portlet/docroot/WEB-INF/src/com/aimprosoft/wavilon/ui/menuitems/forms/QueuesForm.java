@@ -8,7 +8,6 @@ import com.aimprosoft.wavilon.model.Queue;
 import com.aimprosoft.wavilon.service.QueueDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.util.CouchModelUtil;
-import com.liferay.portal.util.PortalUtil;
 import com.vaadin.Application;
 import com.vaadin.data.validator.IntegerValidator;
 import com.vaadin.terminal.Sizeable;
@@ -111,7 +110,7 @@ public class QueuesForm extends AbstractForm {
                     table.getContainerProperty(object, "id").setValue(model.getId());
                     table.getContainerProperty(object, "").setValue(new Button("", listener));
 
-                    getWindow().showNotification(bundle.getString("wavilon.well.done"));
+                    getParent().getWindow().showNotification(bundle.getString("wavilon.well.done"));
                     close();
                 } catch (Exception ignored) {
                 }

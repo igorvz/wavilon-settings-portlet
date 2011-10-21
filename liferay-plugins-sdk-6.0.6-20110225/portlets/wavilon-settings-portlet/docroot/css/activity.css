@@ -1,0 +1,94 @@
+.v-view {
+    overflow: hidden !important;
+}
+
+/*******************************************************************************************************************************/
+/*-----------------------------------------------------Left Column Design-----------------------------------------------------*/
+/*****************************************************************************************************************************/
+
+.v-view  .leftcolumn {
+    height: 100%;
+}
+
+/*stretch buttons*/
+.v-view .leftcolumn div {
+    float: none !important;
+}
+
+.v-splitpanel-first-container {
+    background: none repeat scroll 0 0 #EBEBEB;
+}
+
+.v-splitpanel-second-container {
+    background: none repeat scroll 0 0 #f5f5f5;
+}
+
+.leftcolumn .v-nativebutton {
+    background: none no-repeat scroll 12px 50% transparent;
+    border: medium none;
+    padding: 0 0 0 38px;
+    text-align: left;
+    text-shadow: none;
+    height: 34px;
+    vertical-align: middle;
+    width: 100%;
+    color: #5f5f5f;
+    font-size: 14px;
+    border-radius: 0 0 0 0;
+    -moz-border-radius: 0 0 0 0;
+    -webkit-border-radius: 0 0 0 0;
+    -khtml-border-radius: 0 0 0 0;
+    font-family: Verdana;
+    border-bottom: 1px solid #959595;
+}
+
+.leftcolumn .v-nativebutton .v-nativebutton-caption {
+    line-height: 25px;
+}
+
+.leftcolumn .v-nativebutton-button {
+    background-position: 17px 50%;
+}
+
+.leftcolumn .v-nativebutton-buttonSelect {
+    background-color: #6093e0;
+    background-position: 17px 50%;
+    color: #FFFFFF;
+}
+
+/*******************************************************************************************************************************/
+/*-----------------------------------------------------Right Column Design----------------------------------------------------*/
+/*****************************************************************************************************************************/
+
+.v-view .rightcolumn {
+    margin: 0 !important;
+    height: 100% !important;
+}
+
+
+.rightcolumn .head {
+    color: #959595;
+    font-family: Verdana;
+    font-size: 20px;
+    height: 43px;
+    line-height: 43px;
+    padding-left: 26px;
+    vertical-align: middle;
+}
+
+
+.rightcolumn .v-verticallayout-messages {
+    background-color: #838383;
+    padding-left: 30px;
+}
+
+
+.rightcolumn .v-verticallayout-messagesBody {
+    margin: 11px;
+}
+
+
+.rightcolumn .v-verticallayout-messagesBody .caption {
+    color: #cccccc;
+}
+

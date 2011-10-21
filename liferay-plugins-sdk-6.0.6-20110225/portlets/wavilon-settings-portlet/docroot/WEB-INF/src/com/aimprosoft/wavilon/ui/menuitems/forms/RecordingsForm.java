@@ -9,7 +9,6 @@ import com.aimprosoft.wavilon.model.Recording;
 import com.aimprosoft.wavilon.service.RecordingDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.util.CouchModelUtil;
-import com.liferay.portal.util.PortalUtil;
 import com.vaadin.Application;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.terminal.UserError;
@@ -27,7 +26,7 @@ public class RecordingsForm extends AbstractForm {
 
     private RecordingDatabaseService service = ObjectFactory.getBean(RecordingDatabaseService.class);
 
-    private static PortletRequest request;
+    private PortletRequest request;
     private Recording recording = null;
     private CouchModel model = null;
     private RecordingUploader recordingUploader = null;
@@ -132,7 +131,7 @@ public class RecordingsForm extends AbstractForm {
                             table.getContainerProperty(object, "id").setValue(model.getId());
                             table.getContainerProperty(object, "").setValue(delete);
                         }
-                        getWindow().showNotification(bundle.getString("wavilon.well.done"));
+                        getParent().getWindow().showNotification(bundle.getString("wavilon.well.done"));
                         close();
                     }
                 } catch (Exception ignored) {

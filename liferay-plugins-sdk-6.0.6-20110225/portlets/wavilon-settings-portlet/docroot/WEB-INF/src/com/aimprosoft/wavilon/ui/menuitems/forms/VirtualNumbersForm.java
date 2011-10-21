@@ -9,7 +9,6 @@ import com.aimprosoft.wavilon.service.AllPhoneNumbersDatabaseService;
 import com.aimprosoft.wavilon.service.VirtualNumberDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.util.CouchModelUtil;
-import com.liferay.portal.util.PortalUtil;
 import com.vaadin.Application;
 import com.vaadin.data.validator.RegexpValidator;
 import com.vaadin.ui.*;
@@ -110,8 +109,9 @@ public class VirtualNumbersForm extends AbstractForm {
                     table.getContainerProperty(object, bundle.getString("wavilon.table.virtualnumbers.column.forward.calls.to")).setValue(forwardCallTo);
                     table.getContainerProperty(object, "").setValue(new Button("", listener));
 
-                    getWindow().showNotification(bundle.getString("wavilon.well.done"));
+                    getParent().getWindow().showNotification(bundle.getString("wavilon.well.done"));
                     close();
+
                 } catch (Exception ignored) {
                 }
             }

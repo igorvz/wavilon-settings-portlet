@@ -60,6 +60,7 @@ public class ConfirmingRemove extends Window {
                 table.removeItem(table.getValue());
                 table.select(null);
 
+                getParent().getWindow().showNotification(bundle.getString("wavilon.well.done.romove"));
                 close();
             }
         });

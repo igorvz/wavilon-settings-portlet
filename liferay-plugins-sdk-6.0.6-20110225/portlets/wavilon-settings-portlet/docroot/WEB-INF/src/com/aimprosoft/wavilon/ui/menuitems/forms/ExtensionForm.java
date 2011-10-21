@@ -227,7 +227,7 @@ public class ExtensionForm extends AbstractForm {
                     table.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.destination")).setValue(extension.getDestination());
                     table.getContainerProperty(object, "").setValue(new Button("", listener));
 
-                    getWindow().showNotification(bundle.getString("wavilon.well.done"));
+                    getParent().getWindow().showNotification(bundle.getString("wavilon.well.done"));
                     close();
                 } catch (Exception ignored) {
                 }
