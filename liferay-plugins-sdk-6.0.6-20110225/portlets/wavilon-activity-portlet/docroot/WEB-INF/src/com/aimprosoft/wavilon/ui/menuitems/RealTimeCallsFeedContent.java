@@ -41,11 +41,11 @@ public class RealTimeCallsFeedContent extends VerticalLayout {
         addComponent(mainContent);
 
         //todo iteration adding cells from DB
-        for (int i = 0; i < 2; i++) {
+//        for (int i = 0; i < 2; i++) {
             DialogCell dialogCell = new DialogCell();
             mainContent.addComponent(dialogCell);
             dialogCell.init();
-        }
+//        }
     }
 
     private HorizontalLayout createListViewPart() {
@@ -93,48 +93,92 @@ public class RealTimeCallsFeedContent extends VerticalLayout {
 
             HorizontalLayout info = new HorizontalLayout();
             addComponent(info);
-            info.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-            fillInfoLayout(info);
+            info.addStyleName("infoLayout");
 
             VerticalLayout chat = new VerticalLayout();
-            chat.setStyleName("chat");
             addComponent(chat);
-            fillChat(chat);
+            chat.setStyleName("chat");
 
+            HorizontalLayout textArea = new HorizontalLayout();
+            addComponent(textArea);
 
-            HorizontalLayout testArea = createTextArea();
-            addComponent(testArea);
+            fillLayouts(info, chat, textArea);
         }
 
-        private void fillInfoLayout(HorizontalLayout info) {
+        private void fillLayouts(HorizontalLayout info, final VerticalLayout chat, final HorizontalLayout textArea) {
             Embedded image = createImageColumn();
             image.addStyleName("imgColumn");
 
-            VerticalLayout textInfo = createHead();
+            VerticalLayout textInfo = new VerticalLayout();
+
+            HorizontalLayout nameRow = new HorizontalLayout();
+            nameRow.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+
+            HorizontalLayout nameOngoing = createNameOngoing();
+
+            HorizontalLayout numberNodeAndNodesRow = new HorizontalLayout();
+            fillNumberNodeAndNodesRow(numberNodeAndNodesRow);
+
+            Button hideChatButton = new Button(" ^ ");
+            numberNodeAndNodesRow.addComponent(hideChatButton);
+
+            HorizontalLayout categoriesRow = createCategoriesRow();
+
+            nameRow.addComponent(nameOngoing);
+            nameRow.addComponent(numberNodeAndNodesRow);
+
+            nameRow.setComponentAlignment(nameOngoing, Alignment.TOP_LEFT);
+            nameRow.setComponentAlignment(numberNodeAndNodesRow, Alignment.TOP_LEFT);
+
+            Label time = new Label("Time");
+
+            textInfo.addComponent(nameRow);
+            textInfo.addComponent(categoriesRow);
+            textInfo.addComponent(time);
 
             info.addComponent(image);
             info.addComponent(textInfo);
 
             info.setExpandRatio(image, 1);
             info.setExpandRatio(textInfo, 9);
+
+            fillChatLayout(chat);
+            fillTextAreaLayout(textArea);
+
+            Button.ClickListener hideChatListener = new Button.ClickListener() {
+                public void buttonClick(Button.ClickEvent event) {
+                      if (chat.isVisible()) {
+                        chat.setVisible(false);
+                        textArea.setVisible(false);
+                    } else {
+                        chat.setVisible(true);
+                        textArea.setVisible(true);
+                    }
+
+                }
+            };
+            hideChatButton.addListener(hideChatListener);
+
         }
 
+        private void fillNumberNodeAndNodesRow(HorizontalLayout numberNodeAndNodesRow) {
+            Label numberNode = new Label("number");
+            Label nodes = new Label("Nodes");
 
-        private void fillChat(VerticalLayout chat) {
+            numberNodeAndNodesRow.addComponent(numberNode);
+            numberNodeAndNodesRow.addComponent(nodes);
+        }
 
+        private void fillChatLayout(VerticalLayout chat) {
             //todo iteration adding cells from DB
-            for (int i = 0; i < 3; i++) {
+            for (int i = 0; i < 2; i++) {
                 VerticalLayout body = createBody();
                 chat.addComponent(body);
                 body.addStyleName("messagesBody");
             }
-
         }
 
-        private HorizontalLayout createTextArea() {
-            HorizontalLayout textArea = new HorizontalLayout();
-            textArea.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-
+        private void fillTextAreaLayout(HorizontalLayout textArea) {
             TextArea area = new TextArea();
             area.setWidth(100, Sizeable.UNITS_PERCENTAGE);
             Button addNote = new Button("add note");
@@ -143,9 +187,8 @@ public class RealTimeCallsFeedContent extends VerticalLayout {
             textArea.addComponent(addNote);
 
             textArea.setComponentAlignment(addNote, Alignment.TOP_RIGHT);
-
-            return textArea;
         }
+
 
         private VerticalLayout createBody() {
             VerticalLayout bodyContent = new VerticalLayout();
@@ -179,32 +222,6 @@ public class RealTimeCallsFeedContent extends VerticalLayout {
             return image;
         }
 
-        private VerticalLayout createHead() {
-
-            VerticalLayout headContent = new VerticalLayout();
-
-            HorizontalLayout nameRow = new HorizontalLayout();
-            nameRow.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-
-            HorizontalLayout nameOngoing = createNameOngoing();
-            HorizontalLayout numberNodeAndNodesRow = createNumberNodeAndNodes();
-            HorizontalLayout categoriesRow = createCategoriesRow();
-
-            nameRow.addComponent(nameOngoing);
-            nameRow.addComponent(numberNodeAndNodesRow);
-
-            nameRow.setComponentAlignment(nameOngoing, Alignment.TOP_LEFT);
-            nameRow.setComponentAlignment(numberNodeAndNodesRow, Alignment.TOP_RIGHT);
-
-            Label time = new Label("Time");
-
-            headContent.addComponent(nameRow);
-            headContent.addComponent(categoriesRow);
-            headContent.addComponent(time);
-
-            return headContent;
-        }
-
         private HorizontalLayout createCategoriesRow() {
             HorizontalLayout categorySupportButton = new HorizontalLayout();
             Label category = new Label("Categories & Labels");
@@ -226,23 +243,11 @@ public class RealTimeCallsFeedContent extends VerticalLayout {
             return categorySupportButton;
         }
 
-        private HorizontalLayout createNumberNodeAndNodes() {
-            HorizontalLayout numberNodeAndNodes = new HorizontalLayout();
-            Label numberNode = new Label("number");
-            Label nodes = new Label("Nodes");
-            Button button = new Button(" ^ ");
-
-            numberNodeAndNodes.addComponent(numberNode);
-            numberNodeAndNodes.addComponent(nodes);
-            numberNodeAndNodes.addComponent(button);
-
-            return numberNodeAndNodes;
-        }
 
         private HorizontalLayout createNameOngoing() {
             HorizontalLayout nameOngoing = new HorizontalLayout();
             Label name = new Label("name");
-            Label ongoing = new Label("ongoing...");
+            Label ongoing = new Label("\t ongoing...");
 
             nameOngoing.addComponent(name);
             nameOngoing.addComponent(ongoing);

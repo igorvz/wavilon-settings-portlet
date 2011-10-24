@@ -3,6 +3,6 @@
 
 <display>
     <category name="Wavilon">
-        <portlet id="wavilon-settings"/>
+        <portlet id="wavilon-activity"/>
     </category>
 </display>

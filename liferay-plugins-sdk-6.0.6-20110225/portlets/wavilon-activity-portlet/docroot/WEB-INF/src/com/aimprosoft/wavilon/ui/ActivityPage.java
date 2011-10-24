@@ -1,5 +1,6 @@
 package com.aimprosoft.wavilon.ui;
 
+import com.aimprosoft.wavilon.ui.menuitems.FilterCallsByLabels;
 import com.aimprosoft.wavilon.ui.menuitems.RealTimeCallsFeedContent;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
@@ -79,11 +80,13 @@ public class ActivityPage extends VerticalLayout {
         filterCallsByLabels.addStyleName("button");
         filterCallsByLabels.addListener(new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
-                Button button = event.getButton();
+               Button button = event.getButton();
 
                 assignActiveButton(button);
                 detailsContent.removeAllComponents();
-
+                FilterCallsByLabels filterCallsByLabels = new FilterCallsByLabels(bundle);
+                detailsContent.addComponent(filterCallsByLabels);
+                filterCallsByLabels.init();
             }
         });
 

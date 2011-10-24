@@ -6,14 +6,15 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd"
         >
-    <portlet id="wavilon-settings">
-        <portlet-name>wavilon-settings</portlet-name>
-        <display-name>Wavilon Settings</display-name>
+
+    <portlet id="wavilon-activity">
+        <portlet-name>wavilon-activity</portlet-name>
+        <display-name>Wavilon Activity</display-name>
         <portlet-class>com.vaadin.terminal.gwt.server.ApplicationPortlet2</portlet-class>
 
         <init-param>
             <name>application</name>
-            <value>com.aimprosoft.wavilon.application.SettingsApplication</value>
+            <value>com.aimprosoft.wavilon.application.ActivityApplication</value>
         </init-param>
 
         <expiration-cache>0</expiration-cache>
@@ -23,9 +24,9 @@
         </supports>
 
         <portlet-info>
-            <title>Wavilon Settings</title>
-            <short-title>Wavilon Settings</short-title>
-            <keywords>wavilon,settings,portlet</keywords>
+            <title>Wavilon Activity</title>
+            <short-title>Wavilon Activity</short-title>
+            <keywords>wavilon,activity,portlet</keywords>
         </portlet-info>
 
         <security-role-ref>
@@ -44,5 +45,4 @@
             <role-name>user</role-name>
         </security-role-ref>
     </portlet>
-
 </portlet-app>

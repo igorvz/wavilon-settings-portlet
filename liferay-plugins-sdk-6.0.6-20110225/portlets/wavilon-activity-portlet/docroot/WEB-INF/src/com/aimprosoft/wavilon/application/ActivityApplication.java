@@ -2,7 +2,6 @@ package com.aimprosoft.wavilon.application;
 
 import com.aimprosoft.wavilon.ui.ActivityPage;
 import com.aimprosoft.wavilon.ui.PleaseSignInPage;
-import com.aimprosoft.wavilon.ui.SettingsPage;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.vaadin.ui.Window;
