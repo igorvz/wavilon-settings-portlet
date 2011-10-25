@@ -73,6 +73,16 @@
     line-height: 43px;
     padding-left: 26px;
     vertical-align: middle;
+    padding-bottom: 15px;
+    padding-top: 15px;
+    border-bottom: 1px solid #959595;
+}
+
+.rightcolumn  .v-verticallayout-item,
+.rightcolumn  .v-horizontallayout-item {
+    padding-bottom: 15px;
+    padding-top: 15px;
+    border-bottom: 1px solid #959595;
 }
 
 .rightcolumn .v-verticallayout-chat {
@@ -80,14 +90,14 @@
     padding-left: 30px;
 }
 
-.rightcolumn .v-verticallayout-chatBody {
-    margin: 11px;
+.rightcolumn .v-verticallayout-note {
+    margin-top: 20px;
 }
 
-.rightcolumn .v-verticallayout-chatBody .caption {
-    color: #cccccc;
-}
-
-.rightcolumn .v-horizontallayout-infoLayout {
+.fullWidth {
     width: 100%;
+}
+
+.itemTimerTop{
+    display: none;
 }

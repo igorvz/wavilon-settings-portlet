@@ -11,6 +11,18 @@
 
     <context:property-placeholder location="classpath:/spring/*.properties"/>
 
+     <context:annotation-config />
 
+    <bean name="objectMapper" class="org.codehaus.jackson.map.ObjectMapper"/>
+
+    <bean name="serializeService" class="com.aimprosoft.wavilon.service.impl.JacksonSerializeService">
+        <property name="objectWriter">
+            <bean factory-bean="objectMapper" factory-method="writer"/>
+        </property>
+    </bean>
+
+    <bean name="functions" class="com.aimprosoft.wavilon.config.Functions"/>
+
+    <bean name="urlEncoder" class="org.apache.catalina.util.URLEncoder"/>
 
 </beans>

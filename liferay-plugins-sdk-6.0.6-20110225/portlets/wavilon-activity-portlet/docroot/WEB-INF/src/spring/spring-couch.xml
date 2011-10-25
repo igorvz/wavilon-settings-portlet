@@ -18,8 +18,10 @@
         <constructor-arg value="${db.name.nodes}"/>
     </bean>
 
-    <bean name="databasePhoneNumbers" factory-bean="databaseSession" factory-method="getDatabase">
-        <constructor-arg value="${db.name.phonenumbers}"/>
+    <bean id="avatarService" class="com.aimprosoft.wavilon.service.impl.AvatarServiceImpl">
+        <property name="database" ref="databaseNode"/>
     </bean>
 
+
+    <context:component-scan base-package="com.aimprosoft.wavilon.service.impl"/>
 </beans>

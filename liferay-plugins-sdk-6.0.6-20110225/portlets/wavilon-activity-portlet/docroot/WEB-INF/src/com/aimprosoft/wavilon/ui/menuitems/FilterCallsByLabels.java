@@ -4,14 +4,18 @@ import com.aimprosoft.wavilon.application.GenericPortletApplication;
 import com.vaadin.terminal.FileResource;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
+import com.vaadin.ui.themes.Reindeer;
 
 import javax.portlet.PortletRequest;
 import java.io.File;
+import java.util.Iterator;
 import java.util.ResourceBundle;
 
-public class FilterCallsByLabels extends VerticalLayout {
+public class FilterCallsByLabels extends Panel {
     private ResourceBundle bundle;
     private PortletRequest request;
+    private VerticalLayout mainLayout;
+    private VerticalLayout itemContent;
 
     public FilterCallsByLabels(ResourceBundle bundle) {
         this.bundle = bundle;
@@ -19,33 +23,45 @@ public class FilterCallsByLabels extends VerticalLayout {
 
     public void init() {
         request = ((GenericPortletApplication) getApplication()).getPortletRequest();
-        setWidth(100, Sizeable.UNITS_PERCENTAGE);
+
+        setSizeFull();
+        setStyleName(Reindeer.PANEL_LIGHT);
+        setScrollable(true);
 
         initLayout();
     }
 
     private void initLayout() {
+        mainLayout = new VerticalLayout();
+        setContent(mainLayout);
+
         Label headLabel = new Label(bundle.getString("wavilon.activity.menuitem.real.time.calls.feed"));
-        addComponent(headLabel);
+        mainLayout.addComponent(headLabel);
         headLabel.setStyleName("head");
 
-        HorizontalLayout listViewPart = createListViewPart();
-        addComponent(listViewPart);
-        setComponentAlignment(listViewPart, Alignment.TOP_RIGHT);
+        VerticalLayout listViewLayout = new VerticalLayout();
+        listViewLayout.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+        mainLayout.addComponent(listViewLayout);
+        listViewLayout.setStyleName("item");
+
+
+        HorizontalLayout listViewButtons = createListViewPart();
+        listViewLayout.addComponent(listViewButtons);
+        listViewLayout.setComponentAlignment(listViewButtons, Alignment.TOP_RIGHT);
 
         createMainContent();
     }
 
     private void createMainContent() {
-        VerticalLayout mainContent = new VerticalLayout();
-        addComponent(mainContent);
+        itemContent = new VerticalLayout();
+        mainLayout.addComponent(itemContent);
 
         //todo iteration adding cells from DB
-//        for (int i = 0; i < 2; i++) {
-        DialogCell dialogCell = new DialogCell();
-        mainContent.addComponent(dialogCell);
-        dialogCell.init();
-//        }
+        for (int i = 0; i < 2; i++) {
+            DialogCell dialogCell = new DialogCell();
+            itemContent.addComponent(dialogCell);
+            dialogCell.init();
+        }
     }
 
     private HorizontalLayout createListViewPart() {
@@ -53,19 +69,50 @@ public class FilterCallsByLabels extends VerticalLayout {
 
         Label listViewLabel = new Label(bundle.getString("wavilon.activity.label.list.view"));
 
-        Button fullView = new Button("img block", new Button.ClickListener() {
+        Button fullView = new Button("Avatar", new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
 
                 getWindow().executeJavaScript("showImgBox()");
+
+                Iterator<Component> componentIterator = itemContent.getComponentIterator();
+                while (componentIterator.hasNext()) {
+                    DialogCell dialogCell = (DialogCell) componentIterator.next();
+                    dialogCell.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+                    Iterator<Component> dialogCellComponentIterator = dialogCell.getComponentIterator();
+                    while (dialogCellComponentIterator.hasNext()) {
+                        Component component = dialogCellComponentIterator.next();
+
+                        if (component instanceof GridLayout) {
+                            component.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+                        }
+
+                    }
+
+                }
 
             }
         });
 
 
-        Button shortView = new Button("img none", new Button.ClickListener() {
+        Button shortView = new Button("None", new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
 
                 getWindow().executeJavaScript("hideImgBox()");
+
+                Iterator<Component> componentIterator = itemContent.getComponentIterator();
+                while (componentIterator.hasNext()) {
+                    DialogCell dialogCell = (DialogCell) componentIterator.next();
+                    dialogCell.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+                    Iterator<Component> dialogCellComponentIterator = dialogCell.getComponentIterator();
+                    while (dialogCellComponentIterator.hasNext()) {
+                        Component component = dialogCellComponentIterator.next();
+                        if (component instanceof GridLayout) {
+                            component.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+                        }
+                    }
+
+                }
+
 
             }
         });
@@ -78,12 +125,11 @@ public class FilterCallsByLabels extends VerticalLayout {
         return listViewPart;
     }
 
-    private static class DialogCell extends GridLayout {
-
+    private class DialogCell extends HorizontalLayout {
+        private Embedded avatar;
+        private GridLayout mainContent;
 
         public DialogCell() {
-            setColumns(10);
-            setRows(3);
         }
 
         public void init() {
@@ -91,52 +137,76 @@ public class FilterCallsByLabels extends VerticalLayout {
         }
 
         private void initLayout() {
+            setStyleName("item");
             setWidth(100, Sizeable.UNITS_PERCENTAGE);
 
-            Embedded image = createImageColumn();
-            image.addStyleName("imgColumn");
+            createAvatar();
+            addComponent(avatar);
 
-            VerticalLayout textInfo = new VerticalLayout();
+            mainContent = new GridLayout(9, 7);
+            addComponent(mainContent);
+            mainContent.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+            mainContent.setStyleName("mainItemContent");
+            createInfoPanel();
 
-            HorizontalLayout nameRow = new HorizontalLayout();
-            nameRow.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+            setExpandRatio(avatar, 1);
+            setExpandRatio(mainContent, 40);
 
-            HorizontalLayout nameOngoing = createNameOngoing();
+        }
 
-            HorizontalLayout numberNodeAndNodesRow = new HorizontalLayout();
-            fillNumberNodeAndNodesRow(numberNodeAndNodesRow);
+        private void createInfoPanel() {
+            //first row
+            Label name = new Label("Kathleen  Byrne ");
+            mainContent.addComponent(name, 0, 0, 1, 0);
 
-            Button hideChatButton = new Button(" ^ ");
-            numberNodeAndNodesRow.addComponent(hideChatButton);
+            Label ongoing = new Label("_ ongoing...");
+            mainContent.addComponent(ongoing, 2, 0, 3, 0);
 
-            HorizontalLayout categoriesRow = createCategoriesRow();
-
-            nameRow.addComponent(nameOngoing);
-            nameRow.addComponent(numberNodeAndNodesRow);
-
-            nameRow.setComponentAlignment(nameOngoing, Alignment.TOP_LEFT);
-            nameRow.setComponentAlignment(numberNodeAndNodesRow, Alignment.TOP_LEFT);
-
-            Label time = new Label("Time");
-
-            textInfo.addComponent(nameRow);
-            textInfo.addComponent(categoriesRow);
-            textInfo.addComponent(time);
+            Label timerTop;
+            timerTop = new Label("9:24");
+            mainContent.addComponent(timerTop, 4, 0);
+            timerTop.addStyleName("itemTimerTop");
 
 
-            addComponent(image, 0, 0);
-            addComponent(textInfo, 1, 0, 9, 0);
+            Label count = new Label("2");
+            mainContent.addComponent(count, 7, 0);
+
+            final Button hideChatButton = new Button();
+            mainContent.addComponent(hideChatButton, 8, 0);
+            mainContent.setComponentAlignment(hideChatButton, Alignment.TOP_RIGHT);
 
 
+            //second row
+            Label categoriesAndLabels = new Label("Categories & Labels");
+            mainContent.addComponent(categoriesAndLabels, 0, 1, 2, 1);
+
+            Label category = new Label("Support");
+            mainContent.addComponent(category, 3, 1, 4, 1);
+
+            Button addCategoryButton = new Button("+");
+            mainContent.addComponent(addCategoryButton, 5, 1);
+
+            //third row
+            Label timerBottom;
+            timerBottom = new Label("9:24");
+            mainContent.addComponent(timerBottom, 0, 2);
+            timerBottom.addStyleName("itemTimerBottom");
+
+
+            //
             final VerticalLayout chat = new VerticalLayout();
-            addComponent(chat, 1, 1, 9, 1);
             chat.setStyleName("chat");
+            mainContent.addComponent(chat, 0, 3, 8, 3);
+            fillChatLayout(chat);
 
-            final HorizontalLayout textArea = new HorizontalLayout();
-            addComponent(textArea, 1, 2, 9, 2);
+            final TextArea textArea = new TextArea();
+            mainContent.addComponent(textArea, 0, 4, 7, 6);
+            textArea.setWidth(100, Sizeable.UNITS_PERCENTAGE);
 
 
-
+            final Button addNoteButton = new Button("Add Note");
+            mainContent.addComponent(addNoteButton, 8, 6);
+            mainContent.setComponentAlignment(addNoteButton, Alignment.BOTTOM_RIGHT);
 
 
             Button.ClickListener hideChatListener = new Button.ClickListener() {
@@ -144,61 +214,53 @@ public class FilterCallsByLabels extends VerticalLayout {
                     if (chat.isVisible()) {
                         chat.setVisible(false);
                         textArea.setVisible(false);
+                        addNoteButton.setVisible(false);
+                        event.getButton().setCaption("Notes v ");
                     } else {
                         chat.setVisible(true);
                         textArea.setVisible(true);
+                        addNoteButton.setVisible(true);
+                        event.getButton().setCaption("Notes ^ ");
                     }
 
                 }
             };
             hideChatButton.addListener(hideChatListener);
 
-            fillLayouts(chat, textArea);
-        }
 
-        private void fillLayouts(final VerticalLayout chat, final HorizontalLayout textArea) {
-
-
-            fillChatLayout(chat);
-            fillTextAreaLayout(textArea);
-
+            chat.setVisible(false);
+            textArea.setVisible(false);
+            addNoteButton.setVisible(false);
+            hideChatButton.setCaption("Notes v ");
 
         }
 
-        private void fillNumberNodeAndNodesRow(HorizontalLayout numberNodeAndNodesRow) {
-            Label numberNode = new Label("number");
-            Label nodes = new Label("Nodes");
+        private void createAvatar() {
 
-            numberNodeAndNodesRow.addComponent(numberNode);
-            numberNodeAndNodesRow.addComponent(nodes);
+
+            File file = new File("deactivated_clo.png");
+            avatar = new Embedded(null, new FileResource(file, getApplication()));
+            avatar.setHeight("100px");
+            avatar.setWidth("100px");
+            avatar.addStyleName("imgColumn");
         }
 
         private void fillChatLayout(VerticalLayout chat) {
             //todo iteration adding cells from DB
             for (int i = 0; i < 2; i++) {
-                VerticalLayout body = createBody();
-                chat.addComponent(body);
-                body.addStyleName("messagesBody");
+                VerticalLayout note = createNote();
+                chat.addComponent(note);
+                note.addStyleName("note");
             }
         }
 
-        private void fillTextAreaLayout(HorizontalLayout textArea) {
-            TextArea area = new TextArea();
-            area.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-            Button addNote = new Button("add note");
 
-            textArea.addComponent(area);
-            textArea.addComponent(addNote);
+        private VerticalLayout createNote() {
 
-            textArea.setComponentAlignment(addNote, Alignment.TOP_RIGHT);
-        }
-
-
-        private VerticalLayout createBody() {
-            VerticalLayout bodyContent = new VerticalLayout();
+            VerticalLayout noteContent = new VerticalLayout();
             HorizontalLayout node = new HorizontalLayout();
 
-            Label nodeFromAgent = new Label("node from agent");
+            Label nodeFromAgent = new Label("note from agent");
             nodeFromAgent.addStyleName("caption");
 
             Button nodeBookButton = new Button();
@@ -210,55 +272,11 @@ public class FilterCallsByLabels extends VerticalLayout {
 
             Label message = new Label("Message form agent");
 
-            bodyContent.addComponent(node);
-            bodyContent.addComponent(message);
+            noteContent.addComponent(node);
+            noteContent.addComponent(message);
 
-            return bodyContent;
+            return noteContent;
         }
-
-        private Embedded createImageColumn() {
-            File file = new File("deactivated_clo.png");
-
-            Embedded image = new Embedded(null, new FileResource(file, getApplication()));
-            image.setHeight("150px");
-            image.setWidth("150px");
-
-            return image;
-        }
-
-        private HorizontalLayout createCategoriesRow() {
-            HorizontalLayout categorySupportButton = new HorizontalLayout();
-            Label category = new Label("Categories & Labels");
-
-            Button support = new Button();
-            support.setStyleName("link");
-            support.setCaption("Support");
-
-            Button problematic = new Button();
-            problematic.setStyleName("link");
-            problematic.setCaption("Problematic customer");
-
-            Button addButton = new Button("+");
-
-            categorySupportButton.addComponent(category);
-            categorySupportButton.addComponent(problematic);
-            categorySupportButton.addComponent(addButton);
-
-            return categorySupportButton;
-        }
-
-
-        private HorizontalLayout createNameOngoing() {
-            HorizontalLayout nameOngoing = new HorizontalLayout();
-            Label name = new Label("name");
-            Label ongoing = new Label("\t ongoing...");
-
-            nameOngoing.addComponent(name);
-            nameOngoing.addComponent(ongoing);
-
-            return nameOngoing;
-        }
-
 
     }
 

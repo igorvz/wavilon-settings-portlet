@@ -1,24 +1,30 @@
 function showImgBox() {
     jQuery('.imgColumn').show();
+    jQuery('.itemTimerTop').hide();
+    jQuery('.itemTimerBottom').show();
     jQuery('.imgColumn').parent().parent().show();
-    jQuery('.infoLayout').parent().parent().height(150);
+//    jQuery('.mainItemContent').addClass("fullWidth");
+
     return false;
 }
 
 function hideImgBox() {
     jQuery('.imgColumn').hide();
+    jQuery('.itemTimerTop').show();
+    jQuery('.itemTimerBottom').hide();
     jQuery('.imgColumn').parent().parent().hide();
-    jQuery('.infoLayout').parent().parent().height(80);
+//    jQuery('.mainItemContent').addClass("fullWidth");
+
     return false;
 }
 
-function showChatBox(){
+function showChatBox() {
     jQuery('.chatBox').show();
 //    jQuery('.imgColumn').parent().parent().show();
     return false;
 }
 
-function hideChatBox(){
+function hideChatBox() {
     jQuery('.chatBox').hide();
 //    jQuery('.imgColumn').parent().parent().hide();
     return false;
