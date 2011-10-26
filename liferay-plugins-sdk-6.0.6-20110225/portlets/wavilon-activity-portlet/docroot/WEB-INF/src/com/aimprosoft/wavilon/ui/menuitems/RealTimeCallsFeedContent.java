@@ -1,18 +1,23 @@
 package com.aimprosoft.wavilon.ui.menuitems;
 
 import com.aimprosoft.wavilon.application.GenericPortletApplication;
-import com.vaadin.terminal.FileResource;
-import com.vaadin.terminal.Sizeable;
+import com.aimprosoft.wavilon.model.Attachment;
+import com.aimprosoft.wavilon.service.AvatarService;
+import com.aimprosoft.wavilon.spring.ObjectFactory;
+import com.vaadin.terminal.*;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.Reindeer;
+import org.vaadin.imagefilter.Image;
 
 import javax.portlet.PortletRequest;
-import java.io.File;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 public class RealTimeCallsFeedContent extends Panel {
-   private ResourceBundle bundle;
+    private AvatarService avatarService = ObjectFactory.getBean(AvatarService.class);
+    private Map<String, Attachment> avatarsMap;
+    private ResourceBundle bundle;
     private PortletRequest request;
     private VerticalLayout mainLayout;
     private VerticalLayout itemContent;
@@ -23,6 +28,7 @@ public class RealTimeCallsFeedContent extends Panel {
 
     public void init() {
         request = ((GenericPortletApplication) getApplication()).getPortletRequest();
+        avatarsMap = avatarService.getAvatars();
 
         setSizeFull();
         setStyleName(Reindeer.PANEL_LIGHT);
@@ -81,15 +87,11 @@ public class RealTimeCallsFeedContent extends Panel {
                     Iterator<Component> dialogCellComponentIterator = dialogCell.getComponentIterator();
                     while (dialogCellComponentIterator.hasNext()) {
                         Component component = dialogCellComponentIterator.next();
-
                         if (component instanceof GridLayout) {
                             component.setWidth(100, Sizeable.UNITS_PERCENTAGE);
                         }
-
                     }
-
                 }
-
             }
         });
 
@@ -110,10 +112,7 @@ public class RealTimeCallsFeedContent extends Panel {
                             component.setWidth(100, Sizeable.UNITS_PERCENTAGE);
                         }
                     }
-
                 }
-
-
             }
         });
 
@@ -208,38 +207,31 @@ public class RealTimeCallsFeedContent extends Panel {
             mainContent.addComponent(addNoteButton, 8, 6);
             mainContent.setComponentAlignment(addNoteButton, Alignment.BOTTOM_RIGHT);
 
-
             Button.ClickListener hideChatListener = new Button.ClickListener() {
                 public void buttonClick(Button.ClickEvent event) {
-                    if (chat.isVisible()) {
-                        chat.setVisible(false);
-                        textArea.setVisible(false);
-                        addNoteButton.setVisible(false);
-                        event.getButton().setCaption("Notes v ");
-                    } else {
-                        chat.setVisible(true);
-                        textArea.setVisible(true);
-                        addNoteButton.setVisible(true);
-                        event.getButton().setCaption("Notes ^ ");
-                    }
-
+                    Button button = event.getButton();
+                    hideChat(chat.isVisible(), button, chat, textArea, addNoteButton);
                 }
             };
             hideChatButton.addListener(hideChatListener);
 
+            hideChat(chat.isVisible(), hideChatButton, chat, textArea, addNoteButton);
+        }
 
-            chat.setVisible(false);
-            textArea.setVisible(false);
-            addNoteButton.setVisible(false);
-            hideChatButton.setCaption("Notes v ");
+        private void hideChat(boolean flag, Button button, VerticalLayout chat, TextArea textArea, Button addNoteButton) {
+            chat.setVisible(!flag);
+            textArea.setVisible(!flag);
+            addNoteButton.setVisible(!flag);
 
+            if (flag) {
+                button.setCaption("Notes v ");
+            } else {
+                button.setCaption("Notes ^ ");
+            }
         }
 
         private void createAvatar() {
-
-
-            File file = new File("deactivated_clo.png");
-            avatar = new Embedded(null, new FileResource(file, getApplication()));
+            avatar = new Image(avatarsMap.get("crying.png").getData(), true);
             avatar.setHeight("100px");
             avatar.setWidth("100px");
             avatar.addStyleName("imgColumn");

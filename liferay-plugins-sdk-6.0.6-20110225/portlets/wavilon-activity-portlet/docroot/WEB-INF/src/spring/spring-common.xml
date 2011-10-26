@@ -11,7 +11,7 @@
 
     <context:property-placeholder location="classpath:/spring/*.properties"/>
 
-     <context:annotation-config />
+    <context:annotation-config/>
 
     <bean name="objectMapper" class="org.codehaus.jackson.map.ObjectMapper"/>
 
@@ -24,5 +24,10 @@
     <bean name="functions" class="com.aimprosoft.wavilon.config.Functions"/>
 
     <bean name="urlEncoder" class="org.apache.catalina.util.URLEncoder"/>
+
+    <bean name="objectReader" class="org.codehaus.jackson.map.ObjectReader" factory-bean="objectMapper" factory-method="reader">
+        <constructor-arg index="0" value="com.aimprosoft.wavilon.model.Avatars"/>
+    </bean>
+
 
 </beans>

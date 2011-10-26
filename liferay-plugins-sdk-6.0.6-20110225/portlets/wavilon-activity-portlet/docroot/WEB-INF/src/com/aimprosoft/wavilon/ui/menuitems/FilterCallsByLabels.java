@@ -1,17 +1,24 @@
 package com.aimprosoft.wavilon.ui.menuitems;
 
 import com.aimprosoft.wavilon.application.GenericPortletApplication;
+import com.aimprosoft.wavilon.model.Attachment;
+import com.aimprosoft.wavilon.service.AvatarService;
+import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.vaadin.terminal.FileResource;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.Reindeer;
+import org.vaadin.imagefilter.Image;
 
 import javax.portlet.PortletRequest;
 import java.io.File;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 public class FilterCallsByLabels extends Panel {
+    private Map<String, Attachment> avatarsMap;
+    private AvatarService avatarService = ObjectFactory.getBean(AvatarService.class);
     private ResourceBundle bundle;
     private PortletRequest request;
     private VerticalLayout mainLayout;
@@ -23,6 +30,7 @@ public class FilterCallsByLabels extends Panel {
 
     public void init() {
         request = ((GenericPortletApplication) getApplication()).getPortletRequest();
+        avatarsMap = avatarService.getAvatars();
 
         setSizeFull();
         setStyleName(Reindeer.PANEL_LIGHT);
@@ -211,35 +219,31 @@ public class FilterCallsByLabels extends Panel {
 
             Button.ClickListener hideChatListener = new Button.ClickListener() {
                 public void buttonClick(Button.ClickEvent event) {
-                    if (chat.isVisible()) {
-                        chat.setVisible(false);
-                        textArea.setVisible(false);
-                        addNoteButton.setVisible(false);
-                        event.getButton().setCaption("Notes v ");
-                    } else {
-                        chat.setVisible(true);
-                        textArea.setVisible(true);
-                        addNoteButton.setVisible(true);
-                        event.getButton().setCaption("Notes ^ ");
-                    }
-
+                    Button button = event.getButton();
+                    hideChat(chat.isVisible(), button, chat, textArea, addNoteButton);
                 }
             };
             hideChatButton.addListener(hideChatListener);
 
+            hideChat(chat.isVisible(), hideChatButton, chat, textArea, addNoteButton);
+        }
 
-            chat.setVisible(false);
-            textArea.setVisible(false);
-            addNoteButton.setVisible(false);
-            hideChatButton.setCaption("Notes v ");
+         private void hideChat(boolean flag, Button button, VerticalLayout chat, TextArea textArea, Button addNoteButton) {
+            chat.setVisible(!flag);
+            textArea.setVisible(!flag);
+            addNoteButton.setVisible(!flag);
 
+            if (flag) {
+                button.setCaption("Notes v ");
+            } else {
+                button.setCaption("Notes ^ ");
+            }
         }
 
         private void createAvatar() {
-
-
-            File file = new File("deactivated_clo.png");
-            avatar = new Embedded(null, new FileResource(file, getApplication()));
+            avatar = new Image(avatarsMap.get("bear.png").getData(), true);
+//            File file = new File("bear.png");
+//            avatar = new Embedded(null, new FileResource(file, getApplication()));
             avatar.setHeight("100px");
             avatar.setWidth("100px");
             avatar.addStyleName("imgColumn");
