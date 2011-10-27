@@ -4,10 +4,9 @@ import com.aimprosoft.wavilon.application.GenericPortletApplication;
 import com.aimprosoft.wavilon.model.Attachment;
 import com.aimprosoft.wavilon.service.AvatarService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
-import com.vaadin.terminal.*;
+import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.Reindeer;
-import org.vaadin.imagefilter.Image;
 
 import javax.portlet.PortletRequest;
 import java.util.Iterator;
@@ -48,7 +47,7 @@ public class RealTimeCallsFeedContent extends Panel {
         VerticalLayout listViewLayout = new VerticalLayout();
         listViewLayout.setWidth(100, Sizeable.UNITS_PERCENTAGE);
         mainLayout.addComponent(listViewLayout);
-        listViewLayout.setStyleName("item");
+        listViewLayout.setStyleName("listViewLayout");
 
 
         HorizontalLayout listViewButtons = createListViewPart();
@@ -63,19 +62,25 @@ public class RealTimeCallsFeedContent extends Panel {
         mainLayout.addComponent(itemContent);
 
         //todo iteration adding cells from DB
-        for (int i = 0; i < 6; i++) {
-            DialogCell dialogCell = new DialogCell();
+        for (int i = 0; i < 2; i++) {
+            DialogCell dialogCell = new DialogCell(bundle);
             itemContent.addComponent(dialogCell);
-            dialogCell.init();
+            dialogCell.init(avatarsMap);
         }
     }
 
     private HorizontalLayout createListViewPart() {
         HorizontalLayout listViewPart = new HorizontalLayout();
-
         Label listViewLabel = new Label(bundle.getString("wavilon.activity.label.list.view"));
 
-        Button fullView = new Button("Avatar", new Button.ClickListener() {
+
+        final Button avatarButton = new NativeButton();
+        final Button nonAvatarButton = new NativeButton();
+        avatarButton.setStyleName("avatarButtonSelect");
+        nonAvatarButton.setStyleName("nonAvatarButtonNonSelect");
+
+
+        Button.ClickListener avatarButtonListener = new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
 
                 getWindow().executeJavaScript("showImgBox()");
@@ -92,11 +97,16 @@ public class RealTimeCallsFeedContent extends Panel {
                         }
                     }
                 }
+
+                nonAvatarButton.removeStyleName("nonAvatarButtonSelect");
+                avatarButton.removeStyleName("avatarButtonNonSelect");
+                nonAvatarButton.setStyleName("nonAvatarButtonNonSelect");
+                avatarButton.setStyleName("avatarButtonSelect");
+
             }
-        });
+        };
 
-
-        Button shortView = new Button("None", new Button.ClickListener() {
+        Button.ClickListener nonAvatarButtonListener = new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
 
                 getWindow().executeJavaScript("hideImgBox()");
@@ -113,163 +123,24 @@ public class RealTimeCallsFeedContent extends Panel {
                         }
                     }
                 }
+
+                nonAvatarButton.removeStyleName("nonAvatarButtonNonSelect");
+                avatarButton.removeStyleName("avatarButtonSelect");
+                nonAvatarButton.setStyleName("nonAvatarButtonSelect");
+                avatarButton.setStyleName("avatarButtonNonSelect");
             }
-        });
+        };
+
+
+        avatarButton.addListener(avatarButtonListener);
+        nonAvatarButton.addListener(nonAvatarButtonListener);
 
 
         listViewPart.addComponent(listViewLabel);
-        listViewPart.addComponent(fullView);
-        listViewPart.addComponent(shortView);
+        listViewPart.addComponent(avatarButton);
+        listViewPart.addComponent(nonAvatarButton);
 
         return listViewPart;
-    }
-
-    private class DialogCell extends HorizontalLayout {
-        private Embedded avatar;
-        private GridLayout mainContent;
-
-        public DialogCell() {
-        }
-
-        public void init() {
-            initLayout();
-        }
-
-        private void initLayout() {
-            setStyleName("item");
-            setWidth(100, Sizeable.UNITS_PERCENTAGE);
-
-            createAvatar();
-            addComponent(avatar);
-
-            mainContent = new GridLayout(9, 7);
-            addComponent(mainContent);
-            mainContent.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-            mainContent.setStyleName("mainItemContent");
-            createInfoPanel();
-
-            setExpandRatio(avatar, 1);
-            setExpandRatio(mainContent, 40);
-
-        }
-
-        private void createInfoPanel() {
-            //first row
-            Label name = new Label("Kathleen  Byrne ");
-            mainContent.addComponent(name, 0, 0, 1, 0);
-
-            Label ongoing = new Label("_ ongoing...");
-            mainContent.addComponent(ongoing, 2, 0, 3, 0);
-
-            Label timerTop;
-            timerTop = new Label("9:24");
-            mainContent.addComponent(timerTop, 4, 0);
-            timerTop.addStyleName("itemTimerTop");
-
-
-            Label count = new Label("2");
-            mainContent.addComponent(count, 7, 0);
-
-            final Button hideChatButton = new Button();
-            mainContent.addComponent(hideChatButton, 8, 0);
-            mainContent.setComponentAlignment(hideChatButton, Alignment.TOP_RIGHT);
-
-
-            //second row
-            Label categoriesAndLabels = new Label("Categories & Labels");
-            mainContent.addComponent(categoriesAndLabels, 0, 1, 2, 1);
-
-            Label category = new Label("Support");
-            mainContent.addComponent(category, 3, 1, 4, 1);
-
-            Button addCategoryButton = new Button("+");
-            mainContent.addComponent(addCategoryButton, 5, 1);
-
-            //third row
-            Label timerBottom;
-            timerBottom = new Label("9:24");
-            mainContent.addComponent(timerBottom, 0, 2);
-            timerBottom.addStyleName("itemTimerBottom");
-
-
-            //
-            final VerticalLayout chat = new VerticalLayout();
-            chat.setStyleName("chat");
-            mainContent.addComponent(chat, 0, 3, 8, 3);
-            fillChatLayout(chat);
-
-            final TextArea textArea = new TextArea();
-            mainContent.addComponent(textArea, 0, 4, 7, 6);
-            textArea.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-
-
-            final Button addNoteButton = new Button("Add Note");
-            mainContent.addComponent(addNoteButton, 8, 6);
-            mainContent.setComponentAlignment(addNoteButton, Alignment.BOTTOM_RIGHT);
-
-            Button.ClickListener hideChatListener = new Button.ClickListener() {
-                public void buttonClick(Button.ClickEvent event) {
-                    Button button = event.getButton();
-                    hideChat(chat.isVisible(), button, chat, textArea, addNoteButton);
-                }
-            };
-            hideChatButton.addListener(hideChatListener);
-
-            hideChat(chat.isVisible(), hideChatButton, chat, textArea, addNoteButton);
-        }
-
-        private void hideChat(boolean flag, Button button, VerticalLayout chat, TextArea textArea, Button addNoteButton) {
-            chat.setVisible(!flag);
-            textArea.setVisible(!flag);
-            addNoteButton.setVisible(!flag);
-
-            if (flag) {
-                button.setCaption("Notes v ");
-            } else {
-                button.setCaption("Notes ^ ");
-            }
-        }
-
-        private void createAvatar() {
-            avatar = new Image(avatarsMap.get("crying.png").getData(), true);
-            avatar.setHeight("100px");
-            avatar.setWidth("100px");
-            avatar.addStyleName("imgColumn");
-        }
-
-        private void fillChatLayout(VerticalLayout chat) {
-            //todo iteration adding cells from DB
-            for (int i = 0; i < 2; i++) {
-                VerticalLayout note = createNote();
-                chat.addComponent(note);
-                note.addStyleName("note");
-            }
-        }
-
-
-        private VerticalLayout createNote() {
-
-            VerticalLayout noteContent = new VerticalLayout();
-            HorizontalLayout node = new HorizontalLayout();
-
-            Label nodeFromAgent = new Label("note from agent");
-            nodeFromAgent.addStyleName("caption");
-
-            Button nodeBookButton = new Button();
-            Button closeButton = new Button("-");
-
-            node.addComponent(nodeFromAgent);
-            node.addComponent(nodeBookButton);
-            node.addComponent(closeButton);
-
-            Label message = new Label("Message form agent");
-
-            noteContent.addComponent(node);
-            noteContent.addComponent(message);
-
-            return noteContent;
-        }
-
     }
 
 }

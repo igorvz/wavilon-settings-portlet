@@ -78,26 +78,162 @@
     border-bottom: 1px solid #959595;
 }
 
-.rightcolumn  .v-verticallayout-item,
+.rightcolumn  .v-verticallayout-listViewLayout,
 .rightcolumn  .v-horizontallayout-item {
     padding-bottom: 15px;
     padding-top: 15px;
     border-bottom: 1px solid #959595;
 }
 
+.rightcolumn  .v-verticallayout-listViewLayout    .v-nativebutton-avatarButtonSelect {
+    background-image: url("../images/avatarButtonSelect.PNG");
+    height: 18px;
+    width: 18px;
+}
+.rightcolumn  .v-verticallayout-listViewLayout    .v-nativebutton-avatarButtonNonSelect {
+    background-image: url("../images/avatarButtonNonSelect.PNG");
+    height: 18px;
+    width: 18px;
+}
+.rightcolumn  .v-verticallayout-listViewLayout    .v-nativebutton-nonAvatarButtonSelect {
+    background-image: url("../images/nonAvatarButtonSelect.PNG");
+    height: 18px;
+    width: 18px;
+}
+.rightcolumn  .v-verticallayout-listViewLayout    .v-nativebutton-nonAvatarButtonNonSelect {
+    background-image: url("../images/nonAvatarButtonNonSelect.PNG");
+    height: 18px;
+    width: 18px;
+}
+
+
+
+
+
+
+
+.itemTimerTop {
+    display: none;
+}
+
+.rightcolumn .v-horizontallayout-item .v-label-itemTimerBottom,
+.rightcolumn .v-horizontallayout-item .v-label-itemTimerTop {
+    background-color: #52CC00;
+    color: white;
+    border-radius: 3px;
+    text-align: center;
+    width: 40px;
+}
+
+.rightcolumn .v-horizontallayout-item .v-label-itemMessagesCounter {
+    background-color: #7A7A7A;
+    color: white;
+    border-radius: 8px;
+    text-align: center;
+    width: 30px;
+}
+
+.rightcolumn .v-horizontallayout-item .v-label-callerName {
+    font-weight: bold;
+}
+
+.rightcolumn .v-horizontallayout-item .v-label-callStatus {
+    color: #707070;
+}
+
+/*-----------------------------------------------------Right Column Buttons----------------------------------------------------*/
+
+.rightcolumn .v-horizontallayout-item .v-nativebutton {
+    background: none no-repeat transparent;
+    border: medium none;
+    text-align: center;
+    text-shadow: none;
+    vertical-align: middle;
+    width: 100%;
+    border-radius: 0 0 0 0;
+    -moz-border-radius: 0 0 0 0;
+    -webkit-border-radius: 0 0 0 0;
+    -khtml-border-radius: 0 0 0 0;
+}
+
+/*-----------------------------------------------------Right Column Notes Button----------------------------------------------------*/
+.rightcolumn .v-horizontallayout-item .v-nativebutton-itemHideChatButtonUp .v-button-caption,
+.rightcolumn .v-horizontallayout-item .v-nativebutton-itemHideChatButtonDown .v-button-caption {
+    color: #707070;
+}
+
+.rightcolumn .v-horizontallayout-item .v-nativebutton-itemHideChatButtonDown {
+    background-image: url("../images/notesDown.png");
+    background-position: 100% 50%;
+    padding-right: 16px;
+    color: #707070;
+}
+
+.rightcolumn .v-horizontallayout-item .v-nativebutton-itemHideChatButtonUp {
+    background-image: url("../images/notesUp.png");
+    background-position: 100% 50%;
+    padding-right: 16px;
+    color: #707070;
+}
+
+/*-----------------------------------------------------Right Column AddCategoryButton----------------------------------------------------*/
+.rightcolumn .v-horizontallayout-item .v-nativebutton-itemAddCategoryButton {
+    background-image: url("../images/addCategory.png");
+    height: 18px;
+    width: 18px;
+}
+
+.rightcolumn .v-horizontallayout-item .v-label-categoriesAndLabelsCaption {
+    color: #707070;
+}
+
+.rightcolumn .v-horizontallayout-item .v-label-category {
+    color: #6A93D2;
+}
+
 .rightcolumn .v-verticallayout-chat {
-    background-color: #838383;
+    background-color: #E8E6E6;
     padding-left: 30px;
 }
 
-.rightcolumn .v-verticallayout-note {
+.rightcolumn .v-verticallayout-chat .v-verticallayout-note {
     margin-top: 20px;
 }
 
-.fullWidth {
-    width: 100%;
+/*-----------------------------------------------------Right Column Note Buttons----------------------------------------------------*/
+.rightcolumn .v-verticallayout-note .v-nativebutton-editNoteButton {
+    background-image: url("../images/noteEdit.png");
+    height: 18px;
+    width: 18px;
 }
 
-.itemTimerTop{
-    display: none;
+.rightcolumn .v-verticallayout-note .v-nativebutton-removeNoteButton {
+    background-image: url("../images/noteRemove.png");
+    height: 18px;
+    width: 18px;
 }
+
+.rightcolumn .v-verticallayout-note .v-horizontallayout-noteInfo {
+    font-size: 18;
+    color: #707070;
+}
+
+.rightcolumn .v-verticallayout-note .v-label-message {
+    color: #000000;
+}
+
+.rightcolumn .v-verticallayout-chat .v-nativebutton-itemAddNoteButton{
+    background-image: url("../images/addNote.png");
+    color: white;
+}
+
+
+
+
+
+
+
+
+
+
+
