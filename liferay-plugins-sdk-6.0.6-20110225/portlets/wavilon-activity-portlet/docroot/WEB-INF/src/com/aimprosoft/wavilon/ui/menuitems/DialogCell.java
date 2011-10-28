@@ -62,12 +62,16 @@ public class DialogCell extends HorizontalLayout {
         timerTop.addStyleName("itemTimerTop");
 
 
+        HorizontalLayout displayNotes = new HorizontalLayout();
+        mainContent.addComponent(displayNotes, 7, 0, 8, 0);
+        mainContent.setComponentAlignment(displayNotes, Alignment.MIDDLE_RIGHT);
+
         Label count = new Label("2");
-        mainContent.addComponent(count, 7, 0);
+        displayNotes.addComponent(count);
         count.addStyleName("itemMessagesCounter");
 
         final Button hideChatButton = new NativeButton("Notes");
-        mainContent.addComponent(hideChatButton, 8, 0);
+        displayNotes.addComponent(hideChatButton);
         mainContent.setComponentAlignment(hideChatButton, Alignment.TOP_RIGHT);
 
         //second row
@@ -159,12 +163,16 @@ public class DialogCell extends HorizontalLayout {
         noteInfo.addStyleName("noteInfo");
 
         Label nodeFrom = new Label("Note from ");
+        nodeFrom.setStyleName("wordSeparator");
 
         Label agentName = new Label("Agent Test");
+        agentName.setStyleName("wordSeparator");
 
         Label at = new Label(" at ");
+        at.setStyleName("wordSeparator");
 
         Label date = new Label(" 2011-10-19 10:39:42");
+        date.setStyleName("wordSeparator");
 
         Button editNoteButton = new NativeButton();
         editNoteButton.addStyleName("editNoteButton");

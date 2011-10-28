@@ -1,7 +1,7 @@
 package com.aimprosoft.wavilon.ui;
 
-import com.aimprosoft.wavilon.ui.menuitems.FilterCallsByLabels;
-import com.aimprosoft.wavilon.ui.menuitems.RealTimeCallsFeedContent;
+import com.aimprosoft.wavilon.ui.menuitems.CallsContent;
+import com.aimprosoft.wavilon.ui.menuitems.CategoryFilter;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.Reindeer;
@@ -53,9 +53,9 @@ public class ActivityPage extends VerticalLayout {
         addButtons();
 
         detailsContent.removeAllComponents();
-        RealTimeCallsFeedContent realTimeCallsFeedContent = new RealTimeCallsFeedContent(bundle);
-        detailsContent.addComponent(realTimeCallsFeedContent);
-        realTimeCallsFeedContent.init();
+        CallsContent callsContent = new CallsContent(bundle);
+        detailsContent.addComponent(callsContent);
+        callsContent.init(null, bundle.getString("wavilon.activity.menuitem.real.time.calls.feed"));
 
     }
 
@@ -65,13 +65,14 @@ public class ActivityPage extends VerticalLayout {
         realTimeCallsFeed.addStyleName("button");
         realTimeCallsFeed.addListener(new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
+
                 Button button = event.getButton();
 
                 assignActiveButton(button);
                 detailsContent.removeAllComponents();
-                RealTimeCallsFeedContent realTimeCallsFeedContent = new RealTimeCallsFeedContent(bundle);
-                detailsContent.addComponent(realTimeCallsFeedContent);
-                realTimeCallsFeedContent.init();
+                CallsContent callsContent = new CallsContent(bundle);
+                detailsContent.addComponent(callsContent);
+                callsContent.init(null, bundle.getString("wavilon.activity.menuitem.real.time.calls.feed"));
 
             }
         });
@@ -80,13 +81,15 @@ public class ActivityPage extends VerticalLayout {
         filterCallsByLabels.addStyleName("button");
         filterCallsByLabels.addListener(new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
-               Button button = event.getButton();
+                Button button = event.getButton();
 
                 assignActiveButton(button);
                 detailsContent.removeAllComponents();
-                FilterCallsByLabels filterCallsByLabels = new FilterCallsByLabels(bundle);
-                detailsContent.addComponent(filterCallsByLabels);
-                filterCallsByLabels.init();
+                CallsContent callsContent = new CallsContent(bundle);
+                detailsContent.addComponent(callsContent);
+                CategoryFilter categoryFilter = new CategoryFilter(bundle);
+                callsContent.init(categoryFilter, bundle.getString("wavilon.activity.menuitem.filter.calls.by.labels"));
+
             }
         });
 

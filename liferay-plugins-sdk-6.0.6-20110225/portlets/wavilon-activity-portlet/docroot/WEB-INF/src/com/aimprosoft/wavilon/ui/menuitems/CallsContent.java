@@ -13,22 +13,25 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-public class RealTimeCallsFeedContent extends Panel {
+public class CallsContent extends Panel {
     private AvatarService avatarService = ObjectFactory.getBean(AvatarService.class);
     private Map<String, Attachment> avatarsMap;
     private ResourceBundle bundle;
     private PortletRequest request;
     private VerticalLayout mainLayout;
     private VerticalLayout itemContent;
+    private CategoryFilter categoryFilter;
+    private String headCaption;
 
-    public RealTimeCallsFeedContent(ResourceBundle bundle) {
+    public CallsContent(ResourceBundle bundle) {
         this.bundle = bundle;
     }
 
-    public void init() {
+    public void init(CategoryFilter categoryFilter, String headCaption) {
         request = ((GenericPortletApplication) getApplication()).getPortletRequest();
         avatarsMap = avatarService.getAvatars();
-
+        this.categoryFilter = categoryFilter;
+        this.headCaption = headCaption;
         setSizeFull();
         setStyleName(Reindeer.PANEL_LIGHT);
         setScrollable(true);
@@ -40,9 +43,14 @@ public class RealTimeCallsFeedContent extends Panel {
         mainLayout = new VerticalLayout();
         setContent(mainLayout);
 
-        Label headLabel = new Label(bundle.getString("wavilon.activity.menuitem.real.time.calls.feed"));
+        Label headLabel = new Label(headCaption);
         mainLayout.addComponent(headLabel);
         headLabel.setStyleName("head");
+
+        if (null != categoryFilter) {
+            addComponent(categoryFilter);
+            categoryFilter.init(request);
+        }
 
         VerticalLayout listViewLayout = new VerticalLayout();
         listViewLayout.setWidth(100, Sizeable.UNITS_PERCENTAGE);

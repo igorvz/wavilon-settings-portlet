@@ -90,27 +90,24 @@
     height: 18px;
     width: 18px;
 }
+
 .rightcolumn  .v-verticallayout-listViewLayout    .v-nativebutton-avatarButtonNonSelect {
     background-image: url("../images/avatarButtonNonSelect.PNG");
     height: 18px;
     width: 18px;
 }
+
 .rightcolumn  .v-verticallayout-listViewLayout    .v-nativebutton-nonAvatarButtonSelect {
     background-image: url("../images/nonAvatarButtonSelect.PNG");
     height: 18px;
     width: 18px;
 }
+
 .rightcolumn  .v-verticallayout-listViewLayout    .v-nativebutton-nonAvatarButtonNonSelect {
     background-image: url("../images/nonAvatarButtonNonSelect.PNG");
     height: 18px;
     width: 18px;
 }
-
-
-
-
-
-
 
 .itemTimerTop {
     display: none;
@@ -122,7 +119,7 @@
     color: white;
     border-radius: 3px;
     text-align: center;
-    width: 40px;
+    width: 40px !important;
 }
 
 .rightcolumn .v-horizontallayout-item .v-label-itemMessagesCounter {
@@ -130,7 +127,7 @@
     color: white;
     border-radius: 8px;
     text-align: center;
-    width: 30px;
+    width: 30px !important;
 }
 
 .rightcolumn .v-horizontallayout-item .v-label-callerName {
@@ -167,6 +164,7 @@
     background-position: 100% 50%;
     padding-right: 16px;
     color: #707070;
+    width: 70px !important;
 }
 
 .rightcolumn .v-horizontallayout-item .v-nativebutton-itemHideChatButtonUp {
@@ -174,6 +172,7 @@
     background-position: 100% 50%;
     padding-right: 16px;
     color: #707070;
+    width: 70px !important;
 }
 
 /*-----------------------------------------------------Right Column AddCategoryButton----------------------------------------------------*/
@@ -188,7 +187,7 @@
 }
 
 .rightcolumn .v-horizontallayout-item .v-label-category {
-    color: #6A93D2;
+    color: #6093e0;
 }
 
 .rightcolumn .v-verticallayout-chat {
@@ -198,6 +197,10 @@
 
 .rightcolumn .v-verticallayout-chat .v-verticallayout-note {
     margin-top: 20px;
+}
+
+.rightcolumn .v-label-wordSeparator{
+    margin-right: 7px;
 }
 
 /*-----------------------------------------------------Right Column Note Buttons----------------------------------------------------*/
@@ -222,18 +225,46 @@
     color: #000000;
 }
 
-.rightcolumn .v-verticallayout-chat .v-nativebutton-itemAddNoteButton{
+.rightcolumn .v-verticallayout-chat .v-nativebutton-itemAddNoteButton {
     background-image: url("../images/addNote.png");
     color: white;
 }
 
+.rightcolumn .v-verticallayout-availableLabels .v-nativebutton-categoryButtonSelect {
+    background: none no-repeat transparent;
+    background-color: #6093e0;
+    box-shadow: 3px 3px #707070;
+    border: 1px;
+    border-color: #000000;
+    border-radius: 10px;
+    margin: 2px 2px 2px 2px;
+    height: 20px;
+    vertical-align: middle;
+    padding-bottom: 0;
+    padding-top: 0;
 
+    color: white;
+}
 
+.rightcolumn .v-verticallayout-availableLabels .v-nativebutton-categoryButtonUnSelect {
+    background: none no-repeat transparent;
+    background-color: #ffffff;
+    box-shadow: 3px 3px #707070;
+    border: 1px;
+    border-color: #000000;
+    border-radius: 10px;
+    margin: 2px 2px 2px 2px;
+    height: 20px;
+    padding-bottom: 0;
+    padding-top: 0;
 
+    color: #707070;
+}
 
-
-
-
+.rightcolumn .v-verticallayout-availableLabels .v-nativebutton-caption {
+    text-shadow: none;
+    vertical-align: middle;
+}
 
 
 
