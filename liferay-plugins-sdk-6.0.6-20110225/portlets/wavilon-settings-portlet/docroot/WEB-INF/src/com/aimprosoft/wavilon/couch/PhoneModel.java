@@ -32,7 +32,7 @@ public class PhoneModel {
     private Long allocationDate;
 
     @JsonProperty("liberation_date")
-    private String liberationDate;
+    private Long liberationDate;
 
 
     private PhoneModel() {
@@ -102,11 +102,16 @@ public class PhoneModel {
         this.allocationDate = allocationDate;
     }
 
-    public String getLiberationDate() {
+    public Long getLiberationDate() {
         return liberationDate;
     }
 
-    public void setLiberationDate(String liberationDate) {
+    public void setLiberationDate(Long liberationDate) {
         this.liberationDate = liberationDate;
+    }
+
+    @Override
+    public String toString() {
+        return locator;
     }
 }

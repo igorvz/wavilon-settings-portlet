@@ -1,19 +1,25 @@
 package com.aimprosoft.wavilon.ui.menuitems.forms;
 
+import com.aimprosoft.wavilon.service.AllPhoneNumbersDatabaseService;
 import com.aimprosoft.wavilon.service.ExtensionDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.ResourceBundle;
 
 public class ConfirmingRemove extends Window {
     private ExtensionDatabaseService service = ObjectFactory.getBean(ExtensionDatabaseService.class);
-    ResourceBundle bundle;
+    private ResourceBundle bundle;
+    private String phoneNumbersId;
 
     public ConfirmingRemove(ResourceBundle bundle) {
         this.bundle = bundle;
     }
+
+
 
     public void init(String id, Table table) {
         setCaption(bundle.getString("wavilon.confirming.remove.information"));
@@ -54,6 +60,13 @@ public class ConfirmingRemove extends Window {
             public void buttonClick(Button.ClickEvent event) {
                 try {
                     service.removeExtension(id);
+
+                    if(null != phoneNumbersId){
+                        AllPhoneNumbersDatabaseService allPhonesService = ObjectFactory.getBean(AllPhoneNumbersDatabaseService.class);
+                        String docId = allPhonesService.getDocumentId(phoneNumbersId);
+                        allPhonesService.updateModel(docId);
+                    }
+
                 } catch (Exception ignored) {
                 }
 
@@ -72,4 +85,7 @@ public class ConfirmingRemove extends Window {
         return buttons;
     }
 
+    public void setPhoneNumbersId(String phoneNumbersId) {
+        this.phoneNumbersId = phoneNumbersId;
+    }
 }

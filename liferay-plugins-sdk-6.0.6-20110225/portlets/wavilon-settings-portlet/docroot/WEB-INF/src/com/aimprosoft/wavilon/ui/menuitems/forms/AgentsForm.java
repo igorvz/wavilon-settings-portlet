@@ -73,6 +73,7 @@ public class AgentsForm extends AbstractForm {
                     String extension = ((CouchModelLite)form.getField("extensions").getValue()).getId();
 
                     agent.setName(name);
+                    agent.setAttachedLiferayUserId(model.getLiferayOrganizationId());
 
                     service.addAgent(agent, model, extension);
 

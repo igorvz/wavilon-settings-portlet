@@ -49,7 +49,6 @@ public class ActivityApplication extends GenericPortletApplication {
                 window.setContent(activityPage);
                 activityPage.init();
 
-
             } else {
                 window.setContent(new PleaseSignInPage(bundle));
             }

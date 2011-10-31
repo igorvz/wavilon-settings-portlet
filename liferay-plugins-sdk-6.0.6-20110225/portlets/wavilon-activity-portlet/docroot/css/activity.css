@@ -113,8 +113,8 @@
     display: none;
 }
 
-.rightcolumn .v-horizontallayout-item .v-label-itemTimerBottom,
-.rightcolumn .v-horizontallayout-item .v-label-itemTimerTop {
+.rightcolumn .v-horizontallayout-item .v-label-itemTimerTop,
+.rightcolumn .v-horizontallayout-item .v-label-itemTimerBottom {
     background-color: #52CC00;
     color: white;
     border-radius: 3px;
@@ -132,10 +132,12 @@
 
 .rightcolumn .v-horizontallayout-item .v-label-callerName {
     font-weight: bold;
+    margin-right: 5px
 }
 
 .rightcolumn .v-horizontallayout-item .v-label-callStatus {
     color: #707070;
+    margin-right: 5px
 }
 
 /*-----------------------------------------------------Right Column Buttons----------------------------------------------------*/
@@ -184,10 +186,12 @@
 
 .rightcolumn .v-horizontallayout-item .v-label-categoriesAndLabelsCaption {
     color: #707070;
+    margin-right: 5px
 }
 
 .rightcolumn .v-horizontallayout-item .v-label-category {
     color: #6093e0;
+    margin-right: 5px
 }
 
 .rightcolumn .v-verticallayout-chat {
@@ -199,7 +203,7 @@
     margin-top: 20px;
 }
 
-.rightcolumn .v-label-wordSeparator{
+.rightcolumn .v-label-wordSeparator {
     margin-right: 7px;
 }
 

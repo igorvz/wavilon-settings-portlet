@@ -101,7 +101,7 @@ public class PhoneNumbersContent extends VerticalLayout {
 
             for (final CouchModel couchModel : couchModels) {
                 final Object object = ic.addItem();
-                PhoneNumber phoneNumber = getPhoneNumber(couchModel);
+                final PhoneNumber phoneNumber = getPhoneNumber(couchModel);
                 CouchModelLite forward = CouchModelUtil.getCouchModelLite((String) couchModel.getOutputs().get("startnode"), bundle);
 
                 ic.getContainerProperty(object, bundle.getString("wavilon.table.phonenumbers.column.number")).setValue(phoneNumber.getLocator());
@@ -113,6 +113,7 @@ public class PhoneNumbersContent extends VerticalLayout {
                         phoneNumbers.select(object);
                         ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
                         getWindow().addWindow(confirmingRemove);
+                        confirmingRemove.setPhoneNumbersId(phoneNumber.getLocator());
                         confirmingRemove.init(couchModel.getId(), phoneNumbers);
                     }
                 });

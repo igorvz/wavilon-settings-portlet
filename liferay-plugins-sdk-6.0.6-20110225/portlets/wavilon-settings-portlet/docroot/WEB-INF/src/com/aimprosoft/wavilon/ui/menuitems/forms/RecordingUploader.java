@@ -2,6 +2,7 @@ package com.aimprosoft.wavilon.ui.menuitems.forms;
 
 import com.aimprosoft.wavilon.couch.Attachment;
 import com.aimprosoft.wavilon.couch.CouchModel;
+import com.aimprosoft.wavilon.model.Recording;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 import com.vaadin.ui.Upload.Receiver;
@@ -25,7 +26,7 @@ public class RecordingUploader extends VerticalLayout {
         this.bundle = bundle;
     }
 
-    public void init(final CouchModel model, final Form form) {
+    public void init(final CouchModel model, final Recording recording, final Form form) {
         setSpacing(true);
 
         upload.setImmediate(false);
@@ -118,6 +119,18 @@ public class RecordingUploader extends VerticalLayout {
                 pi.setVisible(false);
                 cancelProcessing.setVisible(false);
 
+                String fileType = event.getFilename().substring(event.getFilename().indexOf(".") + 1);
+                String fileName = event.getFilename().substring(0, event.getFilename().indexOf("."));
+
+                recording.setFileName(fileName);
+                recording.setFileType(fileType);
+
+                if (recording.getVersion() == null) {
+                    recording.setVersion(0);
+                }
+
+                recording.setVersion(recording.getVersion()+1);
+
                 Attachment attachment = new Attachment();
                 attachment.setContentType(event.getMIMEType());
 
@@ -130,7 +143,7 @@ public class RecordingUploader extends VerticalLayout {
                     attachment.setData(FileUtils.readFileToByteArray(file));
                 } catch (IOException ignored) {
                 }
-                String fileName = "";
+
                 try {
                     fileName = URLEncoder.encode(event.getFilename(), "UTF-8");
 

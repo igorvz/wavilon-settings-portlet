@@ -177,9 +177,17 @@ public class VirtualNumbersForm extends AbstractForm {
             number.setValue(model.getProperties().get("locator"));
             number.setReadOnly(true);
         }
+
+        TextField cost = new TextField(bundle.getString("wavilon.form.virtualnumbers.cost"));
+        cost.setValue("0.10 $");
+        cost.setReadOnly(true);
+
+
         form.addField("name", name);
         form.addField("number", number);
         form.addField("forwardCallTo", forwardCallTo);
+
+        form.addField("cost", cost);
 
         return form;
     }

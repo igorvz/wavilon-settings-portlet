@@ -24,4 +24,6 @@ public interface ExtensionDatabaseService {
 
     void removeExtension(String id) throws IOException;
 
+    public String getExtensionCode(Long organizationId, Integer code) throws IOException;
+
 }

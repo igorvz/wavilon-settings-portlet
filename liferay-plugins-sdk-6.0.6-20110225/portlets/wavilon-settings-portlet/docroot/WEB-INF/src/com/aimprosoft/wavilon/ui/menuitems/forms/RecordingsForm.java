@@ -67,7 +67,7 @@ public class RecordingsForm extends AbstractForm {
         uploadLayout.addComponent(recordingUploader);
 
         content.addComponent(uploadLayout);
-        recordingUploader.init(model, form);
+        recordingUploader.init(model, recording, form);
 
         HorizontalLayout buttons = createButtons(content);
 

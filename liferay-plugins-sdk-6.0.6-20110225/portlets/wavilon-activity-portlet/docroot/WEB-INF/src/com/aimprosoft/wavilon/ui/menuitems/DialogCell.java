@@ -48,18 +48,24 @@ public class DialogCell extends HorizontalLayout {
 
     private void createInfoPanel() {
         //first row
+        HorizontalLayout firstRow = new HorizontalLayout();
+        mainContent.addComponent(firstRow, 0, 0);
+        firstRow.setStyleName("firstRow");
+
         Label name = new Label("Kathleen  Byrne ");
-        mainContent.addComponent(name, 0, 0, 1, 0);
-        name.addStyleName("callerName");
+//        mainContent.addComponent(name, 0, 0, 1, 0);
+        firstRow.addComponent(name);
+        name.setStyleName("callerName");
 
         Label callStatus = new Label("ongoing ...");
-        mainContent.addComponent(callStatus, 2, 0, 3, 0);
+//        mainContent.addComponent(callStatus, 2, 0, 3, 0);
+        firstRow.addComponent(callStatus);
         callStatus.setStyleName("callStatus");
 
-        Label timerTop;
-        timerTop = new Label("9:24");
-        mainContent.addComponent(timerTop, 4, 0);
-        timerTop.addStyleName("itemTimerTop");
+        Label timerTop = new Label("9:24");
+        mainContent.addComponent(timerTop, 1, 0);
+//        firstRow.addComponent(timerTop);
+        timerTop.setStyleName("itemTimerTop");
 
 
         HorizontalLayout displayNotes = new HorizontalLayout();
@@ -68,32 +74,37 @@ public class DialogCell extends HorizontalLayout {
 
         Label count = new Label("2");
         displayNotes.addComponent(count);
-        count.addStyleName("itemMessagesCounter");
+        count.setStyleName("itemMessagesCounter");
 
         final Button hideChatButton = new NativeButton("Notes");
         displayNotes.addComponent(hideChatButton);
         mainContent.setComponentAlignment(hideChatButton, Alignment.TOP_RIGHT);
 
         //second row
+        HorizontalLayout secondRow = new HorizontalLayout();
+        mainContent.addComponent(secondRow, 0, 1, 6, 1);
+
         Label categoriesAndLabels = new Label("Categories & Labels:");
-        mainContent.addComponent(categoriesAndLabels, 0, 1, 2, 1);
+//        mainContent.addComponent(categoriesAndLabels, 0, 1, 2, 1);
+        secondRow.addComponent(categoriesAndLabels);
         categoriesAndLabels.setStyleName("categoriesAndLabelsCaption");
 
         Label category = new Label("Support");
-        mainContent.addComponent(category, 3, 1, 4, 1);
-        category.addStyleName("category");
+//        mainContent.addComponent(category, 3, 1, 4, 1);
+        secondRow.addComponent(category);
+        category.setStyleName("category");
 
         Button addCategoryButton = new NativeButton();
-        mainContent.addComponent(addCategoryButton, 5, 1);
-        addCategoryButton.addStyleName("itemAddCategoryButton");
+//        mainContent.addComponent(addCategoryButton, 5, 1);
+        secondRow.addComponent(addCategoryButton);
+        addCategoryButton.setStyleName("itemAddCategoryButton");
 
 
         //third row
         Label timerBottom;
         timerBottom = new Label("9:24");
         mainContent.addComponent(timerBottom, 0, 2);
-        timerBottom.addStyleName("itemTimerBottom");
-
+        timerBottom.setStyleName("itemTimerBottom");
 
 
         final VerticalLayout chat = new VerticalLayout();
@@ -108,7 +119,7 @@ public class DialogCell extends HorizontalLayout {
 
 
         final TextArea textArea = new TextArea();
-        newNote.addComponent(textArea, 0 ,0, 3, 2);
+        newNote.addComponent(textArea, 0, 0, 3, 2);
         textArea.setWidth(100, Sizeable.UNITS_PERCENTAGE);
 
         final Button addNoteButton = new NativeButton("Add Note");
@@ -131,10 +142,10 @@ public class DialogCell extends HorizontalLayout {
 
         if (flag) {
             button.removeStyleName("itemHideChatButtonUp");
-            button.addStyleName("itemHideChatButtonDown");
+            button.setStyleName("itemHideChatButtonDown");
         } else {
             button.removeStyleName("itemHideChatButtonDown");
-            button.addStyleName("itemHideChatButtonUp");
+            button.setStyleName("itemHideChatButtonUp");
         }
     }
 
@@ -142,7 +153,7 @@ public class DialogCell extends HorizontalLayout {
         avatar = new Image(avatarsMap.get("crying.png").getData(), true);
         avatar.setHeight("100px");
         avatar.setWidth("100px");
-        avatar.addStyleName("imgColumn");
+        avatar.setStyleName("imgColumn");
     }
 
     private void fillChatLayout(VerticalLayout chat) {
@@ -150,7 +161,7 @@ public class DialogCell extends HorizontalLayout {
         for (int i = 0; i < 2; i++) {
             VerticalLayout note = createNote();
             chat.addComponent(note);
-            note.addStyleName("note");
+            note.setStyleName("note");
         }
     }
 
@@ -160,7 +171,7 @@ public class DialogCell extends HorizontalLayout {
 
 
         HorizontalLayout noteInfo = new HorizontalLayout();
-        noteInfo.addStyleName("noteInfo");
+        noteInfo.setStyleName("noteInfo");
 
         Label nodeFrom = new Label("Note from ");
         nodeFrom.setStyleName("wordSeparator");
@@ -175,10 +186,10 @@ public class DialogCell extends HorizontalLayout {
         date.setStyleName("wordSeparator");
 
         Button editNoteButton = new NativeButton();
-        editNoteButton.addStyleName("editNoteButton");
+        editNoteButton.setStyleName("editNoteButton");
 
         Button removeNoteButton = new NativeButton();
-        removeNoteButton.addStyleName("removeNoteButton");
+        removeNoteButton.setStyleName("removeNoteButton");
 
 
         noteInfo.addComponent(nodeFrom);

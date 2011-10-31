@@ -13,10 +13,13 @@ import com.vaadin.data.Validator;
 import com.vaadin.data.validator.EmailValidator;
 import com.vaadin.data.validator.RegexpValidator;
 import com.vaadin.event.ShortcutAction;
+import com.vaadin.terminal.UserError;
 import com.vaadin.ui.*;
 
 import javax.portlet.PortletRequest;
+import java.io.IOException;
 import java.util.Map;
+import java.util.Random;
 import java.util.ResourceBundle;
 
 public class ExtensionForm extends AbstractForm {
@@ -81,6 +84,10 @@ public class ExtensionForm extends AbstractForm {
         name.setRequired(true);
         name.setRequiredError(bundle.getString("wavilon.error.massage.extensions.name.empty"));
 
+        TextField code = new TextField(bundle.getString("wavilon.error.massage.extensions.code"));
+        code.setRequired(true);
+        code.addValidator(new RegexpValidator("[1-9]{1}[0-9]{4}", bundle.getString("wavilon.error.massage.extensions.code.wrong")));
+
         final TextField destination = new TextField();
         destination.setImmediate(true);
         destination.setVisible(false);
@@ -116,6 +123,7 @@ public class ExtensionForm extends AbstractForm {
 
         form.addField("extensionId", extensionId);
         form.addField("name", name);
+        form.addField("code", code);
         form.addField("extensionType", extensionType);
         form.addField("destination", destination);
 
@@ -190,45 +198,68 @@ public class ExtensionForm extends AbstractForm {
         Button save = new Button(bundle.getString("wavilon.button.save"), new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
                 try {
-                    form.commit();
 
                     String name = (String) form.getField("name").getValue();
                     String extensionType = (String) form.getField("extensionType").getValue();
                     String destination = (String) form.getField("destination").getValue();
+                    Integer code = Integer.parseInt((String) form.getField("code").getValue());
 
-                    final Object object = table.addItem();
+                    String documentId = service.getExtensionCode(model.getLiferayOrganizationId(), code);
 
-                    Button.ClickListener listener = new Button.ClickListener() {
-                        public void buttonClick(Button.ClickEvent event) {
+                    if (!"".equals(documentId)) {
+                        boolean extensionExist = true;
+                        while (extensionExist) {
 
-                            table.select(object);
-                            String phoneNumbersID = (String) table.getItem(object).getItemProperty("extensionId").getValue();
-                            ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
-                            application.getMainWindow().addWindow(confirmingRemove);
-                            confirmingRemove.init(phoneNumbersID, table);
+                            code = createCode();
+
+                            if (!checkExtensionCode(model.getLiferayOrganizationId(), code)) {
+
+                                UserError userError = new UserError(bundle.getString("wavilon.error.massage.extensions.code.exist") + " " + code);
+                                form.setComponentError(userError);
+
+                                form.commit();
+
+                                extensionExist = false;
+                            };
                         }
-                    };
+                    } else {
 
-                    extension.setChannel(extensionTypeMap.get(extensionType));
-                    extension.setName(name);
-                    extension.setDestination(destination);
+                        final Object object = table.addItem();
 
-                    service.addExtension(extension, model);
+                        Button.ClickListener listener = new Button.ClickListener() {
+                            public void buttonClick(Button.ClickEvent event) {
 
-                    if (null != model.getRevision()) {
-                        table.removeItem(itemId);
-                        table.select(null);
+                                table.select(object);
+                                String phoneNumbersID = (String) table.getItem(object).getItemProperty("extensionId").getValue();
+                                ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
+                                application.getMainWindow().addWindow(confirmingRemove);
+                                confirmingRemove.init(phoneNumbersID, table);
+                            }
+                        };
+
+                        extension.setChannel(extensionTypeMap.get(extensionType));
+                        extension.setName(name);
+                        extension.setDestination(destination);
+                        extension.setCode(code);
+
+                        service.addExtension(extension, model);
+
+                        if (null != model.getRevision()) {
+                            table.removeItem(itemId);
+                            table.select(null);
+                        }
+
+                        table.getContainerProperty(object, "extensionId").setValue(model.getId());
+                        table.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.id")).setValue(model.getLiferayOrganizationId());
+                        table.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.name")).setValue(extension.getName());
+                        table.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.extension.type")).setValue(CouchModelUtil.extensionTypeMapEject(bundle).get(extension.getChannel()));
+                        table.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.destination")).setValue(extension.getDestination());
+                        table.getContainerProperty(object, "").setValue(new Button("", listener));
+
+                        getParent().getWindow().showNotification(bundle.getString("wavilon.well.done"));
+                        close();
                     }
 
-                    table.getContainerProperty(object, "extensionId").setValue(model.getId());
-                    table.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.id")).setValue(model.getLiferayOrganizationId());
-                    table.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.name")).setValue(extension.getName());
-                    table.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.extension.type")).setValue(CouchModelUtil.extensionTypeMapEject(bundle).get(extension.getChannel()));
-                    table.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.destination")).setValue(extension.getDestination());
-                    table.getContainerProperty(object, "").setValue(new Button("", listener));
-
-                    getParent().getWindow().showNotification(bundle.getString("wavilon.well.done"));
-                    close();
                 } catch (Exception ignored) {
                 }
             }
@@ -237,4 +268,25 @@ public class ExtensionForm extends AbstractForm {
         save.addStyleName("saveButton");
         buttons.addComponent(save);
     }
+
+    private boolean checkExtensionCode(Long liferayOrganizationId, Integer code) throws IOException {
+
+        String documentId = service.getExtensionCode(liferayOrganizationId, code);
+        if ("".equals(documentId)) {
+            return false;
+        }
+        return true;
+    }
+
+    private Integer createCode() {
+        Random random = new Random();
+        Integer code = random.nextInt(99999);
+
+        while (!(code < 1000000 && code > 10000 && code > 0)) {
+
+            code = random.nextInt(99999);
+        }
+        return code;
+    }
+
 }

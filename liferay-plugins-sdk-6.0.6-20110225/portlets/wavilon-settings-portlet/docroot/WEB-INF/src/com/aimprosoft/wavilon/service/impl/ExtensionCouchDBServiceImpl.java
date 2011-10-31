@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class ExtensionCouchDBServiceImpl extends AbstractViewEntityService  implements ExtensionDatabaseService {
+public class ExtensionCouchDBServiceImpl extends AbstractViewEntityService implements ExtensionDatabaseService {
 
     private Extension getExtension(String id) throws IOException {
         CouchModel model = getModel(id);
@@ -53,11 +53,11 @@ public class ExtensionCouchDBServiceImpl extends AbstractViewEntityService  impl
 
     public List<CouchModel> getAllUsersCouchModelToExtension(Long organizationId) throws IOException {
 
-       View view = database.getDocument(functions.getDesignDocumentNodes()).getView(functions.getAllUniqueEntitiess());
+        View view = database.getDocument(functions.getDesignDocumentNodes()).getView(functions.getAllUniqueEntitiess());
         view.setKey(urlEncoder.encode("[\"extension\"," + organizationId + "]"));
-        
+
         ViewResults viewResults = database.view(view);
-        
+
         List<CouchModel> modelList = new LinkedList<CouchModel>();
 
         for (Document doc : viewResults.getResults()) {
@@ -79,5 +79,24 @@ public class ExtensionCouchDBServiceImpl extends AbstractViewEntityService  impl
 
     public void removeExtension(String id) throws IOException {
         couchDBService.removeModelById(id);
+    }
+
+    public String getExtensionCode(Long organizationId, Integer code) throws IOException {
+
+        View view = database.getDocument(functions.getDesignDocumentNodes()).getView(functions.getExtensionCodeExist());
+        view.setKey(urlEncoder.encode("[\"extension\"," + organizationId + "," + code + "]"));
+
+        ViewResults viewResults = database.view(view);
+
+        String document = "";
+
+        for (Document doc : viewResults.getResults()) {
+
+            CouchModel model = getModel(doc.getId());
+
+            document = model.getId();
+        }
+        return document;
+
     }
 }

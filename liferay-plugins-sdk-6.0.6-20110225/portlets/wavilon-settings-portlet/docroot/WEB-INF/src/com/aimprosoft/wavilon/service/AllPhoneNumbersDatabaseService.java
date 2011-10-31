@@ -10,7 +10,9 @@ public interface AllPhoneNumbersDatabaseService {
 
     void updateModel(PhoneModel phoneModel) throws IOException;
 
-    void updateModel(Long liferayOrganizationId, String id) throws IOException;
+    void updateModel(String PhoneModelId) throws IOException;
+
+    void updateModel(Long liferayOrganizationId, String PhoneModelId) throws IOException;
 
     List<CouchModel> getVirtualNumbers() throws IOException;
 
@@ -22,4 +24,5 @@ public interface AllPhoneNumbersDatabaseService {
 
     CouchModel getPhoneNumber(String documentId) throws IOException;
 
+    public String getDocumentId(String locator) throws IOException;
 }

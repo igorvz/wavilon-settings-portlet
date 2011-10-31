@@ -73,8 +73,16 @@ public class QueuesForm extends AbstractForm {
                     String name = (String) form.getField("name").getValue();
                     String maxTimeInput = form.getField("maxTimeInput").getValue().toString();
                     String maxLengthInput = form.getField("maxLengthInput").getValue().toString();
-                    String forwardToOnMaxTimeInput = ((CouchModelLite) form.getField("forwardToOnMaxTimeInput").getValue()).getId();
-                    String forwardToOnMaxLengthInput = ((CouchModelLite) form.getField("forwardToOnMaxLengthInput").getValue()).getId();
+                    String forwardToOnMaxTimeInput = null;
+                    if (null != form.getField("forwardToOnMaxTimeInput").getValue()) {
+                        forwardToOnMaxTimeInput = ((CouchModelLite) form.getField("forwardToOnMaxTimeInput").getValue()).getId();
+                    }
+                    String forwardToOnMaxLengthInput = null;
+
+                    if (null != form.getField("forwardToOnMaxLengthInput").getValue()) {
+                        forwardToOnMaxLengthInput = ((CouchModelLite) form.getField("forwardToOnMaxLengthInput").getValue()).getId();
+                    }
+
                     String musicOnHold = (String) form.getField("musicOnHold").getValue();
 
                     if (null != model.getRevision()) {
@@ -155,52 +163,57 @@ public class QueuesForm extends AbstractForm {
         //second row
         TextField maxTimeInput = new TextField();
         maxTimeInput.setWidth(150, Sizeable.UNITS_PIXELS);
-        maxTimeInput.setRequired(true);
-        maxTimeInput.setRequiredError(bundle.getString("wavilon.error.massage.queues.max.time.empty"));
+//        maxTimeInput.setRequired(true);
+//        maxTimeInput.setRequiredError(bundle.getString("wavilon.error.massage.queues.max.time.empty"));
         maxTimeInput.addValidator(new IntegerValidator(bundle.getString("wavilon.error.massage.queues.max.time.integer")));
 
         //third row
         TextField maxLengthInput = new TextField();
         maxLengthInput.setWidth(150, Sizeable.UNITS_PIXELS);
-        maxLengthInput.setRequired(true);
-        maxLengthInput.setRequiredError(bundle.getString("wavilon.error.massage.queues.extension.max.length.empty"));
-        maxLengthInput.addValidator(new IntegerValidator(bundle.getString("wavilon.error.massage.queues.max.length.integer")));
+//        maxLengthInput.setRequired(true);
+//        maxLengthInput.setRequiredError(bundle.getString("wavilon.error.massage.queues.extension.max.length.empty"));
+//        maxLengthInput.addValidator(new IntegerValidator(bundle.getString("wavilon.error.massage.queues.max.length.integer")));
 
         List<CouchModelLite> forwards = getForwards();
 
         //fourth
         ComboBox forwardToOnMaxTimeInput = new ComboBox();
         fillForward(forwards, forwardToOnMaxTimeInput);
-        forwardToOnMaxTimeInput.setRequiredError(bundle.getString("wavilon.error.massage.queues.max.time.empty"));
+//        forwardToOnMaxTimeInput.setRequiredError(bundle.getString("wavilon.error.massage.queues.max.time.empty"));
 
         //fifth
         ComboBox forwardToOnMaxLengthInput = new ComboBox();
         fillForward(forwards, forwardToOnMaxLengthInput);
-        forwardToOnMaxLengthInput.setRequiredError(bundle.getString("wavilon.error.massage.queues.max.length.empty"));
+//        forwardToOnMaxLengthInput.setRequiredError(bundle.getString("wavilon.error.massage.queues.max.length.empty"));
 
         //sixth
-        ComboBox musicOnHold = new ComboBox();
-        musicOnHold.setWidth(230, Sizeable.UNITS_PIXELS);
-        musicOnHold.setRequired(true);
-        musicOnHold.setRequiredError(bundle.getString("wavilon.error.massage.queues.music.empty"));
-        musicOnHold.setNullSelectionItemId(bundle.getString("wavilon.form.select"));
+
+        OptionGroup musicOnHold = new OptionGroup();
+        musicOnHold.addItem("Yes");
+        musicOnHold.addItem("No");
+
+//        ComboBox musicOnHold = new ComboBox();
+//        musicOnHold.setWidth(230, Sizeable.UNITS_PIXELS);
+//        musicOnHold.setRequired(true);
+//        musicOnHold.setRequiredError(bundle.getString("wavilon.error.massage.queues.music.empty"));
+//        musicOnHold.setNullSelectionItemId(bundle.getString("wavilon.form.select"));
 
 
-        List<String> musicOnHoldList = new LinkedList<String>();
-        musicOnHoldList.add("Music 1");
-        musicOnHoldList.add("Music 2");
-        musicOnHoldList.add("Music 3");
-        musicOnHoldList.add(0, bundle.getString("wavilon.form.select"));
+//        List<String> musicOnHoldList = new LinkedList<String>();
+//        musicOnHoldList.add("Music 1");
+//        musicOnHoldList.add("Music 2");
+//        musicOnHoldList.add("Music 3");
+//        musicOnHoldList.add(0, bundle.getString("wavilon.form.select"));
 
-        for (String s : musicOnHoldList) {
-            musicOnHold.addItem(s);
-
-            if (null != model.getRevision()) {
-                if (null != queue.getMusicOnHold() && queue.getMusicOnHold().equals(s)) {
-                    musicOnHold.setValue(s);
-                }
-            }
-        }
+//        for (String s : musicOnHoldList) {
+//            musicOnHold.addItem(s);
+//
+//            if (null != model.getRevision()) {
+//                if (null != queue.getMusicOnHold() && queue.getMusicOnHold().equals(s)) {
+//                    musicOnHold.setValue(s);
+//                }
+//            }
+//        }
 
 
         if (null != model.getRevision()) {
@@ -226,8 +239,8 @@ public class QueuesForm extends AbstractForm {
             forwardTo.addItem(forward);
         }
         forwardTo.setWidth(230, Sizeable.UNITS_PIXELS);
-        forwardTo.setRequired(true);
-        forwardTo.setNullSelectionItemId(bundle.getString("wavilon.form.select"));
+//        forwardTo.setRequired(true);
+//        forwardTo.setNullSelectionItemId(bundle.getString("wavilon.form.select"));
     }
 
     private HorizontalLayout createButtons(VerticalLayout content) {
@@ -249,6 +262,7 @@ public class QueuesForm extends AbstractForm {
 
     private static class QueuesFormLayout extends Form {
         private GridLayout layout;
+
         QueuesFormLayout(final ResourceBundle bundle) {
             layout = new GridLayout(3, 6);
             layout.setMargin(true, false, false, true);

@@ -10,6 +10,9 @@ public class Extension extends BaseModel{
     @JsonProperty("destination")
     private String destination;
 
+    @JsonProperty("code")
+    private Integer code;
+
     public Extension(){
     }
 
@@ -27,5 +30,13 @@ public class Extension extends BaseModel{
 
     public void setDestination(String destination) {
         this.destination = destination;
+    }
+
+    public Integer getCode() {
+        return code;
+    }
+
+    public void setCode(Integer code) {
+        this.code = code;
     }
 }

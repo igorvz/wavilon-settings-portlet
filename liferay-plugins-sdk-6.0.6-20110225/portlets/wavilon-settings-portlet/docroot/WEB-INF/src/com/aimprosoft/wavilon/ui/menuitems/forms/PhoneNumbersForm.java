@@ -104,6 +104,7 @@ public class PhoneNumbersForm extends AbstractForm {
                             String phoneNumbersID = (String) table.getItem(object).getItemProperty("id").getValue();
                             ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
                             application.getMainWindow().addWindow(confirmingRemove);
+                            confirmingRemove.setPhoneNumbersId(phoneNumber.getLocator());
                             confirmingRemove.init(phoneNumbersID, table);
                         }
                     };
@@ -224,7 +225,6 @@ public class PhoneNumbersForm extends AbstractForm {
 
     private List<String> getVirtualNumbers() {
         try {
-
             return allPhonesService.getOnlyPhoneNumbers();
         } catch (Exception e) {
             return Collections.emptyList();

@@ -45,11 +45,14 @@ public class LayoutUtil {
         head.addStyleName("head");
         headLabel.addStyleName("label");
 
-        HorizontalLayout addButton = createButton(bundle, window, form);
-        head.addComponent(addButton);
-
         head.setComponentAlignment(headLabel, Alignment.TOP_LEFT);
-        head.setComponentAlignment(addButton, Alignment.MIDDLE_RIGHT);
+
+
+        if(!bundle.getString("wavilon.menuitem.virtualnumbers").equals(headLabel.toString())){
+            HorizontalLayout addButton = createButton(bundle, window, form);
+            head.addComponent(addButton);
+            head.setComponentAlignment(addButton, Alignment.MIDDLE_RIGHT);
+        }
 
         return head;
     }

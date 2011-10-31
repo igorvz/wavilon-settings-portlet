@@ -53,16 +53,20 @@ public class AllPhoneNumbersDatabaseServiceImpl extends AbstractViewEntityServic
     }
 
     @SuppressWarnings("unchecked")
-    public void updateModel(Long liferayOrganizationId, String id) throws IOException {
-        PhoneModel phoneModel = getPhoneModel(id);
-        phoneModel.setAllocationDate(System.nanoTime());
+    public void updateModel(Long liferayOrganizationId, String phoneModelId) throws IOException {
+        PhoneModel phoneModel = getPhoneModel(phoneModelId);
+        phoneModel.setLiberationDate(System.nanoTime());
         phoneModel.setLiferayOrganizationId(liferayOrganizationId);
 
         updateModel(phoneModel);
     }
 
+    public void updateModel(String phoneModelId) throws IOException {
+        updateModel(null, phoneModelId);
+    }
+
     public List<CouchModel> getVirtualNumbers() throws IOException {
-        View view = database.getDocument(functions.getDesignDocumentPhonenumbers()).getView(functions.getAllPhonesVirtualNumber());;
+        View view = database.getDocument(functions.getDesignDocumentPhonenumbers()).getView(functions.getAllPhonesVirtualNumber());
         ViewResults viewResults = database.view(view);
         List<CouchModel> modelList = new LinkedList<CouchModel>();
 
@@ -142,6 +146,14 @@ public class AllPhoneNumbersDatabaseServiceImpl extends AbstractViewEntityServic
         Document document = database.getDocument(documentId);
 
         return objectReader.readValue(document.toString());
+    }
+
+    public String getDocumentId(String locator) throws IOException {
+        View view = database.getDocument(functions.getDesignDocumentPhonenumbers()).getView(functions.getAllPhonesPhoneNumber());
+        ViewResults viewResults = database.view(view);
+
+        Document document = viewResults.getResults().get(0);
+        return document.getId();
     }
 
 }

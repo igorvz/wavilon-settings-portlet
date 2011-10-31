@@ -25,6 +25,9 @@ public class Functions {
     @Value("${fetch.all.phones.phone.number}")
     private String allPhonesPhoneNumber;
 
+    @Value("${fetch.extension.code.exist}")
+    private String extensionCodeExist;
+
     public String getDesignDocumentPhonenumbers() {
         return designDocumentPhonenumbers;
     }
@@ -51,5 +54,9 @@ public class Functions {
 
     public String getAllPhonesPhoneNumber() {
         return allPhonesPhoneNumber;
+    }
+
+    public String getExtensionCodeExist() {
+        return extensionCodeExist;
     }
 }
