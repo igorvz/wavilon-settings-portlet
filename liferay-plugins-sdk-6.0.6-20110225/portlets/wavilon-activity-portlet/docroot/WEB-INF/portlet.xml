@@ -17,10 +17,16 @@
             <value>com.aimprosoft.wavilon.application.ActivityApplication</value>
         </init-param>
 
+        <init-param>
+            <name>widgetset</name>
+            <value>com.aimprosoft.wavilon.application.widgetsets.ActivityApplicationWidgetSet</value>
+        </init-param>
+
         <expiration-cache>0</expiration-cache>
 
         <supports>
             <mime-type>text/html</mime-type>
+             <portlet-mode>view</portlet-mode>
         </supports>
 
         <portlet-info>

@@ -86,6 +86,7 @@ public class ExtensionForm extends AbstractForm {
 
         TextField code = new TextField(bundle.getString("wavilon.error.massage.extensions.code"));
         code.setRequired(true);
+        code.setRequiredError(bundle.getString("wavilon.error.massage.extensions.code.empty"));
         code.addValidator(new RegexpValidator("[1-9]{1}[0-9]{4}", bundle.getString("wavilon.error.massage.extensions.code.wrong")));
 
         final TextField destination = new TextField();
@@ -119,6 +120,7 @@ public class ExtensionForm extends AbstractForm {
             name.setValue(extension.getName());
             destination.setValue(extension.getDestination());
             changeDestinationValidator(CouchModelUtil.extensionTypeMapEject(bundle).get(extension.getChannel()), destination, form);
+            code.setValue(String.valueOf(extension.getCode()));
         }
 
         form.addField("extensionId", extensionId);
@@ -198,30 +200,22 @@ public class ExtensionForm extends AbstractForm {
         Button save = new Button(bundle.getString("wavilon.button.save"), new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
                 try {
+                    form.commit();
 
                     String name = (String) form.getField("name").getValue();
                     String extensionType = (String) form.getField("extensionType").getValue();
                     String destination = (String) form.getField("destination").getValue();
                     Integer code = Integer.parseInt((String) form.getField("code").getValue());
 
-                    String documentId = service.getExtensionCode(model.getLiferayOrganizationId(), code);
 
-                    if (!"".equals(documentId)) {
-                        boolean extensionExist = true;
-                        while (extensionExist) {
+                    if (checkCode(code)) {
 
-                            code = createCode();
+                        code = createCode();
 
-                            if (!checkExtensionCode(model.getLiferayOrganizationId(), code)) {
+                        UserError userError = new UserError(bundle.getString("wavilon.error.massage.extensions.code.exist") + " " + code);
+                        form.setComponentError(userError);
+                        form.getField("code").setValue(String.valueOf(code));
 
-                                UserError userError = new UserError(bundle.getString("wavilon.error.massage.extensions.code.exist") + " " + code);
-                                form.setComponentError(userError);
-
-                                form.commit();
-
-                                extensionExist = false;
-                            };
-                        }
                     } else {
 
                         final Object object = table.addItem();
@@ -269,21 +263,19 @@ public class ExtensionForm extends AbstractForm {
         buttons.addComponent(save);
     }
 
-    private boolean checkExtensionCode(Long liferayOrganizationId, Integer code) throws IOException {
-
-        String documentId = service.getExtensionCode(liferayOrganizationId, code);
-        if ("".equals(documentId)) {
-            return false;
+    private boolean checkCode(Integer code) {
+        try {
+            return service.checkCode(model.getLiferayOrganizationId(), code);
+        } catch (IOException e) {
+            return true;
         }
-        return true;
     }
 
     private Integer createCode() {
         Random random = new Random();
         Integer code = random.nextInt(99999);
 
-        while (!(code < 1000000 && code > 10000 && code > 0)) {
-
+        while (code > 9999 && checkCode(code)) {
             code = random.nextInt(99999);
         }
         return code;

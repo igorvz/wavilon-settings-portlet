@@ -81,22 +81,11 @@ public class ExtensionCouchDBServiceImpl extends AbstractViewEntityService imple
         couchDBService.removeModelById(id);
     }
 
-    public String getExtensionCode(Long organizationId, Integer code) throws IOException {
-
+    public boolean checkCode(Long organizationId, Integer code) throws IOException {
         View view = database.getDocument(functions.getDesignDocumentNodes()).getView(functions.getExtensionCodeExist());
-        view.setKey(urlEncoder.encode("[\"extension\"," + organizationId + "," + code + "]"));
-
+        view.setKey(urlEncoder.encode("[" + organizationId + "," + code + "]"));
         ViewResults viewResults = database.view(view);
 
-        String document = "";
-
-        for (Document doc : viewResults.getResults()) {
-
-            CouchModel model = getModel(doc.getId());
-
-            document = model.getId();
-        }
-        return document;
-
+        return 0 != viewResults.getResults().size();
     }
 }

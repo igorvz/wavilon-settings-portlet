@@ -7,7 +7,8 @@ import com.vaadin.ui.*;
 import org.vaadin.imagefilter.Image;
 
 import javax.portlet.PortletRequest;
-import java.util.*;
+import java.util.Map;
+import java.util.ResourceBundle;
 
 public class DialogCell extends HorizontalLayout {
     private Embedded avatar;
@@ -164,7 +165,6 @@ public class DialogCell extends HorizontalLayout {
             note.setStyleName("note");
         }
     }
-
 
     private VerticalLayout createNote() {
         VerticalLayout note = new VerticalLayout();

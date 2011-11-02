@@ -28,6 +28,14 @@ public class Functions {
     @Value("${fetch.extension.code.exist}")
     private String extensionCodeExist;
 
+    @Value("${fetch.phones.geo.number.id}")
+    private String phonesGeoNumberId;
+
+    @Value("${fetch.phones.virtual.number.id}")
+    private String phonesVirtualNumberId;
+
+
+
     public String getDesignDocumentPhonenumbers() {
         return designDocumentPhonenumbers;
     }
@@ -58,5 +66,13 @@ public class Functions {
 
     public String getExtensionCodeExist() {
         return extensionCodeExist;
+    }
+
+    public String getPhonesGeoNumberId() {
+        return phonesGeoNumberId;
+    }
+
+    public String getPhonesVirtualNumberId() {
+        return phonesVirtualNumberId;
     }
 }

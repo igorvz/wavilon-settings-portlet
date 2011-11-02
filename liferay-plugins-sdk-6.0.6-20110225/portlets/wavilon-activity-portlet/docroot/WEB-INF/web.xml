@@ -16,6 +16,28 @@
         </listener-class>
     </listener>
 
+    <servlet>
+		<servlet-name>WavilonActivityApplication</servlet-name>
+		<servlet-class>org.vaadin.artur.icepush.ICEPushServlet</servlet-class>
+
+		<init-param>
+			<description>Vaadin application class to start</description>
+			<param-name>application</param-name>
+			<param-value>com.aimprosoft.wavilon.application.ActivityApplication</param-value>
+		</init-param>
+		<init-param>
+			<description>Application widgetset</description>
+			<param-name>widgetset</param-name>
+			<param-value>com.aimprosoft.wavilon.application.widgetsets.ActivityApplicationWidgetSet</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<servlet-mapping>
+  		<servlet-name>WavilonActivityApplication</servlet-name>
+		<url-pattern>/VAADIN/*</url-pattern>
+	</servlet-mapping>
+
     <jsp-config>
         <taglib>
             <taglib-uri>http://java.sun.com/jsp/jstl/core</taglib-uri>

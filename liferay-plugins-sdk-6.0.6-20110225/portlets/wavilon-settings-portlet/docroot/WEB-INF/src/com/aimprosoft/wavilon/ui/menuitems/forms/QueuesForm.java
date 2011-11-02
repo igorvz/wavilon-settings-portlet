@@ -16,7 +16,6 @@ import org.apache.commons.lang.math.NumberUtils;
 
 import javax.portlet.PortletRequest;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -240,7 +239,7 @@ public class QueuesForm extends AbstractForm {
         }
         forwardTo.setWidth(230, Sizeable.UNITS_PIXELS);
 //        forwardTo.setRequired(true);
-//        forwardTo.setNullSelectionItemId(bundle.getString("wavilon.form.select"));
+        forwardTo.setNullSelectionItemId(bundle.getString("wavilon.form.select"));
     }
 
     private HorizontalLayout createButtons(VerticalLayout content) {

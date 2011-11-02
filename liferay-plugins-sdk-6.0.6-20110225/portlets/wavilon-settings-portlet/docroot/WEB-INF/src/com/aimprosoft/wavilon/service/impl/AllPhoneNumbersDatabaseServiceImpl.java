@@ -149,7 +149,8 @@ public class AllPhoneNumbersDatabaseServiceImpl extends AbstractViewEntityServic
     }
 
     public String getDocumentId(String locator) throws IOException {
-        View view = database.getDocument(functions.getDesignDocumentPhonenumbers()).getView(functions.getAllPhonesPhoneNumber());
+        View view = database.getDocument(functions.getDesignDocumentPhonenumbers()).getView(functions.getPhonesGeoNumberId());
+        view.setKey(urlEncoder.encode("\"" + locator + "\""));
         ViewResults viewResults = database.view(view);
 
         Document document = viewResults.getResults().get(0);

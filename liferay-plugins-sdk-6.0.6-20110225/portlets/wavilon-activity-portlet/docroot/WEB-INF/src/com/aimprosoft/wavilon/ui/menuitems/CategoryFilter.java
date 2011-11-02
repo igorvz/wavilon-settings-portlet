@@ -1,7 +1,5 @@
 package com.aimprosoft.wavilon.ui.menuitems;
 
-import com.vaadin.terminal.Sizeable;
-import com.vaadin.terminal.gwt.client.RenderInformation;
 import com.vaadin.ui.*;
 
 import javax.portlet.PortletRequest;
@@ -41,10 +39,10 @@ public class CategoryFilter extends HorizontalLayout {
 
     private void fillLabels(VerticalLayout availableLabels) {
         HorizontalLayout categoriesRow = null;
-        int count = 0;
+        int counter = 0;
 
         for (String s : category) {
-            if (0 == count) {
+            if (0 == counter) {
                 categoriesRow = new HorizontalLayout();
                 availableLabels.addComponent(categoriesRow);
                 categoriesRow.setSizeUndefined();
@@ -68,11 +66,13 @@ public class CategoryFilter extends HorizontalLayout {
             categoryButton.addListener(clickListener);
 
             categoryButton.setStyleName("categoryButtonSelect");
-            count++;
 
-            if (count == 4) {
-                count = 0;
+
+            counter+=s.length();
+            if (counter > 60) {
+                counter = 0;
             }
+
         }
 
     }
