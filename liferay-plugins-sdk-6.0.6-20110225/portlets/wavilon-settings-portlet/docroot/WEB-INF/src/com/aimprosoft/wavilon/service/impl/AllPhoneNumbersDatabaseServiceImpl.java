@@ -66,7 +66,7 @@ public class AllPhoneNumbersDatabaseServiceImpl extends AbstractViewEntityServic
     }
 
     public List<CouchModel> getVirtualNumbers() throws IOException {
-        View view = database.getDocument(functions.getDesignDocumentPhonenumbers()).getView(functions.getAllPhonesVirtualNumber());
+        View view = database.getDocument(functions.getDesignDocumentPhoneNumbers()).getView(functions.getAllPhonesVirtualNumber());
         ViewResults viewResults = database.view(view);
         List<CouchModel> modelList = new LinkedList<CouchModel>();
 
@@ -79,7 +79,7 @@ public class AllPhoneNumbersDatabaseServiceImpl extends AbstractViewEntityServic
     }
 
     public List<CouchModel> getPhoneNumbers() throws IOException {
-        View view = database.getDocument(functions.getDesignDocumentPhonenumbers()).getView(functions.getAllPhonesPhoneNumber());
+        View view = database.getDocument(functions.getDesignDocumentPhoneNumbers()).getView(functions.getAllPhonesPhoneNumber());
         ViewResults viewResults = database.view(view);
         List<CouchModel> modelList = new LinkedList<CouchModel>();
 
@@ -92,7 +92,20 @@ public class AllPhoneNumbersDatabaseServiceImpl extends AbstractViewEntityServic
     }
 
     public List<String> getOnlyPhoneNumbers() throws IOException {
-        View view = database.getDocument(functions.getDesignDocumentPhonenumbers()).getView(functions.getAllPhonesPhoneNumber());
+        View view = database.getDocument(functions.getDesignDocumentPhoneNumbers()).getView(functions.getAllPhonesPhoneNumber());
+        ViewResults viewResults = database.view(view);
+        List<String> modelList = new LinkedList<String>();
+
+        for (Document doc : viewResults.getResults()) {
+            PhoneModel phoneModel = getPhoneModel(doc.getId());
+            modelList.add(phoneModel.getLocator());
+        }
+
+        return modelList;
+    }
+
+    public List<String> getOnlyVirtualNumbers() throws IOException {
+        View view = database.getDocument(functions.getDesignDocumentPhoneNumbers()).getView(functions.getAllPhonesVirtualNumber());
         ViewResults viewResults = database.view(view);
         List<String> modelList = new LinkedList<String>();
 
@@ -148,8 +161,18 @@ public class AllPhoneNumbersDatabaseServiceImpl extends AbstractViewEntityServic
         return objectReader.readValue(document.toString());
     }
 
-    public String getDocumentId(String locator) throws IOException {
-        View view = database.getDocument(functions.getDesignDocumentPhonenumbers()).getView(functions.getPhonesGeoNumberId());
+    public String getPhoneNumbersDocumentId(String locator) throws IOException {
+        View view = database.getDocument(functions.getDesignDocumentPhoneNumbers()).getView(functions.getPhonesGeoNumberId());
+        view.setKey(urlEncoder.encode("\"" + locator + "\""));
+        ViewResults viewResults = database.view(view);
+
+        Document document = viewResults.getResults().get(0);
+        return document.getId();
+    }
+
+
+    public String getVirtualNumbersDocumentId(String locator) throws IOException {
+        View view = database.getDocument(functions.getDesignDocumentPhoneNumbers()).getView(functions.getPhonesVirtualNumberId());
         view.setKey(urlEncoder.encode("\"" + locator + "\""));
         ViewResults viewResults = database.view(view);
 

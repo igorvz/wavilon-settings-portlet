@@ -31,7 +31,7 @@ public class ExtensionCouchDBServiceImpl extends AbstractViewEntityService imple
 
     public List<Extension> getAllExtension() throws IOException {
 
-        ViewResults viewResults = database.adhoc(functions.getAllUniqueEntitiess());
+        ViewResults viewResults = database.adhoc(functions.getAllUniqueEntities());
         List<Extension> extensionList = new LinkedList<Extension>();
 
         for (Document doc : viewResults.getResults()) {
@@ -53,7 +53,7 @@ public class ExtensionCouchDBServiceImpl extends AbstractViewEntityService imple
 
     public List<CouchModel> getAllUsersCouchModelToExtension(Long organizationId) throws IOException {
 
-        View view = database.getDocument(functions.getDesignDocumentNodes()).getView(functions.getAllUniqueEntitiess());
+        View view = database.getDocument(functions.getDesignDocumentNodes()).getView(functions.getAllUniqueEntities());
         view.setKey(urlEncoder.encode("[\"extension\"," + organizationId + "]"));
 
         ViewResults viewResults = database.view(view);

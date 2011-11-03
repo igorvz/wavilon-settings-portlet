@@ -32,7 +32,7 @@ public class AgentCouchDBServiceImpl extends AbstractViewEntityService implement
 
     public List<Agent> getAllAgent() throws IOException {
 
-        ViewResults viewResults = database.adhoc(functions.getAllUniqueEntitiess());
+        ViewResults viewResults = database.adhoc(functions.getAllUniqueEntities());
         List<Agent> extensionList = new LinkedList<Agent>();
 
         for (Document doc : viewResults.getResults()) {
@@ -57,7 +57,7 @@ public class AgentCouchDBServiceImpl extends AbstractViewEntityService implement
 
     public List<CouchModel> getAllUsersCouchModelAgent(Long organizationId) throws IOException {
 
-        View view = database.getDocument(functions.getDesignDocumentNodes()).getView(functions.getAllUniqueEntitiess());
+        View view = database.getDocument(functions.getDesignDocumentNodes()).getView(functions.getAllUniqueEntities());
         view.setKey(urlEncoder.encode("[\"agent\"," + organizationId + "]"));
         ViewResults viewResults = database.view(view);
 

@@ -31,7 +31,7 @@ public class QueueCouchDBServiceImpl extends AbstractViewEntityService implement
 
     public List<Queue> getAllQueue() throws IOException {
 
-        ViewResults viewResults = database.adhoc(functions.getAllUniqueEntitiess());
+        ViewResults viewResults = database.adhoc(functions.getAllUniqueEntities());
         List<Queue> extensionList = new LinkedList<Queue>();
 
         for (Document doc : viewResults.getResults()) {
@@ -55,7 +55,7 @@ public class QueueCouchDBServiceImpl extends AbstractViewEntityService implement
     }
 
     public List<CouchModel> getAllUsersCouchModelQueue(Long organizationId) throws IOException {
-        View view = database.getDocument(functions.getDesignDocumentNodes()).getView(functions.getAllUniqueEntitiess());
+        View view = database.getDocument(functions.getDesignDocumentNodes()).getView(functions.getAllUniqueEntities());
         view.setKey(urlEncoder.encode("[\"queue\"," + organizationId + "]"));
         ViewResults viewResults = database.view(view);
 

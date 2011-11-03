@@ -112,7 +112,7 @@ public class PhoneNumbersContent extends VerticalLayout {
                         phoneNumbers.select(object);
                         ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
                         getWindow().addWindow(confirmingRemove);
-                        confirmingRemove.setPhoneNumbersId(phoneNumber.getLocator());
+                        confirmingRemove.setNumbersId(phoneNumber.getLocator(), CouchTypes.service);
                         confirmingRemove.init(couchModel.getId(), phoneNumbers);
                     }
                 });

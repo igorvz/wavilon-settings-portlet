@@ -12,6 +12,8 @@ import com.vaadin.Application;
 import com.vaadin.data.validator.IntegerValidator;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 
 import javax.portlet.PortletRequest;
@@ -27,6 +29,7 @@ public class QueuesForm extends AbstractForm {
     private Table table;
     private CouchModel model;
     private Queue queue;
+    private Boolean oldMusicOnHold = false;
 
     public QueuesForm(final ResourceBundle bundle, Table table) {
         this.bundle = bundle;
@@ -82,19 +85,36 @@ public class QueuesForm extends AbstractForm {
                         forwardToOnMaxLengthInput = ((CouchModelLite) form.getField("forwardToOnMaxLengthInput").getValue()).getId();
                     }
 
-                    String musicOnHold = (String) form.getField("musicOnHold").getValue();
+                    Boolean musicOnHold = (Boolean) form.getField("musicOnHold").getValue();
 
                     if (null != model.getRevision()) {
                         table.removeItem(itemId);
                         table.select(null);
                     }
 
+                    if (!musicOnHold) {
+                        queue.setMusicOnHold(null);
+                    } else if (!oldMusicOnHold){
+                        queue.setMusicOnHold(musicOnHold);
+                    }
+
+
                     queue.setName(name);
-                    queue.setMaxTime(NumberUtils.toInt(maxTimeInput));
-                    queue.setMaxLength(NumberUtils.toInt(maxLengthInput));
+
+                    if (!"".equals(maxTimeInput)) {
+                        queue.setMaxTime(NumberUtils.toInt(maxTimeInput));
+                    } else {
+                        queue.setMaxTime(null);
+                    }
+
+                    if (!"".equals(maxLengthInput)) {
+                        queue.setMaxLength(NumberUtils.toInt(maxLengthInput));
+                    } else {
+                        queue.setMaxLength(null);
+                    }
+
                     queue.setForwardToOnMaxTime(forwardToOnMaxTimeInput);
                     queue.setForwardToOnMaxLength(forwardToOnMaxLengthInput);
-                    queue.setMusicOnHold(musicOnHold);
 
                     service.addQueue(queue, model, Collections.<String>emptyList());
 
@@ -132,7 +152,11 @@ public class QueuesForm extends AbstractForm {
             return newQueue();
         }
         try {
-            return service.getQueue(model);
+            Queue existingQueue = service.getQueue(model);
+            if (null != existingQueue.getMusicOnHold()){
+                oldMusicOnHold = true;
+            }
+            return existingQueue;
         } catch (Exception e) {
             return newQueue();
         }
@@ -187,9 +211,7 @@ public class QueuesForm extends AbstractForm {
 
         //sixth
 
-        OptionGroup musicOnHold = new OptionGroup();
-        musicOnHold.addItem("Yes");
-        musicOnHold.addItem("No");
+        CheckBox musicOnHold = new CheckBox();
 
 //        ComboBox musicOnHold = new ComboBox();
 //        musicOnHold.setWidth(230, Sizeable.UNITS_PIXELS);
@@ -217,9 +239,19 @@ public class QueuesForm extends AbstractForm {
 
         if (null != model.getRevision()) {
             name.setValue(queue.getName());
-            maxTimeInput.setValue(queue.getMaxTime());
-            maxLengthInput.setValue(queue.getMaxLength());
-            musicOnHold.setValue(queue.getMusicOnHold());
+
+
+            if (null != queue.getMaxTime()) {
+                maxTimeInput.setValue(queue.getMaxTime());
+            }
+            if (null != queue.getMaxLength()) {
+                maxLengthInput.setValue(queue.getMaxLength());
+            }
+
+            if (null != queue.getMusicOnHold()) {
+                musicOnHold.setValue(true);
+            }
+
         }
 
         form.addField("name", name);

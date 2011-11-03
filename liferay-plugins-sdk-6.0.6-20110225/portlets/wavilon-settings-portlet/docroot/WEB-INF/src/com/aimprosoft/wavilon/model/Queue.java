@@ -18,12 +18,12 @@ public class Queue extends BaseModel {
     private String forwardToOnMaxLength;
 
     @JsonProperty("music_on_hold")
-    private String musicOnHold;
+    private Object musicOnHold;
 
     public Queue() {
     }
 
-    public int getMaxTime() {
+    public Integer getMaxTime() {
         return maxTime;
     }
 
@@ -31,7 +31,7 @@ public class Queue extends BaseModel {
         this.maxTime = maxTime;
     }
 
-    public int getMaxLength() {
+    public Integer getMaxLength() {
         return maxLength;
     }
 
@@ -55,11 +55,11 @@ public class Queue extends BaseModel {
         this.forwardToOnMaxLength = forwardToOnMaxLength;
     }
 
-    public String getMusicOnHold() {
+    public Object getMusicOnHold() {
         return musicOnHold;
     }
 
-    public void setMusicOnHold(String musicOnHold) {
+    public void setMusicOnHold(Object musicOnHold) {
         this.musicOnHold = musicOnHold;
     }
 }

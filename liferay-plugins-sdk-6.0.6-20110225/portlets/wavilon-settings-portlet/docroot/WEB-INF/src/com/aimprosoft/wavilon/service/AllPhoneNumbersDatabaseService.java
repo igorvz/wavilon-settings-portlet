@@ -20,9 +20,13 @@ public interface AllPhoneNumbersDatabaseService {
 
     List<String> getOnlyPhoneNumbers() throws IOException;
 
+    List<String> getOnlyVirtualNumbers() throws IOException;
+
     CouchModel getVirtualNumber(String documentId) throws IOException;
 
     CouchModel getPhoneNumber(String documentId) throws IOException;
 
-    public String getDocumentId(String locator) throws IOException;
+    String getPhoneNumbersDocumentId(String locator) throws IOException;
+
+    String getVirtualNumbersDocumentId(String locator) throws IOException;
 }

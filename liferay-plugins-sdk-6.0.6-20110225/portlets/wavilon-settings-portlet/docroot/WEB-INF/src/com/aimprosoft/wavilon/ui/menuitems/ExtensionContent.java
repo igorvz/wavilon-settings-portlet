@@ -55,7 +55,7 @@ public class ExtensionContent extends VerticalLayout {
         setWidth(100, Sizeable.UNITS_PERCENTAGE);
         addComponent(head);
 
-        table.setColumnWidth(bundle.getString("wavilon.table.extensions.column.id"), 60);
+        table.setColumnWidth(bundle.getString("wavilon.table.extensions.column.code"), 60);
         table.setColumnWidth("", 60);
 
         table.setColumnExpandRatio(bundle.getString("wavilon.table.extensions.column.name"), 1);
@@ -116,7 +116,7 @@ public class ExtensionContent extends VerticalLayout {
                 final Object object = ic.addItem();
 
                 ic.getContainerProperty(object, "extensionId").setValue(couchModel.getId());
-                ic.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.id")).setValue(couchModel.getLiferayOrganizationId());
+                ic.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.code")).setValue(extension.getCode());
                 ic.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.name")).setValue(extension.getName());
                 ic.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.extension.type")).setValue(extensionTypeMap.get(extension.getChannel()));
                 ic.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.destination")).setValue(extension.getDestination());
@@ -153,7 +153,7 @@ public class ExtensionContent extends VerticalLayout {
         LinkedList<String> tableFields = new LinkedList<String>();
 
         tableFields.add("extensionId");
-        tableFields.add(bundle.getString("wavilon.table.extensions.column.id"));
+        tableFields.add(bundle.getString("wavilon.table.extensions.column.code"));
         tableFields.add(bundle.getString("wavilon.table.extensions.column.name"));
         tableFields.add(bundle.getString("wavilon.table.extensions.column.extension.type"));
         tableFields.add(bundle.getString("wavilon.table.extensions.column.destination"));
@@ -165,7 +165,7 @@ public class ExtensionContent extends VerticalLayout {
     private LinkedList<String> fillFields() {
         LinkedList<String> tableFields = new LinkedList<String>();
 
-        tableFields.add(bundle.getString("wavilon.table.extensions.column.id"));
+        tableFields.add(bundle.getString("wavilon.table.extensions.column.code"));
         tableFields.add(bundle.getString("wavilon.table.extensions.column.name"));
         tableFields.add(bundle.getString("wavilon.table.extensions.column.extension.type"));
         tableFields.add(bundle.getString("wavilon.table.extensions.column.destination"));

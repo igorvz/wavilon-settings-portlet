@@ -30,7 +30,7 @@ public class VirtualNumberDBServiceImpl extends AbstractViewEntityService implem
     }
 
     public List<VirtualNumber> getAllVirtualNumbers() throws IOException {
-        ViewResults viewResults = database.adhoc(functions.getAllUniqueEntitiess());
+        ViewResults viewResults = database.adhoc(functions.getAllUniqueEntities());
         List<VirtualNumber> virtualNumberList = new LinkedList<VirtualNumber>();
 
         for (Document doc : viewResults.getResults()) {
@@ -51,7 +51,7 @@ public class VirtualNumberDBServiceImpl extends AbstractViewEntityService implem
     }
 
     public List<CouchModel> getAllUsersCouchModelToVirtualNumber(Long organizationId) throws IOException {
-        View view = database.getDocument(functions.getDesignDocumentNodes()).getView(functions.getAllUniqueEntitiess());
+        View view = database.getDocument(functions.getDesignDocumentNodes()).getView(functions.getAllUniqueEntities());
         view.setKey(urlEncoder.encode("[\"startnode\"," + organizationId + "]"));
         ViewResults viewResults = database.view(view);
         List<CouchModel> modelList = new LinkedList<CouchModel>();

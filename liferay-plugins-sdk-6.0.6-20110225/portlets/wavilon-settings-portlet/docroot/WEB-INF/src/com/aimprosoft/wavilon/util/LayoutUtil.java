@@ -48,11 +48,9 @@ public class LayoutUtil {
         head.setComponentAlignment(headLabel, Alignment.TOP_LEFT);
 
 
-        if(!bundle.getString("wavilon.menuitem.virtualnumbers").equals(headLabel.toString())){
-            HorizontalLayout addButton = createButton(bundle, window, form);
-            head.addComponent(addButton);
-            head.setComponentAlignment(addButton, Alignment.MIDDLE_RIGHT);
-        }
+        HorizontalLayout addButton = createButton(bundle, window, form);
+        head.addComponent(addButton);
+        head.setComponentAlignment(addButton, Alignment.MIDDLE_RIGHT);
 
         return head;
     }

@@ -71,19 +71,18 @@ public class PhoneNumbersForm extends AbstractForm {
                     String name = (String) form.getField("name").getValue();
                     CouchModelLite forwardCallTo = ((CouchModelLite) form.getField("forwardCallTo").getValue());
                     try {
-                        CouchModel virtualNumber = ((CouchModel) form.getField("number").getValue());
-                        phoneNumber.setLocator((String) virtualNumber.getProperties().get("locator"));
+                        CouchModel number = ((CouchModel) form.getField("number").getValue());
+                        phoneNumber.setLocator((String) number.getProperties().get("locator"));
 
                     } catch (Exception e) {
-                        String virtualNumber = (String) form.getField("number").getValue();
-                        phoneNumber.setLocator(virtualNumber);
+                        String number = (String) form.getField("number").getValue();
+                        phoneNumber.setLocator(number);
 
                     }
 
 
                     phoneNumber.setName(name);
 
-                    model.setType(CouchTypes.service);
 
                     service.addPhoneNumber(phoneNumber, model, forwardCallTo.getId());
 
@@ -104,7 +103,7 @@ public class PhoneNumbersForm extends AbstractForm {
                             String phoneNumbersID = (String) table.getItem(object).getItemProperty("id").getValue();
                             ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
                             application.getMainWindow().addWindow(confirmingRemove);
-                            confirmingRemove.setPhoneNumbersId(phoneNumber.getLocator());
+                            confirmingRemove.setNumbersId(phoneNumber.getLocator(), CouchTypes.service);
                             confirmingRemove.init(phoneNumbersID, table);
                         }
                     };
@@ -161,7 +160,7 @@ public class PhoneNumbersForm extends AbstractForm {
             form.addField("forwardCallTo", forwardCallTo);
 
         } else {
-            List<String> virtualNumbers = createVirtualNumbers();
+            List<String> virtualNumbers = createGeoNumbers();
             ComboBox numbers = new ComboBox(bundle.getString("wavilon.form.number"));
             numbers.addItem(bundle.getString("wavilon.form.select"));
 
@@ -185,9 +184,12 @@ public class PhoneNumbersForm extends AbstractForm {
         return form;
     }
 
-    private List<String> createVirtualNumbers() {
-
-        return getVirtualNumbers();
+    private List<String> createGeoNumbers() {
+        try {
+            return allPhonesService.getOnlyPhoneNumbers();
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
     }
 
     private List<CouchModelLite> createForwards() {
@@ -205,12 +207,12 @@ public class PhoneNumbersForm extends AbstractForm {
 
     private CouchModel createModel(String id) {
         if ("-1".equals(id)) {
-            return CouchModelUtil.newCouchModel(request, CouchTypes.startnode);
+            return CouchModelUtil.newCouchModel(request, CouchTypes.service);
         }
         try {
             return service.getModel(id);
         } catch (Exception e) {
-            return CouchModelUtil.newCouchModel(request, CouchTypes.startnode);
+            return CouchModelUtil.newCouchModel(request, CouchTypes.service);
         }
     }
 
@@ -223,11 +225,5 @@ public class PhoneNumbersForm extends AbstractForm {
         }
     }
 
-    private List<String> getVirtualNumbers() {
-        try {
-            return allPhonesService.getOnlyPhoneNumbers();
-        } catch (Exception e) {
-            return Collections.emptyList();
-        }
-    }
+
 }

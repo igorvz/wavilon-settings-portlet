@@ -5,13 +5,13 @@ import org.springframework.beans.factory.annotation.Value;
 public class Functions {
 
     @Value("${db.design.document.phonenumbers}")
-    private String designDocumentPhonenumbers;
+    private String designDocumentPhoneNumbers;
 
     @Value("${db.design.document.nodes}")
     private String designDocumentNodes;
 
     @Value("${fetch.all.unique.entities}")
-    private String allUniqueEntitiess;
+    private String allUniqueEntities;
 
     @Value("${fetch.all.couch.model.lite}")
     private String allCouchModelLite;
@@ -36,16 +36,16 @@ public class Functions {
 
 
 
-    public String getDesignDocumentPhonenumbers() {
-        return designDocumentPhonenumbers;
+    public String getDesignDocumentPhoneNumbers() {
+        return designDocumentPhoneNumbers;
     }
 
     public String getDesignDocumentNodes() {
         return designDocumentNodes;
     }
 
-    public String getAllUniqueEntitiess() {
-        return allUniqueEntitiess;
+    public String getAllUniqueEntities() {
+        return allUniqueEntities;
     }
 
     public String getAllCouchModelLite() {

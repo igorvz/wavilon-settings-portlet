@@ -75,9 +75,9 @@ public class ExtensionForm extends AbstractForm {
         final Form form = new Form();
         form.addStyleName("labelField");
 
-        TextField extensionId = new TextField(bundle.getString("wavilon.form.extensions.extension.id"));
-        extensionId.setValue(model.getLiferayOrganizationId());
-        extensionId.setReadOnly(true);
+//        TextField extensionId = new TextField(bundle.getString("wavilon.form.extensions.extension.id"));
+//        extensionId.setValue(model.getLiferayOrganizationId());
+//        extensionId.setReadOnly(true);
 
 
         TextField name = new TextField(bundle.getString("wavilon.form.name"));
@@ -121,9 +121,11 @@ public class ExtensionForm extends AbstractForm {
             destination.setValue(extension.getDestination());
             changeDestinationValidator(CouchModelUtil.extensionTypeMapEject(bundle).get(extension.getChannel()), destination, form);
             code.setValue(String.valueOf(extension.getCode()));
+        } else {
+            code.setValue(String.valueOf(createCode()));
         }
 
-        form.addField("extensionId", extensionId);
+//        form.addField("extensionId", extensionId);
         form.addField("name", name);
         form.addField("code", code);
         form.addField("extensionType", extensionType);
@@ -244,7 +246,7 @@ public class ExtensionForm extends AbstractForm {
                         }
 
                         table.getContainerProperty(object, "extensionId").setValue(model.getId());
-                        table.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.id")).setValue(model.getLiferayOrganizationId());
+                        table.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.code")).setValue(extension.getCode());
                         table.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.name")).setValue(extension.getName());
                         table.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.extension.type")).setValue(CouchModelUtil.extensionTypeMapEject(bundle).get(extension.getChannel()));
                         table.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.destination")).setValue(extension.getDestination());

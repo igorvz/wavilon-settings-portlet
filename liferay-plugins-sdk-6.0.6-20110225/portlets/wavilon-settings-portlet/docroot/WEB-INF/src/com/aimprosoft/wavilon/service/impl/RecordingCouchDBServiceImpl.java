@@ -37,7 +37,7 @@ public class RecordingCouchDBServiceImpl extends AbstractViewEntityService imple
     }
 
     public List<Recording> getAllRecording() throws IOException {
-        ViewResults viewResults = database.adhoc(functions.getAllUniqueEntitiess());
+        ViewResults viewResults = database.adhoc(functions.getAllUniqueEntities());
         List<Recording> recordingList = new LinkedList<Recording>();
 
         for (Document doc : viewResults.getResults()) {
@@ -58,7 +58,7 @@ public class RecordingCouchDBServiceImpl extends AbstractViewEntityService imple
     }
 
     public List<CouchModel> getAllUsersCouchModelToRecording(Long organizationId, boolean attachment) throws IOException {
-        View view = database.getDocument(functions.getDesignDocumentNodes()).getView(functions.getAllUniqueEntitiess());
+        View view = database.getDocument(functions.getDesignDocumentNodes()).getView(functions.getAllUniqueEntities());
         view.setKey(urlEncoder.encode("[\"recording\"," + organizationId + "]"));
         ViewResults viewResults = database.view(view);
 

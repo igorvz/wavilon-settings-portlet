@@ -32,7 +32,7 @@ public class PhoneNumberDBServiceImpl extends AbstractViewEntityService implemen
     }
 
     public List<PhoneNumber> getAllPhoneNumber() throws IOException {
-        ViewResults viewResults = database.adhoc(functions.getAllUniqueEntitiess());
+        ViewResults viewResults = database.adhoc(functions.getAllUniqueEntities());
         List<PhoneNumber> numberList = new LinkedList<PhoneNumber>();
 
         for (Document doc : viewResults.getResults()) {
@@ -56,7 +56,7 @@ public class PhoneNumberDBServiceImpl extends AbstractViewEntityService implemen
     }
 
     public List<CouchModel> getAllUsersCouchModelToPhoneNumber(Long organizationId) throws IOException {
-        View view = database.getDocument(functions.getDesignDocumentNodes()).getView(functions.getAllUniqueEntitiess());
+        View view = database.getDocument(functions.getDesignDocumentNodes()).getView(functions.getAllUniqueEntities());
         view.setKey(urlEncoder.encode("[\"service\"," + organizationId + "]"));
         ViewResults viewResults = database.view(view);
 

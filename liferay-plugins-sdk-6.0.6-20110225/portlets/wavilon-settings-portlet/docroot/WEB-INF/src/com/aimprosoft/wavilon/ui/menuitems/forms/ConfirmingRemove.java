@@ -1,12 +1,12 @@
 package com.aimprosoft.wavilon.ui.menuitems.forms;
 
+import com.aimprosoft.wavilon.couch.CouchTypes;
 import com.aimprosoft.wavilon.service.AllPhoneNumbersDatabaseService;
 import com.aimprosoft.wavilon.service.ExtensionDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
-import com.liferay.portal.kernel.util.StringUtil;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.ObjectUtils;
 
 import java.util.ResourceBundle;
 
@@ -14,11 +14,11 @@ public class ConfirmingRemove extends Window {
     private ExtensionDatabaseService service = ObjectFactory.getBean(ExtensionDatabaseService.class);
     private ResourceBundle bundle;
     private String phoneNumbersId;
+    private String virtualNumbersId;
 
     public ConfirmingRemove(ResourceBundle bundle) {
         this.bundle = bundle;
     }
-
 
 
     public void init(String id, Table table) {
@@ -61,9 +61,17 @@ public class ConfirmingRemove extends Window {
                 try {
                     service.removeExtension(id);
 
-                    if(null != phoneNumbersId){
+                    if (null != phoneNumbersId || null != virtualNumbersId) {
                         AllPhoneNumbersDatabaseService allPhonesService = ObjectFactory.getBean(AllPhoneNumbersDatabaseService.class);
-                        String docId = allPhonesService.getDocumentId(phoneNumbersId);
+
+                        String docId = "";
+
+                        if (null == phoneNumbersId) {
+                            docId = allPhonesService.getVirtualNumbersDocumentId(virtualNumbersId);
+                        } else {
+                            docId = allPhonesService.getPhoneNumbersDocumentId(phoneNumbersId);
+                        }
+
                         allPhonesService.updateModel(docId);
                     }
 
@@ -85,7 +93,11 @@ public class ConfirmingRemove extends Window {
         return buttons;
     }
 
-    public void setPhoneNumbersId(String phoneNumbersId) {
-        this.phoneNumbersId = phoneNumbersId;
+    public void setNumbersId(String numbersId, CouchTypes type) {
+        if (type.equals(CouchTypes.startnode)) {
+            this.virtualNumbersId = numbersId;
+        } else {
+            this.phoneNumbersId = numbersId;
+        }
     }
 }

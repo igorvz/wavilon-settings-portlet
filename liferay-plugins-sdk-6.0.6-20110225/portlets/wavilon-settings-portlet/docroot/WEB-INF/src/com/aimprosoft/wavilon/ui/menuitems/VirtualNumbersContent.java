@@ -11,7 +11,6 @@ import com.aimprosoft.wavilon.ui.menuitems.forms.ConfirmingRemove;
 import com.aimprosoft.wavilon.ui.menuitems.forms.VirtualNumbersForm;
 import com.aimprosoft.wavilon.util.CouchModelUtil;
 import com.aimprosoft.wavilon.util.LayoutUtil;
-import com.liferay.portal.util.PortalUtil;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.event.ItemClickEvent;
@@ -115,18 +114,19 @@ public class VirtualNumbersContent extends VerticalLayout {
 
             for (final CouchModel couchModel : couchModels) {
                 final Object object = ic.addItem();
-                VirtualNumber virtualNumber  = getVirtualNumber(couchModel);
+                final VirtualNumber virtualNumber  = getVirtualNumber(couchModel);
                 CouchModelLite forward = CouchModelUtil.getCouchModelLite((String) couchModel.getProperties().get("forward_to"), bundle);
 
                 ic.getContainerProperty(object, bundle.getString("wavilon.table.virtualnumbers.column.number")).setValue(virtualNumber.getLocator());
                 ic.getContainerProperty(object, bundle.getString("wavilon.table.virtualnumbers.column.name")).setValue(virtualNumber.getName());
                 ic.getContainerProperty(object, "id").setValue(couchModel.getId());
-                ic.getContainerProperty(object, bundle.getString("wavilon.table.virtualnumbers.column.forward.calls.to")).setValue(forward.getId());
+                ic.getContainerProperty(object, bundle.getString("wavilon.table.virtualnumbers.column.forward.calls.to")).setValue(forward);
                 ic.getContainerProperty(object, "").setValue(new Button("", new Button.ClickListener() {
                     public void buttonClick(Button.ClickEvent event) {
                         virtualNumbers.select(object);
                         ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
                         getWindow().addWindow(confirmingRemove);
+                        confirmingRemove.setNumbersId(virtualNumber.getLocator(), CouchTypes.startnode);
                         confirmingRemove.init(couchModel.getId(), virtualNumbers);
                     }
                 }));
