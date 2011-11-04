@@ -73,6 +73,7 @@ public class CallsContent extends Panel {
         for (int i = 0; i < 2; i++) {
             DialogCell dialogCell = new DialogCell(bundle);
             itemContent.addComponent(dialogCell);
+            itemContent.addStyleName("itemStyle");
             dialogCell.init(avatarsMap);
         }
     }
@@ -80,7 +81,6 @@ public class CallsContent extends Panel {
     private HorizontalLayout createListViewPart() {
         HorizontalLayout listViewPart = new HorizontalLayout();
         Label listViewLabel = new Label(bundle.getString("wavilon.activity.label.list.view"));
-
 
         final Button avatarButton = new NativeButton();
         final Button nonAvatarButton = new NativeButton();
@@ -145,6 +145,7 @@ public class CallsContent extends Panel {
 
 
         listViewPart.addComponent(listViewLabel);
+        listViewPart.setComponentAlignment(listViewLabel, Alignment.MIDDLE_CENTER);
         listViewPart.addComponent(avatarButton);
         listViewPart.addComponent(nonAvatarButton);
 

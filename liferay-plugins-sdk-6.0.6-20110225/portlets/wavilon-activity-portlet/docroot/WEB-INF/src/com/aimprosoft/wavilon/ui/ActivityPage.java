@@ -5,7 +5,6 @@ import com.aimprosoft.wavilon.ui.menuitems.CategoryFilter;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.Reindeer;
-import org.vaadin.artur.icepush.ICEPush;
 
 import java.util.Iterator;
 import java.util.ResourceBundle;

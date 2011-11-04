@@ -35,6 +35,7 @@ public class DialogCell extends HorizontalLayout {
 
         createAvatar();
         addComponent(avatar);
+        setComponentAlignment(avatar, Alignment.TOP_CENTER);
 
         mainContent = new GridLayout(9, 7);
         addComponent(mainContent);
@@ -100,6 +101,8 @@ public class DialogCell extends HorizontalLayout {
         secondRow.addComponent(addCategoryButton);
         addCategoryButton.setStyleName("itemAddCategoryButton");
 
+        secondRow.addStyleName("categoryNLabelsStyle");
+
 
         //third row
         Label timerBottom;
@@ -111,6 +114,7 @@ public class DialogCell extends HorizontalLayout {
         final VerticalLayout chat = new VerticalLayout();
         mainContent.addComponent(chat, 0, 3, 8, 3);
         chat.setStyleName("chat");
+        chat.setWidth(95, Sizeable.UNITS_PERCENTAGE);
         fillChatLayout(chat);
 
 
@@ -118,13 +122,15 @@ public class DialogCell extends HorizontalLayout {
         chat.addComponent(newNote);
         newNote.setWidth(100, Sizeable.UNITS_PERCENTAGE);
 
-
         final TextArea textArea = new TextArea();
         newNote.addComponent(textArea, 0, 0, 3, 2);
-        textArea.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+        textArea.setWidth(99, Sizeable.UNITS_PERCENTAGE);
+        textArea.setHeight(50, Sizeable.UNITS_PIXELS);
+        textArea.setStyleName("itemTextAreaNote");
 
         final Button addNoteButton = new NativeButton("Add Note");
         newNote.addComponent(addNoteButton, 4, 2);
+        newNote.setComponentAlignment(addNoteButton, Alignment.BOTTOM_RIGHT);
         addNoteButton.setStyleName("itemAddNoteButton");
 
         Button.ClickListener hideChatListener = new Button.ClickListener() {
@@ -152,8 +158,8 @@ public class DialogCell extends HorizontalLayout {
 
     private void createAvatar() {
         avatar = new Image(avatarsMap.get("crying.png").getData(), true);
-        avatar.setHeight("100px");
-        avatar.setWidth("100px");
+        avatar.setHeight("61px");
+        avatar.setWidth("61px");
         avatar.setStyleName("imgColumn");
     }
 

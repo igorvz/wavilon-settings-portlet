@@ -38,7 +38,7 @@
     -moz-border-radius: 0 0 0 0;
     -webkit-border-radius: 0 0 0 0;
     -khtml-border-radius: 0 0 0 0;
-    font-family: Verdana;
+    font-family: Verdana,Arial,Helvetica,sans-serif;
     border-bottom: 1px solid #959595;
 }
 
@@ -67,14 +67,12 @@
 
 .rightcolumn .head {
     color: #959595;
-    font-family: Verdana;
+    font-family: Verdana,Arial,Helvetica,sans-serif;
     font-size: 20px;
     height: 43px;
     line-height: 43px;
-    padding-left: 26px;
+    padding: 5px 0 5px 23px;
     vertical-align: middle;
-    padding-bottom: 15px;
-    padding-top: 15px;
     border-bottom: 1px solid #959595;
 }
 
@@ -83,30 +81,36 @@
     padding-bottom: 15px;
     padding-top: 15px;
     border-bottom: 1px solid #959595;
+    color: #626262;
 }
 
-.rightcolumn  .v-verticallayout-listViewLayout    .v-nativebutton-avatarButtonSelect {
-    background-image: url("../images/avatarButtonSelect.PNG");
-    height: 18px;
-    width: 18px;
+.rightcolumn  .v-verticallayout-listViewLayout button{
+    border: medium none;
+    margin: 3px;
 }
 
-.rightcolumn  .v-verticallayout-listViewLayout    .v-nativebutton-avatarButtonNonSelect {
-    background-image: url("../images/avatarButtonNonSelect.PNG");
-    height: 18px;
-    width: 18px;
+.rightcolumn  .v-verticallayout-listViewLayout .v-nativebutton-avatarButtonSelect {
+    background-image: url("../images/avatarButtonSelect.png");
+    height: 27px;
+    width: 27px;
 }
 
-.rightcolumn  .v-verticallayout-listViewLayout    .v-nativebutton-nonAvatarButtonSelect {
-    background-image: url("../images/nonAvatarButtonSelect.PNG");
-    height: 18px;
-    width: 18px;
+.rightcolumn  .v-verticallayout-listViewLayout .v-nativebutton-avatarButtonNonSelect {
+    background-image: url("../images/avatarButtonNonSelect.png");
+    height: 27px;
+    width: 27px;
 }
 
-.rightcolumn  .v-verticallayout-listViewLayout    .v-nativebutton-nonAvatarButtonNonSelect {
-    background-image: url("../images/nonAvatarButtonNonSelect.PNG");
-    height: 18px;
-    width: 18px;
+.rightcolumn  .v-verticallayout-listViewLayout .v-nativebutton-nonAvatarButtonSelect {
+    background-image: url("../images/avatarButtonSelect.png");
+    height: 27px;
+    width: 27px;
+}
+
+.rightcolumn  .v-verticallayout-listViewLayout .v-nativebutton-nonAvatarButtonNonSelect {
+    background-image: url("../images/avatarButtonNonSelect.png");
+    height: 27px;
+    width: 27px;
 }
 
 .itemTimerTop {
@@ -131,14 +135,24 @@
 }
 
 .rightcolumn .v-horizontallayout-item .v-label-callerName {
+    color: #000000;
+    font-size: 13px;
     font-weight: bold;
-    margin-right: 5px
+    margin-right: 5px;
 }
 
 .rightcolumn .v-horizontallayout-item .v-label-callStatus {
     color: #707070;
     margin-right: 5px
 }
+
+.rightcolumn .categoryNLabelsStyle{
+    margin: 5px 0;
+}
+
+/*.rightcolumn .itemStyle {*/
+   /*margin: 0 0 0 23px;*/
+/*}*/
 
 /*-----------------------------------------------------Right Column Buttons----------------------------------------------------*/
 
@@ -162,18 +176,20 @@
 }
 
 .rightcolumn .v-horizontallayout-item .v-nativebutton-itemHideChatButtonDown {
-    background-image: url("../images/notesDown.png");
-    background-position: 100% 50%;
-    padding-right: 16px;
+    background: transparent url("../images/notesDown.png") no-repeat 100% 50%;
     color: #707070;
+    padding: 0;
+    position: relative;
+    right: 10px;
     width: 70px !important;
 }
 
 .rightcolumn .v-horizontallayout-item .v-nativebutton-itemHideChatButtonUp {
-    background-image: url("../images/notesUp.png");
-    background-position: 100% 50%;
-    padding-right: 16px;
+    background: transparent url("../images/notesUp.png") no-repeat 100% 50%;
     color: #707070;
+    padding: 0;
+    position: relative;
+    right: 10px;
     width: 70px !important;
 }
 
@@ -190,17 +206,23 @@
 }
 
 .rightcolumn .v-horizontallayout-item .v-label-category {
-    color: #6093e0;
+    color: #3269bb;
     margin-right: 5px
 }
 
 .rightcolumn .v-verticallayout-chat {
     background-color: #E8E6E6;
-    padding-left: 30px;
+    padding: 5px 0;
+    margin: 10px 0;
 }
 
-.rightcolumn .v-verticallayout-chat .v-verticallayout-note {
-    margin-top: 20px;
+
+.rightcolumn .v-verticallayout-note{
+    margin: 0 10px 10px;
+}
+
+.rightcolumn .itemTextAreaNote{
+    margin: 0 10px;
 }
 
 .rightcolumn .v-label-wordSeparator {
@@ -212,16 +234,17 @@
     background-image: url("../images/noteEdit.png");
     height: 18px;
     width: 18px;
+    margin: 0 3px;
 }
 
 .rightcolumn .v-verticallayout-note .v-nativebutton-removeNoteButton {
     background-image: url("../images/noteRemove.png");
     height: 18px;
     width: 18px;
+    margin: 0 3px;
 }
 
 .rightcolumn .v-verticallayout-note .v-horizontallayout-noteInfo {
-    font-size: 18;
     color: #707070;
 }
 
@@ -232,30 +255,28 @@
 .rightcolumn .v-verticallayout-chat .v-nativebutton-itemAddNoteButton {
     background-image: url("../images/addNote.png");
     color: white;
+    height: 26px;
+    width: 79px;
+    margin-right: 10px;
 }
 
 .rightcolumn .v-verticallayout-availableLabels .v-nativebutton-categoryButtonSelect {
-    background: none no-repeat transparent;
-    background-color: #6093e0;
+    background: none #6093e0;
     box-shadow: 3px 3px #707070;
-    border: 1px;
-    border-color: #000000;
+    border: 1px solid #000000;
     border-radius: 10px;
     margin: 2px 2px 2px 2px;
     height: 20px;
     vertical-align: middle;
     padding-bottom: 0;
     padding-top: 0;
-
     color: white;
 }
 
 .rightcolumn .v-verticallayout-availableLabels .v-nativebutton-categoryButtonUnSelect {
-    background: none no-repeat transparent;
-    background-color: #ffffff;
+    background: none #ffffff;
     box-shadow: 3px 3px #707070;
-    border: 1px;
-    border-color: #000000;
+    border: 1px solid #000000;
     border-radius: 10px;
     margin: 2px 2px 2px 2px;
     height: 20px;
@@ -272,3 +293,6 @@
 
 
 
+.rightcolumn .v-horizontallayout-categoryFilterLayout{
+    margin: 10px 10px 0;
+}
