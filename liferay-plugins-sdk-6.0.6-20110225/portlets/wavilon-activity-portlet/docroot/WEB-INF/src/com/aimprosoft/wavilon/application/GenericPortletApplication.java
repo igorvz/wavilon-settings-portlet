@@ -23,6 +23,7 @@ public abstract class GenericPortletApplication extends Application implements P
         Window window = new Window();
         window.setName("activityWindow");
         setMainWindow(window);
+
     }
 
     public void handleRenderRequest(RenderRequest renderRequest, RenderResponse renderResponse, Window window) {

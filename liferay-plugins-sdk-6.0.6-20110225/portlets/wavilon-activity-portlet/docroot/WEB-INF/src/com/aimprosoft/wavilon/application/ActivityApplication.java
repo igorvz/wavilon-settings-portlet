@@ -6,6 +6,7 @@ import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.vaadin.ui.Window;
 import org.apache.log4j.Logger;
+import org.vaadin.artur.icepush.ICEPush;
 
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
@@ -16,10 +17,16 @@ public class ActivityApplication extends GenericPortletApplication {
 
     private Logger _logger = Logger.getLogger(getClass());
 
+    protected ICEPush icePush;
+
     @Override
     public void init() {
         //initialize listeners
         super.init();
+
+        //todo will use it in future
+        icePush = new ICEPush();
+        this.getMainWindow().addComponent(icePush);
     }
 
     @Override
@@ -45,6 +52,7 @@ public class ActivityApplication extends GenericPortletApplication {
             window.getLayout().setMargin(false);
             window.getContent().setSizeFull();
             if (themeDisplay.isSignedIn()) {
+
                 ActivityPage activityPage = new ActivityPage(bundle);
                 window.setContent(activityPage);
                 activityPage.init();
