@@ -5,6 +5,7 @@ import com.aimprosoft.wavilon.couch.Attachment;
 import com.aimprosoft.wavilon.couch.CouchModel;
 import com.aimprosoft.wavilon.model.Note;
 import com.aimprosoft.wavilon.service.NoteDatabaseService;
+import com.aimprosoft.wavilon.service.impl.NoteEktorpDatabaseImpl;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.util.CouchModelUtil;
 import com.liferay.portal.util.PortalUtil;
@@ -18,14 +19,16 @@ import java.io.IOException;
 import java.util.*;
 
 public class DialogCell extends HorizontalLayout {
-    private NoteDatabaseService noteService = ObjectFactory.getBean(NoteDatabaseService.class);
+    private NoteDatabaseService noteService = ObjectFactory.getBean(NoteEktorpDatabaseImpl.class);
+//    private NoteDatabaseService noteService = ObjectFactory.getBean(NoteDatabaseService.class);
     private Embedded avatar;
     private GridLayout mainContent;
     private Map<String, Attachment> avatarsMap;
     private ResourceBundle bundle;
     private PortletRequest request;
     private ICEPush icePush;
-
+    private List<CouchModel> notes;
+    private Label count;
 
     public DialogCell(ResourceBundle bundle) {
         this.bundle = bundle;
@@ -89,7 +92,8 @@ public class DialogCell extends HorizontalLayout {
         mainContent.addComponent(displayNotes, 7, 0, 8, 0);
         mainContent.setComponentAlignment(displayNotes, Alignment.MIDDLE_RIGHT);
 
-        Label count = new Label("2");
+
+        count = new Label();
         displayNotes.addComponent(count);
         count.setStyleName("itemMessagesCounter");
 
@@ -155,13 +159,15 @@ public class DialogCell extends HorizontalLayout {
                 CouchModel couchModel = CouchModelUtil.newCouchModel(request, "note");
                 try {
                     noteService.addNote(note, couchModel);
+                    notes.add(noteService.getModel(couchModel.getId()));
                 } catch (IOException ignored) {
                 }
 
 
-                createNeteLayout(chat, couchModel);
+                createNoteLayout(chat, couchModel);
                 textArea.setValue("");
 
+                count.setValue(String.valueOf(notes.size()));
 
                 icePush.push();
 
@@ -202,11 +208,12 @@ public class DialogCell extends HorizontalLayout {
     }
 
     private void fillChatLayout(VerticalLayout chat) {
-        List<CouchModel> notes = getAllNotes();
+        notes = getAllNotes();
+        count.setValue(String.valueOf(notes.size()));
 
 
         for (CouchModel noteCouchModel : notes) {
-            createNeteLayout(chat, noteCouchModel);
+            createNoteLayout(chat, noteCouchModel);
         }
 
 //        //todo iteration adding cells from DB
@@ -217,7 +224,7 @@ public class DialogCell extends HorizontalLayout {
 //        }
     }
 
-    private void createNeteLayout(VerticalLayout chat, CouchModel noteCouchModel) {
+    private void createNoteLayout(VerticalLayout chat, CouchModel noteCouchModel) {
         VerticalLayout note = createNote(noteCouchModel);
         chat.addComponent(note);
         note.setStyleName("note");
@@ -269,6 +276,9 @@ public class DialogCell extends HorizontalLayout {
                 try {
                     noteService.removeNote(noteCouchModel.getId());
                     event.getButton().getParent().getParent().setVisible(false);
+                    notes.remove(notes.indexOf(noteCouchModel));
+                    count.setValue(String.valueOf(notes.size()));
+
                 } catch (IOException ignored) {
                 }
 

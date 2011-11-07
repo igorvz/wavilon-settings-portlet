@@ -22,16 +22,6 @@
         <constructor-arg value="${db.name.push}"/>
     </bean>
 
-     <bean id="pushDBService" class="com.aimprosoft.wavilon.service.impl.PushDBService">
-        <property name="database" ref="databasePush"/>
-        <property name="serializeService" ref="serializeService"/>
-        <property name="objectReader">
-            <bean class="org.codehaus.jackson.map.ObjectReader" factory-bean="objectMapper" factory-method="reader">
-                <constructor-arg index="0" value="com.aimprosoft.wavilon.couch.PushModel"/>
-            </bean>
-        </property>
-    </bean>
-
     <bean id="couchDBService" class="com.aimprosoft.wavilon.service.impl.CouchDBService">
         <property name="database" ref="databasePush"/>
         <property name="serializeService" ref="serializeService"/>
