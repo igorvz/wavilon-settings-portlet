@@ -1,6 +1,6 @@
 package com.aimprosoft.wavilon.service.impl;
 
-import com.aimprosoft.wavilon.model.Attachment;
+import com.aimprosoft.wavilon.couch.Attachment;
 import com.aimprosoft.wavilon.model.Avatars;
 import com.aimprosoft.wavilon.service.AvatarService;
 import com.aimprosoft.wavilon.service.SerializeService;

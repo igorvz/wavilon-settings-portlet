@@ -9,13 +9,16 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 public abstract class AbstractViewEntityService {
     @Autowired
+    protected CouchDBService couchDBService;
+
+    @Autowired
     protected Functions functions;
 
     @Autowired
     protected ObjectMapper objectMapper;
 
     @Autowired
-    @Qualifier("databaseNode")
+    @Qualifier("databasePush")
     protected Database database;
 
     @Autowired

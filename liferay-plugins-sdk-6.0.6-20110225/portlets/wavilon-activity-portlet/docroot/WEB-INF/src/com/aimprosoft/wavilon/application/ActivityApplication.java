@@ -4,6 +4,8 @@ import com.aimprosoft.wavilon.ui.ActivityPage;
 import com.aimprosoft.wavilon.ui.PleaseSignInPage;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.theme.ThemeDisplay;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import org.apache.log4j.Logger;
 import org.vaadin.artur.icepush.ICEPush;
@@ -14,19 +16,22 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 public class ActivityApplication extends GenericPortletApplication {
+    private ICEPush icePush;
 
     private Logger _logger = Logger.getLogger(getClass());
-
-    protected ICEPush icePush;
 
     @Override
     public void init() {
         //initialize listeners
         super.init();
 
-        //todo will use it in future
         icePush = new ICEPush();
-        this.getMainWindow().addComponent(icePush);
+
+        VerticalLayout layout = new VerticalLayout();
+        layout.setCaption("icePush");
+        layout.addComponent(icePush);
+
+        getMainWindow().setContent(layout);
     }
 
     @Override

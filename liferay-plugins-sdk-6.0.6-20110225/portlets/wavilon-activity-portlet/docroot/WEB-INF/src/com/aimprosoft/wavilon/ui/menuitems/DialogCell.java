@@ -1,21 +1,30 @@
 package com.aimprosoft.wavilon.ui.menuitems;
 
 import com.aimprosoft.wavilon.application.GenericPortletApplication;
-import com.aimprosoft.wavilon.model.Attachment;
+import com.aimprosoft.wavilon.couch.Attachment;
+import com.aimprosoft.wavilon.couch.CouchModel;
+import com.aimprosoft.wavilon.model.Note;
+import com.aimprosoft.wavilon.service.NoteDatabaseService;
+import com.aimprosoft.wavilon.spring.ObjectFactory;
+import com.aimprosoft.wavilon.util.CouchModelUtil;
+import com.liferay.portal.util.PortalUtil;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
+import org.vaadin.artur.icepush.ICEPush;
 import org.vaadin.imagefilter.Image;
 
 import javax.portlet.PortletRequest;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.io.IOException;
+import java.util.*;
 
 public class DialogCell extends HorizontalLayout {
+    private NoteDatabaseService noteService = ObjectFactory.getBean(NoteDatabaseService.class);
     private Embedded avatar;
     private GridLayout mainContent;
     private Map<String, Attachment> avatarsMap;
     private ResourceBundle bundle;
     private PortletRequest request;
+    private ICEPush icePush;
 
 
     public DialogCell(ResourceBundle bundle) {
@@ -24,8 +33,17 @@ public class DialogCell extends HorizontalLayout {
     }
 
     public void init(Map<String, Attachment> avatarsMap) {
+        Long organizationId = CouchModelUtil.getOrganizationId(request);
+
         request = ((GenericPortletApplication) getApplication()).getPortletRequest();
         this.avatarsMap = avatarsMap;
+
+
+        icePush = new ICEPush();
+        addComponent(icePush);
+
+        ICEPush.getPushContext(getApplication().getContext()).addGroupMember(organizationId.toString() , String.valueOf(PortalUtil.getUserId(request)));
+
         initLayout();
     }
 
@@ -55,18 +73,15 @@ public class DialogCell extends HorizontalLayout {
         firstRow.setStyleName("firstRow");
 
         Label name = new Label("Kathleen  Byrne ");
-//        mainContent.addComponent(name, 0, 0, 1, 0);
         firstRow.addComponent(name);
         name.setStyleName("callerName");
 
         Label callStatus = new Label("ongoing ...");
-//        mainContent.addComponent(callStatus, 2, 0, 3, 0);
         firstRow.addComponent(callStatus);
         callStatus.setStyleName("callStatus");
 
         Label timerTop = new Label("9:24");
         mainContent.addComponent(timerTop, 1, 0);
-//        firstRow.addComponent(timerTop);
         timerTop.setStyleName("itemTimerTop");
 
 
@@ -87,17 +102,14 @@ public class DialogCell extends HorizontalLayout {
         mainContent.addComponent(secondRow, 0, 1, 6, 1);
 
         Label categoriesAndLabels = new Label("Categories & Labels:");
-//        mainContent.addComponent(categoriesAndLabels, 0, 1, 2, 1);
         secondRow.addComponent(categoriesAndLabels);
         categoriesAndLabels.setStyleName("categoriesAndLabelsCaption");
 
         Label category = new Label("Support");
-//        mainContent.addComponent(category, 3, 1, 4, 1);
         secondRow.addComponent(category);
         category.setStyleName("category");
 
         Button addCategoryButton = new NativeButton();
-//        mainContent.addComponent(addCategoryButton, 5, 1);
         secondRow.addComponent(addCategoryButton);
         addCategoryButton.setStyleName("itemAddCategoryButton");
 
@@ -111,15 +123,17 @@ public class DialogCell extends HorizontalLayout {
         timerBottom.setStyleName("itemTimerBottom");
 
 
+        final VerticalLayout chatLayout = new VerticalLayout();
+        mainContent.addComponent(chatLayout, 0, 3, 8, 3);
+        chatLayout.setStyleName("chat");
+
         final VerticalLayout chat = new VerticalLayout();
-        mainContent.addComponent(chat, 0, 3, 8, 3);
-        chat.setStyleName("chat");
+        chatLayout.addComponent(chat);
         chat.setWidth(95, Sizeable.UNITS_PERCENTAGE);
         fillChatLayout(chat);
 
-
         GridLayout newNote = new GridLayout(5, 3);
-        chat.addComponent(newNote);
+        chatLayout.addComponent(newNote);
         newNote.setWidth(100, Sizeable.UNITS_PERCENTAGE);
 
         final TextArea textArea = new TextArea();
@@ -128,7 +142,31 @@ public class DialogCell extends HorizontalLayout {
         textArea.setHeight(50, Sizeable.UNITS_PIXELS);
         textArea.setStyleName("itemTextAreaNote");
 
-        final Button addNoteButton = new NativeButton("Add Note");
+        final Button addNoteButton = new NativeButton("Add Note", new Button.ClickListener() {
+            public void buttonClick(Button.ClickEvent event) {
+                String noteContent = textArea.toString();
+                Note note = new Note();
+                note.setName("Boris");
+                note.setContent(noteContent);
+
+                Calendar cal = Calendar.getInstance();
+                note.setUpdateDate(cal.getTime());
+
+                CouchModel couchModel = CouchModelUtil.newCouchModel(request, "note");
+                try {
+                    noteService.addNote(note, couchModel);
+                } catch (IOException ignored) {
+                }
+
+
+                createNeteLayout(chat, couchModel);
+                textArea.setValue("");
+
+
+                icePush.push();
+
+            }
+        });
         newNote.addComponent(addNoteButton, 4, 2);
         newNote.setComponentAlignment(addNoteButton, Alignment.BOTTOM_RIGHT);
         addNoteButton.setStyleName("itemAddNoteButton");
@@ -136,12 +174,12 @@ public class DialogCell extends HorizontalLayout {
         Button.ClickListener hideChatListener = new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
                 Button button = event.getButton();
-                hideChat(chat.isVisible(), button, chat);
+                hideChat(chat.isVisible(), button, chatLayout);
             }
         };
         hideChatButton.addListener(hideChatListener);
 
-        hideChat(chat.isVisible(), hideChatButton, chat);
+        hideChat(chat.isVisible(), hideChatButton, chatLayout);
     }
 
     private void hideChat(boolean flag, Button button, VerticalLayout chat) {
@@ -164,17 +202,49 @@ public class DialogCell extends HorizontalLayout {
     }
 
     private void fillChatLayout(VerticalLayout chat) {
-        //todo iteration adding cells from DB
-        for (int i = 0; i < 2; i++) {
-            VerticalLayout note = createNote();
-            chat.addComponent(note);
-            note.setStyleName("note");
+        List<CouchModel> notes = getAllNotes();
+
+
+        for (CouchModel noteCouchModel : notes) {
+            createNeteLayout(chat, noteCouchModel);
+        }
+
+//        //todo iteration adding cells from DB
+//        for (int i = 0; i < 2; i++) {
+//            VerticalLayout note = createNote();
+//            chat.addComponent(note);
+//            note.setStyleName("note");
+//        }
+    }
+
+    private void createNeteLayout(VerticalLayout chat, CouchModel noteCouchModel) {
+        VerticalLayout note = createNote(noteCouchModel);
+        chat.addComponent(note);
+        note.setStyleName("note");
+    }
+
+    private List<CouchModel> getAllNotes() {
+        try {
+            List<CouchModel> couchModelList = noteService.getAllNote();
+
+            Collections.sort(couchModelList, new Comparator<CouchModel>() {
+                public int compare(CouchModel o1, CouchModel o2) {
+                    Date d1 = new Date((Long) o1.getProperties().get("updateDate"));
+                    Date d2 = new Date((Long) o2.getProperties().get("updateDate"));
+
+                    return d1.compareTo(d2);
+                }
+            });
+
+            return couchModelList;
+        } catch (IOException e) {
+            return Collections.emptyList();
         }
     }
 
-    private VerticalLayout createNote() {
+    private VerticalLayout createNote(final CouchModel noteCouchModel) {
         VerticalLayout note = new VerticalLayout();
-
+        Note noteModel = getNoteModel(noteCouchModel);
 
         HorizontalLayout noteInfo = new HorizontalLayout();
         noteInfo.setStyleName("noteInfo");
@@ -182,19 +252,29 @@ public class DialogCell extends HorizontalLayout {
         Label nodeFrom = new Label("Note from ");
         nodeFrom.setStyleName("wordSeparator");
 
-        Label agentName = new Label("Agent Test");
+        Label agentName = new Label(noteModel.getName());
         agentName.setStyleName("wordSeparator");
 
         Label at = new Label(" at ");
         at.setStyleName("wordSeparator");
 
-        Label date = new Label(" 2011-10-19 10:39:42");
+        Label date = new Label(noteModel.getUpdateDate().toString());
         date.setStyleName("wordSeparator");
 
         Button editNoteButton = new NativeButton();
         editNoteButton.setStyleName("editNoteButton");
 
-        Button removeNoteButton = new NativeButton();
+        Button removeNoteButton = new NativeButton("", new Button.ClickListener() {
+            public void buttonClick(Button.ClickEvent event) {
+                try {
+                    noteService.removeNote(noteCouchModel.getId());
+                    event.getButton().getParent().getParent().setVisible(false);
+                } catch (IOException ignored) {
+                }
+
+
+            }
+        });
         removeNoteButton.setStyleName("removeNoteButton");
 
 
@@ -206,7 +286,7 @@ public class DialogCell extends HorizontalLayout {
         noteInfo.addComponent(removeNoteButton);
 
 
-        Label message = new Label("Message form agent");
+        Label message = new Label(noteModel.getContent());
         message.setStyleName("message");
 
         note.addComponent(noteInfo);
@@ -215,4 +295,11 @@ public class DialogCell extends HorizontalLayout {
         return note;
     }
 
+    private Note getNoteModel(CouchModel noteCouchModel) {
+        try {
+            return noteService.getNote(noteCouchModel);
+        } catch (IOException e) {
+            return null;
+        }
+    }
 }

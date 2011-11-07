@@ -1,6 +1,5 @@
 package com.aimprosoft.wavilon.couch;
 
-import com.aimprosoft.wavilon.model.Attachment;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 

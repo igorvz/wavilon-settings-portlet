@@ -102,13 +102,13 @@
 }
 
 .rightcolumn  .v-verticallayout-listViewLayout .v-nativebutton-nonAvatarButtonSelect {
-    background-image: url("../images/avatarButtonSelect.png");
+    background-image: url("../images/nonAvatarButtonSelect.png");
     height: 27px;
     width: 27px;
 }
 
 .rightcolumn  .v-verticallayout-listViewLayout .v-nativebutton-nonAvatarButtonNonSelect {
-    background-image: url("../images/avatarButtonNonSelect.png");
+    background-image: url("../images/nonAvatarButtonNonSelect.png");
     height: 27px;
     width: 27px;
 }

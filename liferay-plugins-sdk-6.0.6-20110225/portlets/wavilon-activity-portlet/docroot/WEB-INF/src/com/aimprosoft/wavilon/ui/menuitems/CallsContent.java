@@ -1,7 +1,7 @@
 package com.aimprosoft.wavilon.ui.menuitems;
 
 import com.aimprosoft.wavilon.application.GenericPortletApplication;
-import com.aimprosoft.wavilon.model.Attachment;
+import com.aimprosoft.wavilon.couch.Attachment;
 import com.aimprosoft.wavilon.service.AvatarService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.vaadin.terminal.Sizeable;
@@ -70,12 +70,10 @@ public class CallsContent extends Panel {
         mainLayout.addComponent(itemContent);
 
         //todo iteration adding cells from DB
-        for (int i = 0; i < 2; i++) {
             DialogCell dialogCell = new DialogCell(bundle);
             itemContent.addComponent(dialogCell);
             itemContent.addStyleName("itemStyle");
             dialogCell.init(avatarsMap);
-        }
     }
 
     private HorizontalLayout createListViewPart() {

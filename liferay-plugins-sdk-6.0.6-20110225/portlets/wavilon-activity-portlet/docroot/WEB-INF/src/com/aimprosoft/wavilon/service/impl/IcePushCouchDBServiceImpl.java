@@ -4,6 +4,7 @@ import com.aimprosoft.wavilon.couch.PushModel;
 import com.aimprosoft.wavilon.model.IcePushModel;
 import com.aimprosoft.wavilon.service.IcePushDatabaseService;
 import com.fourspaces.couchdb.Document;
+import com.fourspaces.couchdb.View;
 import com.fourspaces.couchdb.ViewResults;
 import org.springframework.stereotype.Service;
 
@@ -24,16 +25,19 @@ public class IcePushCouchDBServiceImpl extends AbstractPushViewEntityService imp
     }
 
     public List<IcePushModel> getAllIcePushModel() throws IOException {
-        ViewResults viewResults = database.adhoc(functions.getPushentities());
-        List<IcePushModel> numberList = new LinkedList<IcePushModel>();
+
+        View view = database.getDocument(functions.getDesignDocumentPhonenumbers()).getView(functions.getPushentities());
+        ViewResults viewResults = database.view(view);
+
+        List<IcePushModel> pushList = new LinkedList<IcePushModel>();
 
         for (Document doc : viewResults.getResults()) {
 
             IcePushModel number = getIcePushModel(doc.getId());
 
-            numberList.add(number);
+            pushList.add(number);
         }
-        return numberList;
+        return pushList;
     }
 
     public void updateIcePushModel(IcePushModel icePushModel, PushModel model) throws IOException {
