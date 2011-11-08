@@ -19,7 +19,6 @@ public class ActivityPage extends VerticalLayout {
     }
 
     public void init() {
-
         addStyleName("settingsPanel");
 
         HorizontalSplitPanel panel = new HorizontalSplitPanel();

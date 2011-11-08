@@ -4,17 +4,24 @@ import org.springframework.beans.factory.annotation.Value;
 
 public class Functions {
 
-    @Value("${db.design.document.push}")
-    private String designDocumentPhonenumbers;
+    @Value("${db.design.document.push.test}")
+    private String pushTestDesignDocument;
 
-    @Value("${fetch.all.unique.push}")
-    private String pushentities;
+    @Value("${db.function.push.test.filter.notes}")
+    private String functionPushTestFilterNotes;
 
-    public String getDesignDocumentPhonenumbers() {
-        return designDocumentPhonenumbers;
+    @Value("${db.function.push.test.all.notes}")
+    private String functionPushTestAllNotes;
+
+    public String getPushTestDesignDocument() {
+        return pushTestDesignDocument;
     }
 
-    public String getPushentities() {
-        return pushentities;
+    public String getFunctionPushTestFilterNotes() {
+        return functionPushTestFilterNotes;
+    }
+
+    public String getFunctionPushTestAllNotes() {
+        return functionPushTestAllNotes;
     }
 }

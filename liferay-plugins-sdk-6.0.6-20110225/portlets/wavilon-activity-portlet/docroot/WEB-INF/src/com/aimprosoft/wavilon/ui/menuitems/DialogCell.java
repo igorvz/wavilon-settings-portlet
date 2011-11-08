@@ -1,14 +1,15 @@
 package com.aimprosoft.wavilon.ui.menuitems;
 
 import com.aimprosoft.wavilon.application.GenericPortletApplication;
-import com.aimprosoft.wavilon.couch.Attachment;
 import com.aimprosoft.wavilon.couch.CouchModel;
 import com.aimprosoft.wavilon.model.Note;
+import com.aimprosoft.wavilon.service.AvatarService;
 import com.aimprosoft.wavilon.service.NoteDatabaseService;
 import com.aimprosoft.wavilon.service.impl.NoteEktorpDatabaseImpl;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.util.CouchModelUtil;
 import com.liferay.portal.util.PortalUtil;
+import com.vaadin.event.ShortcutAction;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 import org.vaadin.artur.icepush.ICEPush;
@@ -20,10 +21,9 @@ import java.util.*;
 
 public class DialogCell extends HorizontalLayout {
     private NoteDatabaseService noteService = ObjectFactory.getBean(NoteEktorpDatabaseImpl.class);
-//    private NoteDatabaseService noteService = ObjectFactory.getBean(NoteDatabaseService.class);
+    private AvatarService avatarService = ObjectFactory.getBean(AvatarService.class);
     private Embedded avatar;
     private GridLayout mainContent;
-    private Map<String, Attachment> avatarsMap;
     private ResourceBundle bundle;
     private PortletRequest request;
     private ICEPush icePush;
@@ -35,17 +35,15 @@ public class DialogCell extends HorizontalLayout {
 
     }
 
-    public void init(Map<String, Attachment> avatarsMap) {
+    public void init() {
         Long organizationId = CouchModelUtil.getOrganizationId(request);
 
         request = ((GenericPortletApplication) getApplication()).getPortletRequest();
-        this.avatarsMap = avatarsMap;
-
 
         icePush = new ICEPush();
         addComponent(icePush);
 
-        ICEPush.getPushContext(getApplication().getContext()).addGroupMember(organizationId.toString() , String.valueOf(PortalUtil.getUserId(request)));
+        ICEPush.getPushContext(getApplication().getContext()).addGroupMember(organizationId.toString(), String.valueOf(PortalUtil.getUserId(request)));
 
         initLayout();
     }
@@ -87,6 +85,9 @@ public class DialogCell extends HorizontalLayout {
         mainContent.addComponent(timerTop, 1, 0);
         timerTop.setStyleName("itemTimerTop");
 
+//        TODO remove
+        Button refreshButton = new Button("Refresh");
+        mainContent.addComponent(refreshButton, 5, 0, 6, 0);
 
         HorizontalLayout displayNotes = new HorizontalLayout();
         mainContent.addComponent(displayNotes, 7, 0, 8, 0);
@@ -157,6 +158,7 @@ public class DialogCell extends HorizontalLayout {
                 note.setUpdateDate(cal.getTime());
 
                 CouchModel couchModel = CouchModelUtil.newCouchModel(request, "note");
+
                 try {
                     noteService.addNote(note, couchModel);
                     notes.add(noteService.getModel(couchModel.getId()));
@@ -176,6 +178,7 @@ public class DialogCell extends HorizontalLayout {
         newNote.addComponent(addNoteButton, 4, 2);
         newNote.setComponentAlignment(addNoteButton, Alignment.BOTTOM_RIGHT);
         addNoteButton.setStyleName("itemAddNoteButton");
+        addNoteButton.setClickShortcut(ShortcutAction.KeyCode.ENTER);
 
         Button.ClickListener hideChatListener = new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
@@ -186,6 +189,20 @@ public class DialogCell extends HorizontalLayout {
         hideChatButton.addListener(hideChatListener);
 
         hideChat(chat.isVisible(), hideChatButton, chatLayout);
+
+        //todo remove
+        Button.ClickListener refreshListener = new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent event) {
+                Button button = event.getButton();
+                hideChat(false, button, chatLayout);
+
+                chat.removeAllComponents();
+                fillChatLayout(chat);
+            }
+        };
+        refreshButton.addListener(refreshListener);
+
     }
 
     private void hideChat(boolean flag, Button button, VerticalLayout chat) {
@@ -201,7 +218,7 @@ public class DialogCell extends HorizontalLayout {
     }
 
     private void createAvatar() {
-        avatar = new Image(avatarsMap.get("crying.png").getData(), true);
+        avatar = new Image(avatarService.getAvatar("face1.png"));
         avatar.setHeight("61px");
         avatar.setWidth("61px");
         avatar.setStyleName("imgColumn");
@@ -212,16 +229,11 @@ public class DialogCell extends HorizontalLayout {
         count.setValue(String.valueOf(notes.size()));
 
 
+//      todo iteration adding cells from DB
         for (CouchModel noteCouchModel : notes) {
             createNoteLayout(chat, noteCouchModel);
         }
 
-//        //todo iteration adding cells from DB
-//        for (int i = 0; i < 2; i++) {
-//            VerticalLayout note = createNote();
-//            chat.addComponent(note);
-//            note.setStyleName("note");
-//        }
     }
 
     private void createNoteLayout(VerticalLayout chat, CouchModel noteCouchModel) {
@@ -232,20 +244,22 @@ public class DialogCell extends HorizontalLayout {
 
     private List<CouchModel> getAllNotes() {
         try {
-            List<CouchModel> couchModelList = noteService.getAllNote();
+            List<CouchModel> couchModelList = noteService.getAllUsersCouchModelNote(CouchModelUtil.getOrganizationId(request));
 
-            Collections.sort(couchModelList, new Comparator<CouchModel>() {
-                public int compare(CouchModel o1, CouchModel o2) {
-                    Date d1 = new Date((Long) o1.getProperties().get("updateDate"));
-                    Date d2 = new Date((Long) o2.getProperties().get("updateDate"));
+            if (1 < couchModelList.size()) {
+                Collections.sort(couchModelList, new Comparator<CouchModel>() {
+                    public int compare(CouchModel o1, CouchModel o2) {
+                        Date d1 = new Date((Long) o1.getProperties().get("updateDate"));
+                        Date d2 = new Date((Long) o2.getProperties().get("updateDate"));
 
-                    return d1.compareTo(d2);
-                }
-            });
+                        return d1.compareTo(d2);
+                    }
+                });
+            }
 
             return couchModelList;
-        } catch (IOException e) {
-            return Collections.emptyList();
+        } catch (Exception e) {
+            return new LinkedList<CouchModel>();
         }
     }
 

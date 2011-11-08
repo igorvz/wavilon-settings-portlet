@@ -15,19 +15,8 @@
 
     <bean name="objectMapper" class="org.codehaus.jackson.map.ObjectMapper"/>
 
-    <bean name="serializeService" class="com.aimprosoft.wavilon.service.impl.JacksonSerializeService">
-        <property name="objectWriter">
-            <bean factory-bean="objectMapper" factory-method="writer"/>
-        </property>
-    </bean>
-
     <bean name="functions" class="com.aimprosoft.wavilon.config.Functions"/>
 
     <bean name="urlEncoder" class="org.apache.catalina.util.URLEncoder"/>
-
-    <bean name="objectReader" class="org.codehaus.jackson.map.ObjectReader" factory-bean="objectMapper" factory-method="reader">
-        <constructor-arg index="0" value="com.aimprosoft.wavilon.model.Avatars"/>
-    </bean>
-
 
 </beans>

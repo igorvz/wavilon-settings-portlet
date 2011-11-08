@@ -1,9 +1,7 @@
 package com.aimprosoft.wavilon.service;
 
-import com.aimprosoft.wavilon.couch.Attachment;
-
-import java.util.Map;
+import org.ektorp.AttachmentInputStream;
 
 public interface AvatarService {
-    Map<String, Attachment> getAvatars();
+    AttachmentInputStream getAvatar(String attachmentId);
 }

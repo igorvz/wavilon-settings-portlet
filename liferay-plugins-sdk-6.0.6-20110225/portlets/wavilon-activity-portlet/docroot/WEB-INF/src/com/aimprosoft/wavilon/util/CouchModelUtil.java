@@ -12,13 +12,26 @@ public class CouchModelUtil {
 
     public static CouchModel newCouchModel(PortletRequest request, String type) {
         CouchModel newCouchModel = new CouchModel();
-        try {
-            newCouchModel.setId(UUID.randomUUID().toString());
-            newCouchModel.setLiferayUserId(PortalUtil.getUserId(request));
-            newCouchModel.setLiferayOrganizationId(getOrganizationId(request));
-            newCouchModel.setLiferayPortalId(PortalUtil.getCompany(request).getWebId());
-        } catch (Exception ignored) {
+
+        boolean incorrectCouchModel = true;
+
+        while (incorrectCouchModel) {
+            try {
+                newCouchModel.setId(UUID.randomUUID().toString());
+                newCouchModel.setLiferayUserId(PortalUtil.getUserId(request));
+                newCouchModel.setLiferayOrganizationId(getOrganizationId(request));
+                newCouchModel.setLiferayPortalId(PortalUtil.getCompany(request).getWebId());
+            } catch (Exception ignored) {
+            }
+
+            if (null != newCouchModel.getLiferayPortalId() &&
+                    null != newCouchModel.getLiferayOrganizationId() &&
+                    null != newCouchModel.getLiferayUserId()) {
+                incorrectCouchModel = false;
+            }
         }
+
+
         newCouchModel.setType(type);
 
         return newCouchModel;

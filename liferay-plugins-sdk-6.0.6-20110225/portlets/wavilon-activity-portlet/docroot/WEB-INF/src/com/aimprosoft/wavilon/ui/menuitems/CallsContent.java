@@ -1,7 +1,6 @@
 package com.aimprosoft.wavilon.ui.menuitems;
 
 import com.aimprosoft.wavilon.application.GenericPortletApplication;
-import com.aimprosoft.wavilon.couch.Attachment;
 import com.aimprosoft.wavilon.service.AvatarService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.vaadin.terminal.Sizeable;
@@ -10,12 +9,10 @@ import com.vaadin.ui.themes.Reindeer;
 
 import javax.portlet.PortletRequest;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.ResourceBundle;
 
 public class CallsContent extends Panel {
     private AvatarService avatarService = ObjectFactory.getBean(AvatarService.class);
-    private Map<String, Attachment> avatarsMap;
     private ResourceBundle bundle;
     private PortletRequest request;
     private VerticalLayout mainLayout;
@@ -29,7 +26,6 @@ public class CallsContent extends Panel {
 
     public void init(CategoryFilter categoryFilter, String headCaption) {
         request = ((GenericPortletApplication) getApplication()).getPortletRequest();
-        avatarsMap = avatarService.getAvatars();
         this.categoryFilter = categoryFilter;
         this.headCaption = headCaption;
         setSizeFull();
@@ -73,7 +69,7 @@ public class CallsContent extends Panel {
             DialogCell dialogCell = new DialogCell(bundle);
             itemContent.addComponent(dialogCell);
             itemContent.addStyleName("itemStyle");
-            dialogCell.init(avatarsMap);
+            dialogCell.init();
     }
 
     private HorizontalLayout createListViewPart() {
