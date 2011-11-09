@@ -1,11 +1,18 @@
 package com.aimprosoft.wavilon.ui;
 
+import com.aimprosoft.wavilon.application.GenericPortletApplication;
 import com.aimprosoft.wavilon.ui.menuitems.CallsContent;
 import com.aimprosoft.wavilon.ui.menuitems.CategoryFilter;
+import com.aimprosoft.wavilon.util.CouchModelUtil;
+import com.liferay.portal.util.PortalUtil;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.Reindeer;
+import org.icepush.PushContext;
+import org.vaadin.artur.icepush.ICEPush;
 
+import javax.portlet.PortletRequest;
+import javax.portlet.PortletResponse;
 import java.util.Iterator;
 import java.util.ResourceBundle;
 
@@ -14,12 +21,16 @@ public class ActivityPage extends VerticalLayout {
     private VerticalLayout leftColumn;
     private VerticalLayout detailsContent;
 
+
     public ActivityPage(final ResourceBundle bundle) {
         this.bundle = bundle;
     }
 
     public void init() {
         addStyleName("settingsPanel");
+
+        checkPush();
+
 
         HorizontalSplitPanel panel = new HorizontalSplitPanel();
         panel.setSplitPosition(250, Sizeable.UNITS_PIXELS);
@@ -64,7 +75,6 @@ public class ActivityPage extends VerticalLayout {
         realTimeCallsFeed.addStyleName("button");
         realTimeCallsFeed.addListener(new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
-
                 Button button = event.getButton();
 
                 assignActiveButton(button);
@@ -94,6 +104,21 @@ public class ActivityPage extends VerticalLayout {
 
         leftColumn.addComponent(realTimeCallsFeed);
         leftColumn.addComponent(filterCallsByLabels);
+    }
+
+    private void checkPush() {
+        GenericPortletApplication application = (GenericPortletApplication) getApplication();
+        PortletRequest request = application.getPortletRequest();
+        PortletResponse response = application.getPortletResponse();
+        PushContext pushContext = ICEPush.getPushContext(application.getContext());
+
+        ICEPush icePush = new ICEPush();
+        getApplication().getMainWindow().addComponent(icePush);
+
+        String organizationId = CouchModelUtil.getOrganizationId(request).toString();
+        String pushId = pushContext.createPushId(PortalUtil.getHttpServletRequest(request), PortalUtil.getHttpServletResponse(response));
+        pushContext = ICEPush.getPushContext(getApplication().getContext());
+        pushContext.addGroupMember(organizationId, pushId);
     }
 
     private void assignActiveButton(Button button) {

@@ -9,6 +9,7 @@ import javax.portlet.*;
 public abstract class GenericPortletApplication extends Application implements PortletApplicationContext2.PortletListener {
 
     private PortletRequest portletRequest;
+    private PortletResponse portletResponse;
 
     @Override
     public void init() {
@@ -40,6 +41,7 @@ public abstract class GenericPortletApplication extends Application implements P
 
     public void handleResourceRequest(ResourceRequest resourceRequest, ResourceResponse resourceResponse, Window window) {
         setPortletRequest(resourceRequest);
+        setPortletResponse(resourceResponse);
     }
 
     public PortletRequest getPortletRequest() {
@@ -48,5 +50,13 @@ public abstract class GenericPortletApplication extends Application implements P
 
     public void setPortletRequest(PortletRequest portletRequest) {
         this.portletRequest = portletRequest;
+    }
+
+    public PortletResponse getPortletResponse() {
+        return portletResponse;
+    }
+
+    public void setPortletResponse(PortletResponse portletResponse) {
+        this.portletResponse = portletResponse;
     }
 }

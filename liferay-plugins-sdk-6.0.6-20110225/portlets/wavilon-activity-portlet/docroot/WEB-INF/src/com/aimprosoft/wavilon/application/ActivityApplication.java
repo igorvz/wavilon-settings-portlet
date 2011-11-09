@@ -16,7 +16,6 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 public class ActivityApplication extends GenericPortletApplication {
-    private ICEPush icePush;
 
     private Logger _logger = Logger.getLogger(getClass());
 
@@ -25,13 +24,6 @@ public class ActivityApplication extends GenericPortletApplication {
         //initialize listeners
         super.init();
 
-        icePush = new ICEPush();
-
-        VerticalLayout layout = new VerticalLayout();
-        layout.setCaption("icePush");
-        layout.addComponent(icePush);
-
-        getMainWindow().setContent(layout);
     }
 
     @Override
