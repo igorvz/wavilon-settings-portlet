@@ -10,12 +10,13 @@ import com.aimprosoft.wavilon.service.VirtualNumberDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.util.CouchModelUtil;
 import com.vaadin.Application;
+import com.vaadin.event.ShortcutAction;
+import com.vaadin.event.ShortcutListener;
 import com.vaadin.ui.*;
 
 import javax.portlet.PortletRequest;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.ResourceBundle;
 
 public class VirtualNumbersForm extends AbstractForm {
@@ -27,7 +28,6 @@ public class VirtualNumbersForm extends AbstractForm {
     private VirtualNumber virtualNumber;
     private Application application;
     private CouchModel model;
-    private String anotherPhoneId = "";
 
     public VirtualNumbersForm(ResourceBundle bundle, Table table) {
         this.bundle = bundle;
@@ -65,6 +65,8 @@ public class VirtualNumbersForm extends AbstractForm {
             }
         });
         buttons.addComponent(cancel);
+        cancel.setClickShortcut(ShortcutAction.KeyCode.ESCAPE);
+
 
         Button save = new Button(bundle.getString("wavilon.button.save"), new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
@@ -73,21 +75,28 @@ public class VirtualNumbersForm extends AbstractForm {
 
                     String name = (String) form.getField("name").getValue();
                     String number = (String) form.getField("number").getValue();
-//                    String forwardCallTo = (String) form.getField("forwardCallTo").getValue();
-                    CouchModelLite forwardCallTo = ((CouchModelLite) form.getField("forwardCallTo").getValue());
-//                    CouchModelLite forwardCallTo = (CouchModelLite) form.getField("forwardCallTo").getValue();
+                    CouchModelLite forwardCallTo = null;
+                    String forwardId = null;
+
+                    if (null != form.getField("forwardCallTo").getValue()) {
+                        forwardCallTo = ((CouchModelLite) form.getField("forwardCallTo").getValue());
+                        forwardId = forwardCallTo.getId();
+                    }
+
                     virtualNumber.setName(name);
                     virtualNumber.setLocator(number);
-                    virtualNumber.setForwardTo(forwardCallTo.getId());
+                    virtualNumber.setForwardTo(forwardId);
 
 
                     service.addVirtualNumber(virtualNumber, model);
 
-//                    if (!"".equals(anotherPhoneId)) {
-//                        allPhonesService.updateModel(model.getLiferayOrganizationId(), anotherPhoneId);
-//                    }
+                    try {
+                        String phoneModelDocId = allPhonesService.getVirtualNumbersDocumentId(number);
+                        allPhonesService.updateModelsAllocationDate(model.getLiferayOrganizationId(), phoneModelDocId);
+                    } catch (Exception ignored) {
+                    }
 
-                    if (null != model.getRevision() || !"".equals(anotherPhoneId)) {
+                    if (null != model.getRevision()) {
                         table.removeItem(itemId);
                         table.select(null);
                     }
@@ -100,7 +109,7 @@ public class VirtualNumbersForm extends AbstractForm {
                             String phoneNumbersID = (String) table.getItem(object).getItemProperty("id").getValue();
                             ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
                             application.getMainWindow().addWindow(confirmingRemove);
-                            confirmingRemove.setNumbersId(virtualNumber.getLocator(), CouchTypes.startnode);
+                            confirmingRemove.setNumbersLocator(virtualNumber.getLocator(), CouchTypes.startnode);
                             confirmingRemove.init(phoneNumbersID, table);
                         }
                     };
@@ -108,7 +117,7 @@ public class VirtualNumbersForm extends AbstractForm {
                     table.getContainerProperty(object, bundle.getString("wavilon.table.virtualnumbers.column.number")).setValue(model.getProperties().get("locator"));
                     table.getContainerProperty(object, bundle.getString("wavilon.table.virtualnumbers.column.name")).setValue(virtualNumber.getName());
                     table.getContainerProperty(object, "id").setValue(model.getId());
-                    table.getContainerProperty(object, bundle.getString("wavilon.table.virtualnumbers.column.forward.calls.to")).setValue(forwardCallTo.getName());
+                    table.getContainerProperty(object, bundle.getString("wavilon.table.virtualnumbers.column.forward.calls.to")).setValue(CouchModelUtil.getCouchModelLite(forwardId, bundle).getName());
                     table.getContainerProperty(object, "").setValue(new Button("", listener));
 
                     getParent().getWindow().showNotification(bundle.getString("wavilon.well.done"));
@@ -120,6 +129,8 @@ public class VirtualNumbersForm extends AbstractForm {
         });
         save.addStyleName("saveButton");
         buttons.addComponent(save);
+        save.setClickShortcut(ShortcutAction.KeyCode.ENTER);
+
     }
 
     private CouchModel createModel(String id) {
@@ -129,19 +140,7 @@ public class VirtualNumbersForm extends AbstractForm {
         try {
             return service.getModel(id);
         } catch (Exception e) {
-//            try {
-//                CouchModel anotherCouchModel = allPhonesService.getVirtualNumber(id);
-//                anotherPhoneId = anotherCouchModel.getId();
-//                CouchModel nativeCouchModel = CouchModelUtil.newCouchModel(request, CouchTypes.startnode);
-//                Map<String, Object> props = anotherCouchModel.getProperties();
-//                props.put("name", "");
-//                nativeCouchModel.setProperties(props);
-//
-//                return nativeCouchModel;
-//
-//            } catch (Exception ignored) {
-                return CouchModelUtil.newCouchModel(request, CouchTypes.startnode);
-//            }
+            return CouchModelUtil.newCouchModel(request, CouchTypes.startnode);
         }
     }
 
@@ -153,33 +152,6 @@ public class VirtualNumbersForm extends AbstractForm {
         name.setRequired(true);
         name.setRequiredError(bundle.getString("wavilon.error.massage.virtualnumbers.name.empty"));
         form.addField("name", name);
-//        TextField number = new TextField(bundle.getString("wavilon.form.number"));
-//        number.setRequired(true);
-//        number.setRequiredError(bundle.getString("wavilon.error.massage.virtualnumbers.number.empty"));
-//        number.addValidator(new RegexpValidator("[+][0-9]{10}", bundle.getString("wavilon.error.massage.virtualnumbers.wrong")));
-////        number.addValidator(new RegexpValidator("[0-9]{11}", bundle.getString("wavilon.error.massage.virtualnumbers.wrong")));
-//
-//
-////        List<CouchModelLite> forwards = getForward();
-//        ComboBox forwardCallTo = new ComboBox(bundle.getString("wavilon.form.virtualnumbers.forward.calls.to"));
-//        forwardCallTo.addItem(bundle.getString("wavilon.form.select"));
-////        for (CouchModelLite forward : forwards) {
-////            forwardCallTo.addItem(forward);
-////        }
-//        List<String> virtualNumbers = createVirtualNumbers();
-//        for (String virtualNumber : virtualNumbers) {
-//            forwardCallTo.addItem(virtualNumber);
-//        }
-//        forwardCallTo.setNullSelectionItemId(bundle.getString("wavilon.form.select"));
-//        forwardCallTo.setRequired(true);
-//        forwardCallTo.setRequiredError(bundle.getString("wavilon.error.massage.virtualnumbers.forward.empty"));
-//
-//        if ((null != model.getRevision() && !"".equals(model.getRevision())) || null != model.getProperties()) {
-//            name.setValue(model.getProperties().get("name"));
-//            number.setValue(model.getProperties().get("locator"));
-//            number.setReadOnly(true);
-//        }
-
 
         List<CouchModelLite> forwards = createForwards();
         ComboBox forwardCallTo = new ComboBox(bundle.getString("wavilon.form.phonenumbers.forward.calls.to"));
@@ -188,8 +160,8 @@ public class VirtualNumbersForm extends AbstractForm {
             forwardCallTo.addItem(forward);
         }
         forwardCallTo.setNullSelectionItemId(bundle.getString("wavilon.form.select"));
-        forwardCallTo.setRequired(true);
-        forwardCallTo.setRequiredError(bundle.getString("wavilon.error.massage.phonenumbers.forward.empty"));
+//        forwardCallTo.setRequired(true);
+//        forwardCallTo.setRequiredError(bundle.getString("wavilon.error.massage.phonenumbers.forward.empty"));
 
         if ((null != this.model.getRevision() && !"".equals(this.model.getRevision())) || null != model.getProperties()) {
             name.setValue(model.getProperties().get("name"));
@@ -239,13 +211,6 @@ public class VirtualNumbersForm extends AbstractForm {
     }
 
     private List<String> createVirtualNumbers() {
-//        List virtualNumbersList = new LinkedList<String>();
-//        List<CouchModel> couchModelList = getAllVirtualNumbers();
-//
-//        for (CouchModel model : couchModelList) {
-//            virtualNumbersList.add(model.getProperties().get("locator"));
-//        }
-//        return virtualNumbersList;
         try {
             return allPhonesService.getOnlyVirtualNumbers();
         } catch (Exception e) {

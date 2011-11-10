@@ -42,7 +42,6 @@ public class AllPhoneNumbersDatabaseServiceImpl extends AbstractViewEntityServic
         this.objectWriter = objectWriter;
     }
 
-
     @SuppressWarnings("unchecked")
     public void updateModel(PhoneModel phoneModel) throws IOException {
         String jsonString = objectWriter.writeValueAsString(phoneModel);
@@ -50,6 +49,25 @@ public class AllPhoneNumbersDatabaseServiceImpl extends AbstractViewEntityServic
         Document document = new Document(json);
 
         database.saveDocument(document);
+    }
+
+    @Override
+    public void updateModelsLiberationDate(String phoneModelId) throws IOException {
+        PhoneModel phoneModel = getPhoneModel(phoneModelId);
+        phoneModel.setLiberationDate(System.nanoTime());
+        phoneModel.setLiferayOrganizationId(null);
+
+
+        updateModel(phoneModel);
+    }
+
+    @Override
+    public void updateModelsAllocationDate(Long liferayOrganizationId, String phoneModelId) throws IOException {
+        PhoneModel phoneModel = getPhoneModel(phoneModelId);
+        phoneModel.setAllocationDate(System.nanoTime());
+        phoneModel.setLiferayOrganizationId(liferayOrganizationId);
+
+        updateModel(phoneModel);
     }
 
     @SuppressWarnings("unchecked")
@@ -125,6 +143,25 @@ public class AllPhoneNumbersDatabaseServiceImpl extends AbstractViewEntityServic
         return toPhoneNumber(getPhoneModel(documentId));
     }
 
+    public String getPhoneNumbersDocumentId(String locator) throws IOException {
+        View view = database.getDocument(functions.getDesignDocumentPhoneNumbers()).getView(functions.getPhonesGeoNumberId());
+        view.setKey(urlEncoder.encode("\"" + locator + "\""));
+        ViewResults viewResults = database.view(view);
+
+        Document document = viewResults.getResults().get(0);
+        return document.getId();
+    }
+
+
+    public String getVirtualNumbersDocumentId(String locator) throws IOException {
+        View view = database.getDocument(functions.getDesignDocumentPhoneNumbers()).getView(functions.getPhonesVirtualNumberId());
+        view.setKey(urlEncoder.encode("\"" + locator + "\""));
+        ViewResults viewResults = database.view(view);
+
+        Document document = viewResults.getResults().get(0);
+        return document.getId();
+    }
+
     private CouchModel toPhoneNumber(PhoneModel phoneModel) {
         CouchModel couchModel = createModel(phoneModel);
 
@@ -159,25 +196,6 @@ public class AllPhoneNumbersDatabaseServiceImpl extends AbstractViewEntityServic
         Document document = database.getDocument(documentId);
 
         return objectReader.readValue(document.toString());
-    }
-
-    public String getPhoneNumbersDocumentId(String locator) throws IOException {
-        View view = database.getDocument(functions.getDesignDocumentPhoneNumbers()).getView(functions.getPhonesGeoNumberId());
-        view.setKey(urlEncoder.encode("\"" + locator + "\""));
-        ViewResults viewResults = database.view(view);
-
-        Document document = viewResults.getResults().get(0);
-        return document.getId();
-    }
-
-
-    public String getVirtualNumbersDocumentId(String locator) throws IOException {
-        View view = database.getDocument(functions.getDesignDocumentPhoneNumbers()).getView(functions.getPhonesVirtualNumberId());
-        view.setKey(urlEncoder.encode("\"" + locator + "\""));
-        ViewResults viewResults = database.view(view);
-
-        Document document = viewResults.getResults().get(0);
-        return document.getId();
     }
 
 }

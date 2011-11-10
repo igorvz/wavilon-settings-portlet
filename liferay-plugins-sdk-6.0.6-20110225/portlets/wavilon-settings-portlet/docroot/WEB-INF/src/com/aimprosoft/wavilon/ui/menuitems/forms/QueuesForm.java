@@ -10,6 +10,7 @@ import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.util.CouchModelUtil;
 import com.vaadin.Application;
 import com.vaadin.data.validator.IntegerValidator;
+import com.vaadin.event.ShortcutAction;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 import org.apache.commons.lang.ObjectUtils;
@@ -66,6 +67,7 @@ public class QueuesForm extends AbstractForm {
             }
         });
         buttons.addComponent(cancel);
+        cancel.setClickShortcut(ShortcutAction.KeyCode.ESCAPE);
 
         Button save = new Button(bundle.getString("wavilon.button.save"), new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
@@ -76,6 +78,7 @@ public class QueuesForm extends AbstractForm {
                     String maxTimeInput = form.getField("maxTimeInput").getValue().toString();
                     String maxLengthInput = form.getField("maxLengthInput").getValue().toString();
                     String forwardToOnMaxTimeInput = null;
+
                     if (null != form.getField("forwardToOnMaxTimeInput").getValue()) {
                         forwardToOnMaxTimeInput = ((CouchModelLite) form.getField("forwardToOnMaxTimeInput").getValue()).getId();
                     }
@@ -145,6 +148,8 @@ public class QueuesForm extends AbstractForm {
         });
         save.addStyleName("saveButton");
         buttons.addComponent(save);
+        save.setClickShortcut(ShortcutAction.KeyCode.ENTER);
+
     }
 
     private Queue createQueue(CouchModel model) {

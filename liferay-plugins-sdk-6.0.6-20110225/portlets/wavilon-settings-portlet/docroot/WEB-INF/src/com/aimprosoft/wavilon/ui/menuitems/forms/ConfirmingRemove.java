@@ -6,15 +6,14 @@ import com.aimprosoft.wavilon.service.ExtensionDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
-import org.apache.commons.lang.ObjectUtils;
 
 import java.util.ResourceBundle;
 
 public class ConfirmingRemove extends Window {
     private ExtensionDatabaseService service = ObjectFactory.getBean(ExtensionDatabaseService.class);
     private ResourceBundle bundle;
-    private String phoneNumbersId;
-    private String virtualNumbersId;
+    private String phoneNumbersLocator;
+    private String virtualNumbersLocator;
 
     public ConfirmingRemove(ResourceBundle bundle) {
         this.bundle = bundle;
@@ -61,18 +60,18 @@ public class ConfirmingRemove extends Window {
                 try {
                     service.removeExtension(id);
 
-                    if (null != phoneNumbersId || null != virtualNumbersId) {
+                    if (null != phoneNumbersLocator || null != virtualNumbersLocator) {
                         AllPhoneNumbersDatabaseService allPhonesService = ObjectFactory.getBean(AllPhoneNumbersDatabaseService.class);
 
                         String docId = "";
 
-                        if (null == phoneNumbersId) {
-                            docId = allPhonesService.getVirtualNumbersDocumentId(virtualNumbersId);
+                        if (null == phoneNumbersLocator) {
+                            docId = allPhonesService.getVirtualNumbersDocumentId(virtualNumbersLocator);
                         } else {
-                            docId = allPhonesService.getPhoneNumbersDocumentId(phoneNumbersId);
+                            docId = allPhonesService.getPhoneNumbersDocumentId(phoneNumbersLocator);
                         }
 
-                        allPhonesService.updateModel(docId);
+                        allPhonesService.updateModelsLiberationDate(docId);
                     }
 
                 } catch (Exception ignored) {
@@ -93,11 +92,11 @@ public class ConfirmingRemove extends Window {
         return buttons;
     }
 
-    public void setNumbersId(String numbersId, CouchTypes type) {
+    public void setNumbersLocator(String numbersId, CouchTypes type) {
         if (type.equals(CouchTypes.startnode)) {
-            this.virtualNumbersId = numbersId;
+            this.virtualNumbersLocator = numbersId;
         } else {
-            this.phoneNumbersId = numbersId;
+            this.phoneNumbersLocator = numbersId;
         }
     }
 }

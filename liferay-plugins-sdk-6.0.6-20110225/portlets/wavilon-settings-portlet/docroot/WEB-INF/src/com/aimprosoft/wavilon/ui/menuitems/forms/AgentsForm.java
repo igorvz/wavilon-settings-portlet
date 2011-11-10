@@ -10,6 +10,7 @@ import com.aimprosoft.wavilon.service.CouchModelLiteDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.util.CouchModelUtil;
 import com.vaadin.Application;
+import com.vaadin.event.ShortcutAction;
 import com.vaadin.ui.*;
 
 import javax.portlet.PortletRequest;
@@ -63,6 +64,7 @@ public class AgentsForm extends AbstractForm {
             }
         });
         buttons.addComponent(cancel);
+        cancel.setClickShortcut(ShortcutAction.KeyCode.ESCAPE);
 
         Button save = new Button(bundle.getString("wavilon.button.save"), new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
@@ -70,7 +72,11 @@ public class AgentsForm extends AbstractForm {
                     form.commit();
 
                     String name = (String) form.getField("firstName").getValue();
-                    String extension = ((CouchModelLite)form.getField("extensions").getValue()).getId();
+                    String extension = null;
+
+                    if(null != form.getField("extensions").getValue()){
+                        extension = ((CouchModelLite)form.getField("extensions").getValue()).getId();
+                    }
 
                     agent.setName(name);
                     agent.setAttachedLiferayUserId(model.getLiferayOrganizationId());
@@ -167,8 +173,8 @@ public class AgentsForm extends AbstractForm {
         }
 
         extensions.setNullSelectionItemId(bundle.getString("wavilon.form.select"));
-        extensions.setRequired(true);
-        extensions.setRequiredError(bundle.getString("wavilon.error.massage.agents.extension.empty"));
+//        extensions.setRequired(true);
+//        extensions.setRequiredError(bundle.getString("wavilon.error.massage.agents.extension.empty"));
 
         return extensions;
     }

@@ -10,6 +10,7 @@ import com.aimprosoft.wavilon.service.PhoneNumberDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.util.CouchModelUtil;
 import com.vaadin.Application;
+import com.vaadin.event.ShortcutAction;
 import com.vaadin.ui.*;
 
 import javax.portlet.PortletRequest;
@@ -62,6 +63,8 @@ public class PhoneNumbersForm extends AbstractForm {
             }
         });
         buttons.addComponent(cancel);
+        cancel.setClickShortcut(ShortcutAction.KeyCode.ESCAPE);
+
 
         Button save = new Button(bundle.getString("wavilon.button.save"), new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
@@ -69,26 +72,23 @@ public class PhoneNumbersForm extends AbstractForm {
                     form.commit();
 
                     String name = (String) form.getField("name").getValue();
-                    CouchModelLite forwardCallTo = ((CouchModelLite) form.getField("forwardCallTo").getValue());
-                    try {
-                        CouchModel number = ((CouchModel) form.getField("number").getValue());
-                        phoneNumber.setLocator((String) number.getProperties().get("locator"));
-
-                    } catch (Exception e) {
-                        String number = (String) form.getField("number").getValue();
-                        phoneNumber.setLocator(number);
-
+                    String number = (String) form.getField("number").getValue();
+                    String forwardId = null;
+                    if (null != form.getField("forwardCallTo").getValue()) {
+                        CouchModelLite forwardCallTo = ((CouchModelLite) form.getField("forwardCallTo").getValue());
+                        forwardId = forwardCallTo.getId();
                     }
 
-
+                    phoneNumber.setLocator(number);
                     phoneNumber.setName(name);
 
 
-                    service.addPhoneNumber(phoneNumber, model, forwardCallTo.getId());
+                    service.addPhoneNumber(phoneNumber, model, forwardId);
 
-//                    if (!"".equals(anotherPhoneId)) {
-//                        allPhonesService.updateModel(model.getLiferayOrganizationId(), anotherPhoneId);
-//                    }
+
+                    String phoneModelDocId = allPhonesService.getPhoneNumbersDocumentId(number);
+                    allPhonesService.updateModelsAllocationDate(model.getLiferayOrganizationId(), phoneModelDocId);
+
 
                     if (null != model.getRevision()) {
                         table.removeItem(itemId);
@@ -103,14 +103,14 @@ public class PhoneNumbersForm extends AbstractForm {
                             String phoneNumbersID = (String) table.getItem(object).getItemProperty("id").getValue();
                             ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
                             application.getMainWindow().addWindow(confirmingRemove);
-                            confirmingRemove.setNumbersId(phoneNumber.getLocator(), CouchTypes.service);
+                            confirmingRemove.setNumbersLocator(phoneNumber.getLocator(), CouchTypes.service);
                             confirmingRemove.init(phoneNumbersID, table);
                         }
                     };
 
                     table.getContainerProperty(object, bundle.getString("wavilon.table.phonenumbers.column.number")).setValue(phoneNumber.getLocator());
                     table.getContainerProperty(object, bundle.getString("wavilon.table.phonenumbers.column.name")).setValue(phoneNumber.getName());
-                    table.getContainerProperty(object, bundle.getString("wavilon.table.phonenumbers.column.forward.calls.to")).setValue(forwardCallTo.getName());
+                    table.getContainerProperty(object, bundle.getString("wavilon.table.phonenumbers.column.forward.calls.to")).setValue(CouchModelUtil.getCouchModelLite(forwardId, bundle).getName());
                     table.getContainerProperty(object, "id").setValue(model.getId());
                     Button removeButton = new Button("", listener);
                     removeButton.addStyleName("removeButton");
@@ -125,6 +125,8 @@ public class PhoneNumbersForm extends AbstractForm {
         );
         save.addStyleName("saveButton");
         buttons.addComponent(save);
+        save.setClickShortcut(ShortcutAction.KeyCode.ENTER);
+
     }
 
     private Form createForm() {
@@ -144,8 +146,8 @@ public class PhoneNumbersForm extends AbstractForm {
             forwardCallTo.addItem(forward);
         }
         forwardCallTo.setNullSelectionItemId(bundle.getString("wavilon.form.select"));
-        forwardCallTo.setRequired(true);
-        forwardCallTo.setRequiredError(bundle.getString("wavilon.error.massage.phonenumbers.forward.empty"));
+//        forwardCallTo.setRequired(true);
+//        forwardCallTo.setRequiredError(bundle.getString("wavilon.error.massage.phonenumbers.forward.empty"));
 
         if ((null != this.model.getRevision() && !"".equals(this.model.getRevision())) || null != model.getProperties()) {
             name.setValue(model.getProperties().get("name"));

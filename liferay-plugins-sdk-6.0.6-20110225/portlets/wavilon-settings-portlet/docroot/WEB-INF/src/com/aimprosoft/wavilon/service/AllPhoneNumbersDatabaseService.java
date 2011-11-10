@@ -12,6 +12,10 @@ public interface AllPhoneNumbersDatabaseService {
 
     void updateModel(String PhoneModelId) throws IOException;
 
+    void updateModelsLiberationDate(String phoneModelId) throws IOException;
+
+    void updateModelsAllocationDate(Long liferayOrganizationId, String phoneModelId) throws IOException;
+
     void updateModel(Long liferayOrganizationId, String PhoneModelId) throws IOException;
 
     List<CouchModel> getVirtualNumbers() throws IOException;

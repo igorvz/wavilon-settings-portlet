@@ -126,7 +126,7 @@ public class VirtualNumbersContent extends VerticalLayout {
                         virtualNumbers.select(object);
                         ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
                         getWindow().addWindow(confirmingRemove);
-                        confirmingRemove.setNumbersId(virtualNumber.getLocator(), CouchTypes.startnode);
+                        confirmingRemove.setNumbersLocator(virtualNumber.getLocator(), CouchTypes.startnode);
                         confirmingRemove.init(couchModel.getId(), virtualNumbers);
                     }
                 }));

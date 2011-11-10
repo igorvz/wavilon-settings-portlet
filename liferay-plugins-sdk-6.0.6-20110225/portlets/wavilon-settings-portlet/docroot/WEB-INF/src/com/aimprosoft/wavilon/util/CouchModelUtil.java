@@ -11,7 +11,6 @@ import com.liferay.portal.util.PortalUtil;
 
 import javax.portlet.PortletRequest;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
 
 public class CouchModelUtil {
     private static CouchModelLiteDatabaseService modelLiteService = ObjectFactory.getBean(CouchModelLiteDatabaseService.class);
@@ -48,13 +47,20 @@ public class CouchModelUtil {
     }
 
     public static CouchModelLite getCouchModelLite(String id, ResourceBundle bundle) {
-        try {
-            return modelLiteService.getCouchLiteModel(id);
-        } catch (Exception e) {
+        if (null == id || "".equals(id)) {
             CouchModelLite modelLite = new CouchModelLite();
-            modelLite.setId(id);
-            modelLite.setName(bundle.getString("wavilon.error.massage.entity.removed"));
+            modelLite.setId(null);
+            modelLite.setName("");
             return modelLite;
+        } else {
+            try {
+                return modelLiteService.getCouchLiteModel(id);
+            } catch (Exception e) {
+                CouchModelLite modelLite = new CouchModelLite();
+                modelLite.setId(id);
+                modelLite.setName(bundle.getString("wavilon.error.massage.entity.removed"));
+                return modelLite;
+            }
         }
     }
 

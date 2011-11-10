@@ -97,8 +97,8 @@ public class ExtensionForm extends AbstractForm {
 
         ComboBox extensionType = new ComboBox(bundle.getString("wavilon.form.extensions.extension.type"));
         extensionType.addItem(bundle.getString("wavilon.form.select"));
-        extensionType.setRequired(true);
-        extensionType.setRequiredError(bundle.getString("wavilon.error.massage.extensions.extension.type.empty"));
+//        extensionType.setRequired(true);
+//        extensionType.setRequiredError(bundle.getString("wavilon.error.massage.extensions.extension.type.empty"));
         extensionType.setImmediate(true);
 
         for (String s : extensionTypeMap.keySet()) {
@@ -154,6 +154,9 @@ public class ExtensionForm extends AbstractForm {
             }
 
         } else {
+            destination.removeValidator(emailValidator);
+            destination.removeValidator(mobileValidator);
+            destination.setRequired(false);
             destination.setVisible(false);
         }
     }
@@ -198,6 +201,7 @@ public class ExtensionForm extends AbstractForm {
             }
         });
         buttons.addComponent(cancel);
+        cancel.setClickShortcut(ShortcutAction.KeyCode.ESCAPE);
 
         Button save = new Button(bundle.getString("wavilon.button.save"), new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
@@ -205,10 +209,16 @@ public class ExtensionForm extends AbstractForm {
                     form.commit();
 
                     String name = (String) form.getField("name").getValue();
-                    String extensionType = (String) form.getField("extensionType").getValue();
-                    String destination = (String) form.getField("destination").getValue();
                     Integer code = Integer.parseInt((String) form.getField("code").getValue());
 
+
+                    String extensionType = null;
+                    String destination = null;
+
+                    if (null != form.getField("extensionType").getValue()) {
+                        extensionType = (String) form.getField("extensionType").getValue();
+                        destination = (String) form.getField("destination").getValue();
+                    }
 
                     if (checkCode(code)) {
 
@@ -263,6 +273,8 @@ public class ExtensionForm extends AbstractForm {
         save.setClickShortcut(ShortcutAction.KeyCode.ENTER);
         save.addStyleName("saveButton");
         buttons.addComponent(save);
+        save.setClickShortcut(ShortcutAction.KeyCode.ENTER);
+
     }
 
     private boolean checkCode(Integer code) {

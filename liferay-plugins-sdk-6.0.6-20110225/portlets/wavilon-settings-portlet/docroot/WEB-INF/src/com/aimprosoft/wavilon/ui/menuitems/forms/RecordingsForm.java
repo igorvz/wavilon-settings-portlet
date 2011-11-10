@@ -77,6 +77,7 @@ public class RecordingsForm extends AbstractForm {
             }
         });
         buttons.addComponent(cancel);
+        cancel.setClickShortcut(ShortcutAction.KeyCode.ESCAPE);
 
         Button save = new Button(bundle.getString("wavilon.button.save"));
         save.addListener(new Button.ClickListener() {
@@ -85,12 +86,17 @@ public class RecordingsForm extends AbstractForm {
                     form.commit();
 
                     String name = (String) form.getField("name").getValue();
-                    CouchModelLite forwardModel = (CouchModelLite) form.getField("forward").getValue();
+                    String forwardId = null;
+                    if (null != form.getField("forward").getValue()){
+                        CouchModelLite forwardModel = (CouchModelLite) form.getField("forward").getValue();
+                        forwardId = forwardModel.getId();
+                        recording.setForwardTo(forwardId);
+                    }
 
                     model.setType(CouchTypes.recording);
 
                     recording.setName(name);
-                    recording.setForwardTo(forwardModel.getId());
+
 
                     if (model.getAttachments() == null) {
 
@@ -126,7 +132,7 @@ public class RecordingsForm extends AbstractForm {
                             String fileName = URLDecoder.decode(entry.getKey(), "UTF-8");
 
                             table.getContainerProperty(object, bundle.getString("wavilon.table.recordings.column.name")).setValue(recording.getName());
-                            table.getContainerProperty(object, bundle.getString("wavilon.table.recordings.column.forward.to.on.end")).setValue(forwardModel.getName());
+                            table.getContainerProperty(object, bundle.getString("wavilon.table.recordings.column.forward.to.on.end")).setValue(CouchModelUtil.getCouchModelLite(forwardId, bundle).getName());
                             table.getContainerProperty(object, bundle.getString("wavilon.table.recordings.column.media.file")).setValue(fileName);
                             table.getContainerProperty(object, "id").setValue(model.getId());
                             table.getContainerProperty(object, "").setValue(delete);
@@ -170,8 +176,8 @@ public class RecordingsForm extends AbstractForm {
             forwardComboBox.addItem(forward);
         }
         forwardComboBox.setNullSelectionItemId(bundle.getString("wavilon.form.select"));
-        forwardComboBox.setRequired(true);
-        forwardComboBox.setRequiredError(bundle.getString("wavilon.error.massage.recordings.forward.empty"));
+//        forwardComboBox.setRequired(true);
+//        forwardComboBox.setRequiredError(bundle.getString("wavilon.error.massage.recordings.forward.empty"));
         form.addField("forward", forwardComboBox);
 
         if (null != model.getRevision() && !"".equals(model.getRevision())) {
