@@ -4,11 +4,8 @@ import com.aimprosoft.wavilon.ui.ActivityPage;
 import com.aimprosoft.wavilon.ui.PleaseSignInPage;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.theme.ThemeDisplay;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import org.apache.log4j.Logger;
-import org.vaadin.artur.icepush.ICEPush;
 
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;

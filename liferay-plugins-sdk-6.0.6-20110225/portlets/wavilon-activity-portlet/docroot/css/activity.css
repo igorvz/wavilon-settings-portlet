@@ -296,3 +296,7 @@
 .rightcolumn .v-horizontallayout-categoryFilterLayout{
     margin: 10px 10px 0;
 }
+
+.v-loading-indicator-delay, .v-loading-indicator-wait{
+    display: none !important;
+}

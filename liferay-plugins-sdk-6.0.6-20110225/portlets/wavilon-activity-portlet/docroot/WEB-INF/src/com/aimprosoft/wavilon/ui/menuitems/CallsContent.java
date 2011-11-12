@@ -80,6 +80,7 @@ public class CallsContent extends Panel {
         request = ((GenericPortletApplication) getApplication()).getPortletRequest();
         this.categoryFilter = categoryFilter;
         this.headCaption = headCaption;
+
         setSizeFull();
         setStyleName(Reindeer.PANEL_LIGHT);
         setScrollable(true);
@@ -118,7 +119,7 @@ public class CallsContent extends Panel {
         mainLayout.addComponent(itemContent);
 
         //todo iteration adding cells from DB
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 5; i++) {
             DialogCell dialogCell = new DialogCell(bundle);
             itemContent.addComponent(dialogCell);
             itemContent.addStyleName("itemStyle");

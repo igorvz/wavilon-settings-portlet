@@ -27,10 +27,9 @@ public class ActivityPage extends VerticalLayout {
     }
 
     public void init() {
+        getWindow().executeJavaScript("bindBlockUI()");
+
         addStyleName("settingsPanel");
-
-        checkPush();
-
 
         HorizontalSplitPanel panel = new HorizontalSplitPanel();
         panel.setSplitPosition(250, Sizeable.UNITS_PIXELS);
@@ -62,10 +61,14 @@ public class ActivityPage extends VerticalLayout {
 
         addButtons();
 
+        getWindow().executeJavaScript("blockPage()");
+
         detailsContent.removeAllComponents();
         CallsContent callsContent = new CallsContent(bundle);
         detailsContent.addComponent(callsContent);
         callsContent.init(null, bundle.getString("wavilon.activity.menuitem.real.time.calls.feed"));
+
+        getWindow().executeJavaScript("unblockPage()");
 
     }
 
@@ -75,14 +78,15 @@ public class ActivityPage extends VerticalLayout {
         realTimeCallsFeed.addStyleName("button");
         realTimeCallsFeed.addListener(new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
-                Button button = event.getButton();
 
+                Button button = event.getButton();
                 assignActiveButton(button);
                 detailsContent.removeAllComponents();
                 CallsContent callsContent = new CallsContent(bundle);
                 detailsContent.addComponent(callsContent);
                 callsContent.init(null, bundle.getString("wavilon.activity.menuitem.real.time.calls.feed"));
 
+                getWindow().executeJavaScript("unblockPage()");
             }
         });
 
@@ -90,8 +94,8 @@ public class ActivityPage extends VerticalLayout {
         filterCallsByLabels.addStyleName("button");
         filterCallsByLabels.addListener(new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
-                Button button = event.getButton();
 
+                Button button = event.getButton();
                 assignActiveButton(button);
                 detailsContent.removeAllComponents();
                 CallsContent callsContent = new CallsContent(bundle);
@@ -99,6 +103,7 @@ public class ActivityPage extends VerticalLayout {
                 CategoryFilter categoryFilter = new CategoryFilter(bundle);
                 callsContent.init(categoryFilter, bundle.getString("wavilon.activity.menuitem.filter.calls.by.labels"));
 
+                getWindow().executeJavaScript("unblockPage()");
             }
         });
 

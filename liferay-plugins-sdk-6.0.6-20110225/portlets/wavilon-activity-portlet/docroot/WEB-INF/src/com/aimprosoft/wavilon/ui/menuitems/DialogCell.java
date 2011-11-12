@@ -184,7 +184,6 @@ public class DialogCell extends HorizontalLayout {
         newNote.addComponent(addNoteButton, 4, 2);
         newNote.setComponentAlignment(addNoteButton, Alignment.BOTTOM_RIGHT);
         addNoteButton.setStyleName("itemAddNoteButton");
-        addNoteButton.setClickShortcut(ShortcutAction.KeyCode.ENTER);
 
         Button.ClickListener hideChatListener = new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
