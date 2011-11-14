@@ -10,7 +10,6 @@ import com.aimprosoft.wavilon.service.impl.NoteEktorpDatabaseImpl;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.util.CouchModelUtil;
 import com.liferay.portal.util.PortalUtil;
-import com.vaadin.event.ShortcutAction;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 import org.icepush.PushContext;
@@ -20,6 +19,7 @@ import org.vaadin.imagefilter.Image;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 
 public class DialogCell extends HorizontalLayout {
@@ -30,7 +30,6 @@ public class DialogCell extends HorizontalLayout {
     private ResourceBundle bundle;
     private PortletResponse response;
     private PortletRequest request;
-    //    private ICEPush icePush;
     private List<CouchModel> notes;
     private Label count;
     private Person person;
@@ -177,8 +176,8 @@ public class DialogCell extends HorizontalLayout {
 
                 count.setValue(String.valueOf(notes.size()));
 
-                ICEPush.getPushContext(getApplication().getContext()).push(CouchModelUtil.getOrganizationId(request).toString());
-                ICEPush.getPushContext(getApplication().getContext()).push("ICEPush" + CouchModelUtil.getOrganizationId(request).toString());
+//                        ICEPush.getPushContext(getApplication().getContext()).push(CouchModelUtil.getOrganizationId(request).toString());
+//                        ICEPush.getPushContext(getApplication().getContext()).push("ICEPush" + CouchModelUtil.getOrganizationId(request).toString());
             }
         });
         newNote.addComponent(addNoteButton, 4, 2);
@@ -223,7 +222,18 @@ public class DialogCell extends HorizontalLayout {
     }
 
     private void createAvatar() {
-        avatar = new Image(avatarService.getAvatar(person.getAvatarName()));
+        InputStream avatarInputStream = null;
+        try {
+            avatarInputStream = avatarService.getAvatar(person.getAvatarName());
+            avatar = new Image(avatarInputStream);
+        } finally {
+            if (null != avatarInputStream) {
+                try {
+                    avatarInputStream.close();
+                } catch (Exception ignored) {
+                }
+            }
+        }
         avatar.setHeight("61px");
         avatar.setWidth("61px");
         avatar.setStyleName("imgColumn");

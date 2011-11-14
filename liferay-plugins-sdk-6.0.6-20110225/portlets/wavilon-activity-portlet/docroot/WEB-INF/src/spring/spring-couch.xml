@@ -15,7 +15,7 @@
                     <bean class="org.ektorp.spring.HttpClientFactoryBean">
                         <property name="url" value="http://${db.host}:${db.port}"/>
                         <property name="connectionTimeout" value="15000"/>
-                        <property name="maxConnections" value="1000"/>
+                        <property name="maxConnections" value="100"/>
                     </bean>
                 </constructor-arg>
             </bean>

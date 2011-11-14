@@ -1,7 +1,7 @@
 package com.aimprosoft.wavilon.service;
 
-import org.ektorp.AttachmentInputStream;
+import java.io.InputStream;
 
 public interface AvatarService {
-    AttachmentInputStream getAvatar(String attachmentId);
+    InputStream getAvatar(String attachmentId);
 }
