@@ -119,7 +119,7 @@ public class CallsContent extends Panel {
         mainLayout.addComponent(itemContent);
 
         //todo iteration adding cells from DB
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 2; i++) {
             DialogCell dialogCell = new DialogCell(bundle);
             itemContent.addComponent(dialogCell);
             itemContent.addStyleName("itemStyle");

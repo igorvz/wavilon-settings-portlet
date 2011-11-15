@@ -9,6 +9,7 @@ import com.aimprosoft.wavilon.service.NoteDatabaseService;
 import com.aimprosoft.wavilon.service.impl.NoteEktorpDatabaseImpl;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.util.CouchModelUtil;
+import com.aimprosoft.wavilon.util.PushUtil;
 import com.liferay.portal.util.PortalUtil;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
@@ -33,6 +34,8 @@ public class DialogCell extends HorizontalLayout {
     private List<CouchModel> notes;
     private Label count;
     private Person person;
+    private VerticalLayout chat;
+    private ICEPush icePush;
 
     public DialogCell(ResourceBundle bundle) {
         this.bundle = bundle;
@@ -45,6 +48,7 @@ public class DialogCell extends HorizontalLayout {
         request = ((GenericPortletApplication) getApplication()).getPortletRequest();
 
         initLayout();
+        new BackgroundThread().start();
     }
 
     private void initLayout() {
@@ -136,7 +140,7 @@ public class DialogCell extends HorizontalLayout {
         mainContent.addComponent(chatLayout, 0, 3, 8, 3);
         chatLayout.setStyleName("chat");
 
-        final VerticalLayout chat = new VerticalLayout();
+        chat = new VerticalLayout();
         chatLayout.addComponent(chat);
         chat.setWidth(95, Sizeable.UNITS_PERCENTAGE);
         fillChatLayout(chat);
@@ -176,8 +180,6 @@ public class DialogCell extends HorizontalLayout {
 
                 count.setValue(String.valueOf(notes.size()));
 
-//                        ICEPush.getPushContext(getApplication().getContext()).push(CouchModelUtil.getOrganizationId(request).toString());
-//                        ICEPush.getPushContext(getApplication().getContext()).push("ICEPush" + CouchModelUtil.getOrganizationId(request).toString());
             }
         });
         newNote.addComponent(addNoteButton, 4, 2);
@@ -341,4 +343,48 @@ public class DialogCell extends HorizontalLayout {
             return null;
         }
     }
+
+
+    public class BackgroundThread extends Thread {
+
+        @Override
+        public void run() {
+            while (true) {
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                }
+
+
+                if (null != getApplication()) {
+                    synchronized (getApplication()) {
+                            repaint();
+                    }
+                }
+
+                if (null == icePush) {
+                    icePush = new ICEPush();
+                    getApplication().getMainWindow().addComponent(icePush);
+                }
+
+                icePush.push();
+
+            }
+
+        }
+    }
+
+
+    public void repaint() {
+
+        chat.removeAllComponents();
+        notes = getAllNotes();
+        count.setValue(String.valueOf(notes.size()));
+
+        for (CouchModel noteCouchModel : notes) {
+            createNoteLayout(chat, noteCouchModel);
+        }
+
+    }
+
 }

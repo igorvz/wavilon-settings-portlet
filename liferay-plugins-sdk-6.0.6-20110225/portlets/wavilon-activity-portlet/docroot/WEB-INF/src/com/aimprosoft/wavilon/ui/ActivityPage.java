@@ -63,10 +63,10 @@ public class ActivityPage extends VerticalLayout {
 
         getWindow().executeJavaScript("blockPage()");
 
-        detailsContent.removeAllComponents();
-        CallsContent callsContent = new CallsContent(bundle);
-        detailsContent.addComponent(callsContent);
-        callsContent.init(null, bundle.getString("wavilon.activity.menuitem.real.time.calls.feed"));
+//        detailsContent.removeAllComponents();
+//        CallsContent callsContent = new CallsContent(bundle);
+//        detailsContent.addComponent(callsContent);
+//        callsContent.init(null, bundle.getString("wavilon.activity.menuitem.real.time.calls.feed"));
 
         getWindow().executeJavaScript("unblockPage()");
 
