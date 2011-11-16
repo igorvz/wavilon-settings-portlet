@@ -38,7 +38,7 @@ public class ExtensionForm extends AbstractForm {
     public ExtensionForm(ResourceBundle bundle, Table table) {
         this.bundle = bundle;
         this.table = table;
-        mobileValidator = new RegexpValidator("[+][0-9]{10}", bundle.getString("wavilon.error.massage.extensions.phonenumber.wrong"));
+        mobileValidator = new RegexpValidator("^([+])?+([0-9])+$", bundle.getString("wavilon.error.massage.extensions.phonenumber.wrong"));
         emailValidator = new EmailValidator(bundle.getString("wavilon.error.massage.extensions.email.wrong"));
     }
 
@@ -279,7 +279,7 @@ public class ExtensionForm extends AbstractForm {
 
     private boolean checkCode(Integer code) {
         try {
-            return service.checkCode(model.getLiferayOrganizationId(), code);
+            return service.checkCode(model.getId(), model.getLiferayOrganizationId(), code);
         } catch (IOException e) {
             return true;
         }
@@ -289,7 +289,7 @@ public class ExtensionForm extends AbstractForm {
         Random random = new Random();
         Integer code = random.nextInt(99999);
 
-        while (code > 9999 && checkCode(code)) {
+        while ( (code < 9999) || checkCode(code)) {
             code = random.nextInt(99999);
         }
         return code;

@@ -157,9 +157,13 @@ public class AgentsForm extends AbstractForm {
 
     private CouchModelLite getCurrentExtension() {
         try {
+            if(null != model.getOutputs().get("extension")){
             return modelLiteService.getCouchLiteModel((String) model.getOutputs().get("extension"));
+            }else {
+               return null;
+            }
         } catch (IOException e) {
-            return new CouchModelLite();
+            return null;
         }
     }
 

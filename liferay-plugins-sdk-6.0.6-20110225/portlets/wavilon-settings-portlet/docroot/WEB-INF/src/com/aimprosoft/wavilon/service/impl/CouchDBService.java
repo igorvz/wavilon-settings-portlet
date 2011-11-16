@@ -21,6 +21,8 @@ public class CouchDBService {
 
     private ObjectReader objectReader;
 
+    private ObjectReader objectToMapReader;
+
     protected SerializeService serializeService;
 
     @Required
@@ -38,12 +40,17 @@ public class CouchDBService {
         this.serializeService = serializeService;
     }
 
+    @Required
+    public void setObjectToMapReader(ObjectReader objectToMapReader) {
+        this.objectToMapReader = objectToMapReader;
+    }
+
     protected void addModel(CouchModel model) throws IOException {
         updateModel(model);
     }
 
     @SuppressWarnings("unchecked")
-    protected void updateModel(CouchModel model) throws IOException {
+    protected void updateModel(Object model) throws IOException {
         Document document = serializeService.toDocument(model);
         database.saveDocument(document);
     }
@@ -59,6 +66,11 @@ public class CouchDBService {
 
     protected CouchModel getModelById(String documentId) throws IOException {
         return getModelById(documentId, false);
+    }
+
+     protected Map<String, Object> getMapById(String documentId) throws IOException {
+        Document document = database.getDocument(documentId);
+        return objectToMapReader.readValue(document.toString());
     }
 
     protected CouchModel getModelById(String documentId, boolean includeAttachments) throws IOException {

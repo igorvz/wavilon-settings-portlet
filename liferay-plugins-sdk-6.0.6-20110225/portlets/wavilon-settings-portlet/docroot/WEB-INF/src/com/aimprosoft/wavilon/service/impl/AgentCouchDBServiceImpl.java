@@ -52,7 +52,11 @@ public class AgentCouchDBServiceImpl extends AbstractViewEntityService implement
         model.setProperties(properties);
         model.setOutputs(outputs);
 
-        couchDBService.updateModel(model);
+        if (null == model.getRevision()) {
+            couchDBService.updateModel(model);
+        } else {
+            merge(model);
+        }
     }
 
     public List<CouchModel> getAllUsersCouchModelAgent(Long organizationId) throws IOException {

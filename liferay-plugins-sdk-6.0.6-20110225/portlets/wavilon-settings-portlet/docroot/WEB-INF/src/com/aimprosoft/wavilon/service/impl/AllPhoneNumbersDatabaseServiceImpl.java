@@ -55,8 +55,6 @@ public class AllPhoneNumbersDatabaseServiceImpl extends AbstractViewEntityServic
     public void updateModelsLiberationDate(String phoneModelId) throws IOException {
         PhoneModel phoneModel = getPhoneModel(phoneModelId);
         phoneModel.setLiberationDate(System.nanoTime());
-        phoneModel.setLiferayOrganizationId(null);
-
 
         updateModel(phoneModel);
     }

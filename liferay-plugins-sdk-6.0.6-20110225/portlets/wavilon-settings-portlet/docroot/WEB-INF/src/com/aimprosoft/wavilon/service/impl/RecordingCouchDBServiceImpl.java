@@ -54,7 +54,11 @@ public class RecordingCouchDBServiceImpl extends AbstractViewEntityService imple
 
         model.setProperties(properties);
 
-        couchDBService.updateModel(model);
+        if (null == model.getRevision()) {
+            couchDBService.updateModel(model);
+        } else {
+            merge(model);
+        }
     }
 
     public List<CouchModel> getAllUsersCouchModelToRecording(Long organizationId, boolean attachment) throws IOException {

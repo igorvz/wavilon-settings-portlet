@@ -51,7 +51,11 @@ public class QueueCouchDBServiceImpl extends AbstractViewEntityService implement
         model.setProperties(properties);
         model.setOutputs(outputs);
 
-        couchDBService.updateModel(model);
+        if (null == model.getRevision()) {
+            couchDBService.updateModel(model);
+        } else {
+            merge(model);
+        }
     }
 
     public List<CouchModel> getAllUsersCouchModelQueue(Long organizationId) throws IOException {

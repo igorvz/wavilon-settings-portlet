@@ -14,6 +14,8 @@ public interface ExtensionDatabaseService {
 
     List<Extension> getAllExtension() throws IOException;
 
+    void merge(String id, Object toMerge) throws IOException;
+
     void updateExtension(Extension extension, CouchModel model) throws IOException;
 
     List<CouchModel> getAllUsersCouchModelToExtension(Long organizationId) throws IOException;
@@ -24,6 +26,6 @@ public interface ExtensionDatabaseService {
 
     void removeExtension(String id) throws IOException;
 
-    public boolean checkCode(Long organizationId, Integer code) throws IOException;
+    public boolean checkCode(String modelId, Long organizationId, Integer code) throws IOException;
 
 }

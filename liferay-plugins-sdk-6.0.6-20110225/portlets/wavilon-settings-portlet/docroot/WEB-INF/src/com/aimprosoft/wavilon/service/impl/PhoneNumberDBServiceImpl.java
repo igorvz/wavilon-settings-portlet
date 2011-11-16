@@ -52,7 +52,11 @@ public class PhoneNumberDBServiceImpl extends AbstractViewEntityService implemen
         model.setProperties(properties);
         model.setOutputs(outputs);
 
-        couchDBService.updateModel(model);
+        if (null == model.getRevision()) {
+            couchDBService.updateModel(model);
+        } else {
+            merge(model);
+        }
     }
 
     public List<CouchModel> getAllUsersCouchModelToPhoneNumber(Long organizationId) throws IOException {

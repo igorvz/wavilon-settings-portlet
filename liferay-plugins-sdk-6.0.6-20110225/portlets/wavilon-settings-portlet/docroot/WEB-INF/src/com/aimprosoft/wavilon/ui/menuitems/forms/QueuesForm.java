@@ -78,6 +78,7 @@ public class QueuesForm extends AbstractForm {
                     String maxTimeInput = form.getField("maxTimeInput").getValue().toString();
                     String maxLengthInput = form.getField("maxLengthInput").getValue().toString();
                     String forwardToOnMaxTimeInput = null;
+                    List<String> queuesAgents = Collections.emptyList();
 
                     if (null != form.getField("forwardToOnMaxTimeInput").getValue()) {
                         forwardToOnMaxTimeInput = ((CouchModelLite) form.getField("forwardToOnMaxTimeInput").getValue()).getId();
@@ -93,6 +94,7 @@ public class QueuesForm extends AbstractForm {
                     if (null != model.getRevision()) {
                         table.removeItem(itemId);
                         table.select(null);
+                        queuesAgents = (List<String>) model.getOutputs().get("agents");
                     }
 
                     if (!musicOnHold) {
@@ -119,7 +121,8 @@ public class QueuesForm extends AbstractForm {
                     queue.setForwardToOnMaxTime(forwardToOnMaxTimeInput);
                     queue.setForwardToOnMaxLength(forwardToOnMaxLengthInput);
 
-                    service.addQueue(queue, model, Collections.<String>emptyList());
+
+                    service.addQueue(queue, model, queuesAgents);
 
                     final Object object = table.addItem();
 
