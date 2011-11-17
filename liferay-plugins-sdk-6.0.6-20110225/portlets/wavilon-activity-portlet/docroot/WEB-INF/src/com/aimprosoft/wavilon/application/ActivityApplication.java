@@ -1,5 +1,6 @@
 package com.aimprosoft.wavilon.application;
 
+
 import com.aimprosoft.wavilon.ui.ActivityPage;
 import com.aimprosoft.wavilon.ui.PleaseSignInPage;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -20,7 +21,7 @@ public class ActivityApplication extends GenericPortletApplication {
     public void init() {
         //initialize listeners
         super.init();
-
+        setTheme("wavilonactivity");
     }
 
     @Override
@@ -42,7 +43,6 @@ public class ActivityApplication extends GenericPortletApplication {
                 window.removeComponent(window.getComponentIterator().next());
             }
 
-            window.addStyleName("wrapperLayouts");
             window.getLayout().setMargin(false);
             window.getContent().setSizeFull();
             if (themeDisplay.isSignedIn()) {

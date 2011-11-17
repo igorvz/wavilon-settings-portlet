@@ -1,18 +1,11 @@
 package com.aimprosoft.wavilon.ui;
 
-import com.aimprosoft.wavilon.application.GenericPortletApplication;
 import com.aimprosoft.wavilon.ui.menuitems.CallsContent;
 import com.aimprosoft.wavilon.ui.menuitems.CategoryFilter;
-import com.aimprosoft.wavilon.util.CouchModelUtil;
-import com.liferay.portal.util.PortalUtil;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.Reindeer;
-import org.icepush.PushContext;
-import org.vaadin.artur.icepush.ICEPush;
 
-import javax.portlet.PortletRequest;
-import javax.portlet.PortletResponse;
 import java.util.Iterator;
 import java.util.ResourceBundle;
 
@@ -20,6 +13,7 @@ public class ActivityPage extends VerticalLayout {
     private ResourceBundle bundle;
     private VerticalLayout leftColumn;
     private VerticalLayout detailsContent;
+    public static boolean flag = false;
 
 
     public ActivityPage(final ResourceBundle bundle) {
@@ -28,8 +22,7 @@ public class ActivityPage extends VerticalLayout {
 
     public void init() {
         getWindow().executeJavaScript("bindBlockUI()");
-
-        addStyleName("settingsPanel");
+        getWindow().executeJavaScript("bindRemoveBlockUI()");
 
         HorizontalSplitPanel panel = new HorizontalSplitPanel();
         panel.setSplitPosition(250, Sizeable.UNITS_PIXELS);
@@ -40,11 +33,11 @@ public class ActivityPage extends VerticalLayout {
         addComponent(panel);
 
         leftColumn = new VerticalLayout();
-        leftColumn.setStyleName("leftcolumn");
+        leftColumn.addStyleName("leftcolumn");
         panel.setFirstComponent(leftColumn);
 
         VerticalLayout rightColumn = new VerticalLayout();
-        rightColumn.setStyleName("rightcolumn");
+        rightColumn.addStyleName("rightcolumn");
         rightColumn.setMargin(false);
         rightColumn.setSizeFull();
         panel.setSecondComponent(rightColumn);
@@ -61,14 +54,14 @@ public class ActivityPage extends VerticalLayout {
 
         addButtons();
 
-        getWindow().executeJavaScript("blockPage()");
+//        getWindow().executeJavaScript("blockPage()");
 
 //        detailsContent.removeAllComponents();
 //        CallsContent callsContent = new CallsContent(bundle);
 //        detailsContent.addComponent(callsContent);
 //        callsContent.init(null, bundle.getString("wavilon.activity.menuitem.real.time.calls.feed"));
 
-        getWindow().executeJavaScript("unblockPage()");
+//        getWindow().executeJavaScript("unblockPage()");
 
     }
 
@@ -94,8 +87,8 @@ public class ActivityPage extends VerticalLayout {
         filterCallsByLabels.addStyleName("button");
         filterCallsByLabels.addListener(new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
-
                 Button button = event.getButton();
+
                 assignActiveButton(button);
                 detailsContent.removeAllComponents();
                 CallsContent callsContent = new CallsContent(bundle);
@@ -109,21 +102,6 @@ public class ActivityPage extends VerticalLayout {
 
         leftColumn.addComponent(realTimeCallsFeed);
         leftColumn.addComponent(filterCallsByLabels);
-    }
-
-    private void checkPush() {
-        GenericPortletApplication application = (GenericPortletApplication) getApplication();
-        PortletRequest request = application.getPortletRequest();
-        PortletResponse response = application.getPortletResponse();
-        PushContext pushContext = ICEPush.getPushContext(application.getContext());
-
-        ICEPush icePush = new ICEPush();
-        getApplication().getMainWindow().addComponent(icePush);
-
-        String organizationId = CouchModelUtil.getOrganizationId(request).toString();
-        String pushId = pushContext.createPushId(PortalUtil.getHttpServletRequest(request), PortalUtil.getHttpServletResponse(response));
-        pushContext = ICEPush.getPushContext(getApplication().getContext());
-        pushContext.addGroupMember(organizationId, pushId);
     }
 
     private void assignActiveButton(Button button) {

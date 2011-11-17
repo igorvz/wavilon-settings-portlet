@@ -9,7 +9,7 @@ import java.util.Map;
 //PLEASE NOTE:
 // 1. Annotation overrides in child classes
 // 2. Do not ignore properties, where field name equals to JSON name
-public class CouchModel {
+public class CouchModel{
     @JsonProperty("_id")
     private String id;
 

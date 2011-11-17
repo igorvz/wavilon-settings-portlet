@@ -9,11 +9,8 @@ import com.aimprosoft.wavilon.service.NoteDatabaseService;
 import com.aimprosoft.wavilon.service.impl.NoteEktorpDatabaseImpl;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.util.CouchModelUtil;
-import com.aimprosoft.wavilon.util.PushUtil;
-import com.liferay.portal.util.PortalUtil;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
-import org.icepush.PushContext;
 import org.vaadin.artur.icepush.ICEPush;
 import org.vaadin.imagefilter.Image;
 
@@ -378,12 +375,7 @@ public class DialogCell extends HorizontalLayout {
     public void repaint() {
 
         chat.removeAllComponents();
-        notes = getAllNotes();
-        count.setValue(String.valueOf(notes.size()));
-
-        for (CouchModel noteCouchModel : notes) {
-            createNoteLayout(chat, noteCouchModel);
-        }
+        fillChatLayout(chat);
 
     }
 
