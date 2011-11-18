@@ -33,10 +33,9 @@
         <load-on-startup>1</load-on-startup>
     </servlet>
 
-<!--
     <servlet-mapping>
         <servlet-name>WavilonActivityApplication</servlet-name>
-        <url-pattern>/VAADIN/*</url-pattern>
+        <url-pattern>/*</url-pattern>
     </servlet-mapping>
 
     <jsp-config>
