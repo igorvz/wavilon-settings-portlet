@@ -8,7 +8,7 @@ public class Queue extends BaseModel {
     @JsonProperty("max_time")
     private Integer maxTime;
 
-    @JsonProperty("max_tength")
+    @JsonProperty("max_length")
     private Integer maxLength;
 
     @JsonProperty("forward_to_on_max_time")

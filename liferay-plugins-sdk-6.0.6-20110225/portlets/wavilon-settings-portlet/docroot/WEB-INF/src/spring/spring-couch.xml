@@ -30,6 +30,11 @@
                 <constructor-arg index="0" value="com.aimprosoft.wavilon.couch.CouchModel"/>
             </bean>
         </property>
+        <property name="objectToMapReader">
+            <bean class="org.codehaus.jackson.map.ObjectReader" factory-bean="objectMapper" factory-method="reader">
+                <constructor-arg index="0" value="java.util.Map"/>
+            </bean>
+        </property>
     </bean>
 
     <bean id="allPhoneNumbersDBService" class="com.aimprosoft.wavilon.service.impl.AllPhoneNumbersDatabaseServiceImpl">

@@ -14,8 +14,6 @@ public interface ExtensionDatabaseService {
 
     List<Extension> getAllExtension() throws IOException;
 
-    void merge(String id, Object toMerge) throws IOException;
-
     void updateExtension(Extension extension, CouchModel model) throws IOException;
 
     List<CouchModel> getAllUsersCouchModelToExtension(Long organizationId) throws IOException;
