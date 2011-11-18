@@ -54,7 +54,7 @@ public class AllPhoneNumbersDatabaseServiceImpl extends AbstractViewEntityServic
     @Override
     public void updateModelsLiberationDate(String phoneModelId) throws IOException {
         PhoneModel phoneModel = getPhoneModel(phoneModelId);
-        phoneModel.setLiberationDate(System.nanoTime());
+        phoneModel.setLiberationDate(System.currentTimeMillis());
 
         updateModel(phoneModel);
     }
@@ -62,7 +62,8 @@ public class AllPhoneNumbersDatabaseServiceImpl extends AbstractViewEntityServic
     @Override
     public void updateModelsAllocationDate(Long liferayOrganizationId, String phoneModelId) throws IOException {
         PhoneModel phoneModel = getPhoneModel(phoneModelId);
-        phoneModel.setAllocationDate(System.nanoTime());
+        phoneModel.setAllocationDate(System.currentTimeMillis());
+        phoneModel.setLiberationDate(null);
         phoneModel.setLiferayOrganizationId(liferayOrganizationId);
 
         updateModel(phoneModel);
@@ -107,12 +108,21 @@ public class AllPhoneNumbersDatabaseServiceImpl extends AbstractViewEntityServic
         return modelList;
     }
 
-    public List<String> getOnlyPhoneNumbers() throws IOException {
-        View view = database.getDocument(functions.getDesignDocumentPhoneNumbers()).getView(functions.getAllPhonesPhoneNumber());
+    public List<String> getOnlyPhoneNumbers(Long organizationId) throws IOException {
+        View view = database.getDocument(functions.getDesignDocumentPhoneNumbers()).getView(functions.getAllPhonesPhoneNumberOutOfOrg());
         ViewResults viewResults = database.view(view);
+        List<Document> totalNumsList = viewResults.getResults();
+
+        view = database.getDocument(functions.getDesignDocumentPhoneNumbers()).getView(functions.getAllPhonesPhoneNumberNumsByOrg());
+        view.setKey(String.valueOf(organizationId));
+        viewResults = database.view(view);
+
+        totalNumsList.removeAll(viewResults.getResults());
+        totalNumsList.addAll(viewResults.getResults());
+
         List<String> modelList = new LinkedList<String>();
 
-        for (Document doc : viewResults.getResults()) {
+        for (Document doc : totalNumsList) {
             PhoneModel phoneModel = getPhoneModel(doc.getId());
             modelList.add(phoneModel.getLocator());
         }
@@ -120,16 +130,24 @@ public class AllPhoneNumbersDatabaseServiceImpl extends AbstractViewEntityServic
         return modelList;
     }
 
-    public List<String> getOnlyVirtualNumbers() throws IOException {
-        View view = database.getDocument(functions.getDesignDocumentPhoneNumbers()).getView(functions.getAllPhonesVirtualNumber());
+    public List<String> getOnlyVirtualNumbers(Long organizationId) throws IOException {
+        View view = database.getDocument(functions.getDesignDocumentPhoneNumbers()).getView(functions.getAllPhonesVirtualNumberOutOfOrg());
         ViewResults viewResults = database.view(view);
+        List<Document> totalNumsList = viewResults.getResults();
+
+        view = database.getDocument(functions.getDesignDocumentPhoneNumbers()).getView(functions.getAllPhonesVirtualNumberNumsByOrg());
+        view.setKey(String.valueOf(organizationId));
+        viewResults = database.view(view);
+
+        totalNumsList.removeAll(viewResults.getResults());
+        totalNumsList.addAll(viewResults.getResults());
+
         List<String> modelList = new LinkedList<String>();
 
-        for (Document doc : viewResults.getResults()) {
+        for (Document doc : totalNumsList) {
             PhoneModel phoneModel = getPhoneModel(doc.getId());
             modelList.add(phoneModel.getLocator());
         }
-
         return modelList;
     }
 

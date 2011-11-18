@@ -22,8 +22,20 @@ public class Functions {
     @Value("${fetch.all.phones.virtual.number}")
     private String allPhonesVirtualNumber;
 
+    @Value("${fetch.all.phones.virtual.number.by.org}")
+    private String allPhonesVirtualNumberNumsByOrg;
+
+    @Value("${fetch.all.phones.virtual.number.out.of.org}")
+    private String allPhonesVirtualNumberOutOfOrg;
+
     @Value("${fetch.all.phones.phone.number}")
     private String allPhonesPhoneNumber;
+
+    @Value("${fetch.all.phones.phone.number.by.org}")
+    private String allPhonesPhoneNumberNumsByOrg;
+
+    @Value("${fetch.all.phones.phone.number.out.of.org}")
+    private String allPhonesPhoneNumberOutOfOrg;
 
     @Value("${fetch.extension.code.exist}")
     private String extensionCodeExist;
@@ -33,7 +45,6 @@ public class Functions {
 
     @Value("${fetch.phones.virtual.number.id}")
     private String phonesVirtualNumberId;
-
 
 
     public String getDesignDocumentPhoneNumbers() {
@@ -60,8 +71,24 @@ public class Functions {
         return allPhonesVirtualNumber;
     }
 
+    public String getAllPhonesVirtualNumberNumsByOrg() {
+        return allPhonesVirtualNumberNumsByOrg;
+    }
+
+    public String getAllPhonesVirtualNumberOutOfOrg() {
+        return allPhonesVirtualNumberOutOfOrg;
+    }
+
     public String getAllPhonesPhoneNumber() {
         return allPhonesPhoneNumber;
+    }
+
+    public String getAllPhonesPhoneNumberNumsByOrg() {
+        return allPhonesPhoneNumberNumsByOrg;
+    }
+
+    public String getAllPhonesPhoneNumberOutOfOrg() {
+        return allPhonesPhoneNumberOutOfOrg;
     }
 
     public String getExtensionCodeExist() {

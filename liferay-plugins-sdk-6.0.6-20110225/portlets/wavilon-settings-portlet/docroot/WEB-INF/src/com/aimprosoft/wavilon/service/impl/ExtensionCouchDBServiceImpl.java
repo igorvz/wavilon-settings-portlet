@@ -7,7 +7,6 @@ import com.fourspaces.couchdb.Document;
 import com.fourspaces.couchdb.View;
 import com.fourspaces.couchdb.ViewResults;
 import org.springframework.stereotype.Service;
-import sun.reflect.generics.tree.ReturnType;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -49,14 +48,8 @@ public class ExtensionCouchDBServiceImpl extends AbstractViewEntityService imple
 
         model.setProperties(properties);
 
-        if (null == model.getRevision()) {
-            couchDBService.updateModel(model);
-        } else {
-            merge(model);
-        }
+        updateCouchModel(model);
     }
-
-
 
 
     public List<CouchModel> getAllUsersCouchModelToExtension(Long organizationId) throws IOException {

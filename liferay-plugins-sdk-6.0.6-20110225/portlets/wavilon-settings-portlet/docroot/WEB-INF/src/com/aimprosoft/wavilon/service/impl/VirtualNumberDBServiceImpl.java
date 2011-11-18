@@ -47,11 +47,7 @@ public class VirtualNumberDBServiceImpl extends AbstractViewEntityService implem
 
         model.setProperties(properties);
 
-        if (null == model.getRevision()) {
-            couchDBService.updateModel(model);
-        } else {
-            merge(model);
-        }
+        updateCouchModel(model);
     }
 
     public List<CouchModel> getAllUsersCouchModelToVirtualNumber(Long organizationId) throws IOException {

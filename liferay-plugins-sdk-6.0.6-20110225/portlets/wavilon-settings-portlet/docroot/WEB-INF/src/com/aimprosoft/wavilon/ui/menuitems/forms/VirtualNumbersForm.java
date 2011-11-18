@@ -107,9 +107,10 @@ public class VirtualNumbersForm extends AbstractForm {
                         public void buttonClick(Button.ClickEvent event) {
                             table.select(object);
                             String phoneNumbersID = (String) table.getItem(object).getItemProperty("id").getValue();
+                            String virtualNumbersLocator = (String) table.getItem(object).getItemProperty(bundle.getString("wavilon.table.phonenumbers.column.number")).getValue();
                             ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
                             application.getMainWindow().addWindow(confirmingRemove);
-                            confirmingRemove.setNumbersLocator(virtualNumber.getLocator(), CouchTypes.startnode);
+                            confirmingRemove.setNumbersLocator(virtualNumbersLocator, CouchTypes.startnode);
                             confirmingRemove.init(phoneNumbersID, table);
                         }
                     };
@@ -212,7 +213,7 @@ public class VirtualNumbersForm extends AbstractForm {
 
     private List<String> createVirtualNumbers() {
         try {
-            return allPhonesService.getOnlyVirtualNumbers();
+            return allPhonesService.getOnlyVirtualNumbers(CouchModelUtil.getOrganizationId(request));
         } catch (Exception e) {
             return Collections.emptyList();
         }

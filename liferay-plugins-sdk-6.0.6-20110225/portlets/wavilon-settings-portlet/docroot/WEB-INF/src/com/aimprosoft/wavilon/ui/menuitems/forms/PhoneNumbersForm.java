@@ -14,6 +14,7 @@ import com.vaadin.event.ShortcutAction;
 import com.vaadin.ui.*;
 
 import javax.portlet.PortletRequest;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -101,19 +102,20 @@ public class PhoneNumbersForm extends AbstractForm {
                         public void buttonClick(Button.ClickEvent event) {
                             table.select(object);
                             String phoneNumbersID = (String) table.getItem(object).getItemProperty("id").getValue();
+                            String phoneNumbersLocator = (String) table.getItem(object).getItemProperty(bundle.getString("wavilon.table.phonenumbers.column.number")).getValue();
                             ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
                             application.getMainWindow().addWindow(confirmingRemove);
-                            confirmingRemove.setNumbersLocator(phoneNumber.getLocator(), CouchTypes.service);
+                            confirmingRemove.setNumbersLocator(phoneNumbersLocator, CouchTypes.service);
                             confirmingRemove.init(phoneNumbersID, table);
                         }
                     };
+                    Button removeButton = new Button("", listener);
+                    removeButton.addStyleName("removeButton");
 
                     table.getContainerProperty(object, bundle.getString("wavilon.table.phonenumbers.column.number")).setValue(phoneNumber.getLocator());
                     table.getContainerProperty(object, bundle.getString("wavilon.table.phonenumbers.column.name")).setValue(phoneNumber.getName());
                     table.getContainerProperty(object, bundle.getString("wavilon.table.phonenumbers.column.forward.calls.to")).setValue(CouchModelUtil.getCouchModelLite(forwardId, bundle).getName());
                     table.getContainerProperty(object, "id").setValue(model.getId());
-                    Button removeButton = new Button("", listener);
-                    removeButton.addStyleName("removeButton");
                     table.getContainerProperty(object, "").setValue(removeButton);
 
                     getParent().getWindow().showNotification(bundle.getString("wavilon.well.done"));
@@ -188,7 +190,7 @@ public class PhoneNumbersForm extends AbstractForm {
 
     private List<String> createGeoNumbers() {
         try {
-            return allPhonesService.getOnlyPhoneNumbers();
+            return allPhonesService.getOnlyPhoneNumbers(CouchModelUtil.getOrganizationId(request));
         } catch (Exception e) {
             return Collections.emptyList();
         }

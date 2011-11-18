@@ -22,9 +22,9 @@ public interface AllPhoneNumbersDatabaseService {
 
     List<CouchModel> getPhoneNumbers() throws IOException;
 
-    List<String> getOnlyPhoneNumbers() throws IOException;
+    List<String> getOnlyPhoneNumbers(Long organizationId) throws IOException;
 
-    List<String> getOnlyVirtualNumbers() throws IOException;
+    List<String> getOnlyVirtualNumbers(Long organizationId) throws IOException;
 
     CouchModel getVirtualNumber(String documentId) throws IOException;
 

@@ -29,13 +29,17 @@ public abstract class AbstractViewEntityService {
     protected URLEncoder urlEncoder;
 
 
-    protected void merge(CouchModel modelForPut) throws IOException {
-        String id = modelForPut.getId();
-        Map<String, Object> mergeMap = couchDBService.getMapById(id);
-        Map<String, Object> modelForPutMap = objectMapper.convertValue(modelForPut, Map.class);
-        mergeMap.putAll(modelForPutMap);
-
-        couchDBService.updateModel(mergeMap);
+    protected void updateCouchModel(CouchModel model) throws IOException {
+        if (null == model.getRevision()) {
+            couchDBService.updateModel(model);
+        } else {
+            String id = model.getId();
+            Map<String, Object> mergeMap = couchDBService.getMapById(id);
+            Map<String, Object> modelForPutMap = objectMapper.convertValue(model, Map.class);
+            mergeMap.putAll(modelForPutMap);
+            couchDBService.updateModel(mergeMap);
+        }
     }
+
 
 }
