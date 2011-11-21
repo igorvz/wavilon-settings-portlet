@@ -38,7 +38,7 @@
     -webkit-border-radius: 0 0 0 0;
     -khtml-border-radius: 0 0 0 0;
     font-family: Verdana;
-    border-bottom: 1px solid #959595;
+    border-bottom: 1px solid #CCCCCC;
 }
 
 .leftcolumn .v-nativebutton .v-nativebutton-caption {
@@ -80,11 +80,11 @@
 }
 
 .leftcolumn .v-nativebutton-agentsButton {
-    background-image: url("../images/agent.png");
+    background-image: url("../images/agents_new.png");
 }
 
 .leftcolumn .v-nativebutton-agentsButtonSelect {
-    background-image: url("../images/agentSelect.png");
+    background-image: url("../images/agents_new.png");
     background-color: #6093e0;
     color: #FFFFFF;
 }
@@ -166,24 +166,58 @@
     background: none transparent;
     margin: 5px 5px 0;
 }
+.rightcolumn .head .v-button{
+   border-bottom: 1px solid #dbdbdb;
+}
 
-.rightcolumn .head .v-button .v-button-wrap,
-.rightcolumn .head .v-button:active .v-button-wrap,
-.rightcolumn .head .v-button.v-pressed .v-button-wrap,
-.rightcolumn .head .v-button:focus .v-button-wrap {
+.rightcolumn .head .v-button .v-button-wrap{
+    height: 35px;
+    background: #ebedee none;
+    border: 1px solid #929293;
+}
+
+.rightcolumn .head .v-button-addButton .v-button-wrap,
+.rightcolumn .head .v-button-addButton:active .v-button-wrap,
+.rightcolumn .head .v-button-addButton.v-pressed .v-button-wrap,
+.rightcolumn .head .v-button-addButton:focus .v-button-wrap {
     /*background: url("../images/AddButton.png") no-repeat scroll 0 0 transparent;*/
-    background: url("../images/blueAdd.png") no-repeat scroll 0 0 transparent;
+    background: #6093e0 none;
     line-height: 24px;
     padding: 0;
-    height: 26px;
-    width: 120px;
+    height: 35px;
+    border: 1px solid #5374a4;
+    box-shadow:0 0 0 #fff;
 }
-.rightcolumn .head .v-button-caption{
+
+
+.rightcolumn .head .v-button:active .v-button-wrap,
+.rightcolumn .head .v-button.v-pressed .v-button-wrap{
+    box-shadow:0 0 0 #fff;
+    -webkit-box-shadow:0 0 0 #fff;
+    -moz-box-shadow:0 0 0 #fff;
+    -khtml-box-shadow:0 0 0 #fff;
+}
+.rightcolumn .head .v-button .v-button-caption{
+    color: #000;
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 35px;
+    padding: 0 10px;
+}
+.rightcolumn .head .v-button-addButton .v-button-caption{
     color: #FFFFFF;
-    font-size: 12px;
-    font-weight: bold;
-    line-height: 16px;
-    text-shadow: 0 0 1px #FFFFFF;
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 35px;
+    padding: 0 10px;
+    text-shadow: 1px 0 0 #FFFFFF;
+}
+.rightcolumn .head .v-button .v-button-wrap{
+    border-radius: 2px;
+    -moz-border-radius:  2px;
+    -webkit-border-radius:  2px;
+    -khtml-border-radius:  2px;
+    padding: 0;
 }
 
 /*---------------------------------------------Right Column Design   [table]----------------------------------------------------*/
@@ -193,7 +227,7 @@
 }
 
 .rightcolumn .v-table-header-wrap {
-    background: url("../images/table-header-bg.png") repeat-x scroll 0 0 transparent !important;
+    background: url("../images/table-header-bg-new.png") repeat-x scroll 0 0 transparent !important;
 }
 
 .rightcolumn .v-table-resizer {
@@ -227,6 +261,7 @@
 }
 
 .rightcolumn .v-table .v-table-cell-wrapper {
+    padding: 1px 0;
 }
 
 .rightcolumn .v-table .v-table-table{
@@ -247,7 +282,8 @@
 }
 
 .rightcolumn .v-table .v-table-header-wrap{
-    height: 18px;
+    border: medium none;
+    height: 38px;
 }
 
 .rightcolumn .v-table .v-table-header{
@@ -265,6 +301,7 @@
     border: medium none;
     height: 20px;
     width: 20px;
+    margin: 5px 0 0;
 }
 
 .rightcolumn .v-table-row .v-button .v-button-wrap,
@@ -275,20 +312,22 @@
 .rightcolumn .v-table-row-odd .v-button:active .v-button-wrap,
 .rightcolumn .v-table-row-odd .v-button.v-pressed .v-button-wrap,
 .rightcolumn .v-table-row-odd .v-button:focus .v-button-wrap {
-    background: url("../images/removeButton.png") no-repeat scroll 0 50% transparent;
+    background: url("../images/close-row.png") no-repeat scroll 0 50% transparent;
+    border: medium none;
+    height: 20px;
     padding: 0;
-    height: 18px;
-    width: 18px;
+    width: 19px;
 }
 
 .rightcolumn .v-table .v-selected  .v-button .v-button-wrap,
 .rightcolumn .v-table .v-selected  .v-button:active .v-button-wrap,
 .rightcolumn .v-table .v-selected  .v-button.v-pressed .v-button-wrap,
 .rightcolumn .v-table .v-selected  .v-button:focus .v-button-wrap {
-    background: url("../images/removeButtonSelect.png") no-repeat scroll 0 50% transparent;
+    background: url("../images/close-row-select.png") no-repeat scroll 0 50% transparent;
+    border: medium none;
+    height: 20px;
     padding: 0;
-    height: 18px;
-    width: 18px;
+    width: 19px;
 }
 
 .singInPanel {

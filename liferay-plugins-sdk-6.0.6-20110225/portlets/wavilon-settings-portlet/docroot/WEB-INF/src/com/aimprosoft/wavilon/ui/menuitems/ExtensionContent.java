@@ -51,7 +51,7 @@ public class ExtensionContent extends VerticalLayout {
     }
 
     private void initLayout() {
-        HorizontalLayout head = LayoutUtil.createHead(bundle, table, CouchTypes.extension, getWindow());
+        VerticalLayout head = LayoutUtil.createHead(bundle, table, CouchTypes.extension, getWindow());
         setWidth(100, Sizeable.UNITS_PERCENTAGE);
         addComponent(head);
 

@@ -62,7 +62,7 @@ public class QueuesContent extends VerticalLayout {
         bottom = new VerticalLayout();
         addComponent(bottom);
 
-        HorizontalLayout head = LayoutUtil.createHead(bundle, queuesTable, CouchTypes.queue, getWindow());
+        VerticalLayout head = LayoutUtil.createHead(bundle, queuesTable, CouchTypes.queue, getWindow());
         setWidth(100, Sizeable.UNITS_PERCENTAGE);
         top.addComponent(head);
 

@@ -53,7 +53,7 @@ public class AgentsContent extends VerticalLayout {
     }
 
     private void initLayout() {
-        HorizontalLayout head = LayoutUtil.createHead(bundle, table, CouchTypes.agent, getWindow());
+        VerticalLayout head = LayoutUtil.createHead(bundle, table, CouchTypes.agent, getWindow());
         setWidth(100, Sizeable.UNITS_PERCENTAGE);
         addComponent(head);
 

@@ -64,7 +64,7 @@ public class VirtualNumbersContent extends VerticalLayout {
     }
 
     private void initLayout() {
-        HorizontalLayout head = LayoutUtil.createHead(bundle, virtualNumbers, CouchTypes.startnode, getWindow());
+        VerticalLayout head = LayoutUtil.createHead(bundle, virtualNumbers, CouchTypes.startnode, getWindow());
         setWidth(100, Sizeable.UNITS_PERCENTAGE);
         addComponent(head);
 

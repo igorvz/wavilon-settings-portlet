@@ -5,6 +5,7 @@ import com.aimprosoft.wavilon.ui.SettingsPage;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.vaadin.ui.Window;
+import com.vaadin.ui.themes.Runo;
 import org.apache.log4j.Logger;
 
 import javax.portlet.RenderRequest;
@@ -29,7 +30,7 @@ public class SettingsApplication extends GenericPortletApplication {
         try {
 
             ThemeDisplay themeDisplay = (ThemeDisplay) renderRequest.getAttribute(WebKeys.THEME_DISPLAY);
-
+            setTheme(Runo.THEME_NAME);
 
             //get liferay locale
             Locale portalLocale = themeDisplay.getLocale();

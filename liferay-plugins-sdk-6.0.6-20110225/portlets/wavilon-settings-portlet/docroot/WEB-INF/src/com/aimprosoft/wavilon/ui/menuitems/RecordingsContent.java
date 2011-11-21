@@ -51,7 +51,7 @@ public class RecordingsContent extends VerticalLayout {
     }
 
     private void initLayout() {
-        HorizontalLayout head = LayoutUtil.createHead(bundle, table, CouchTypes.recording, getWindow());
+        VerticalLayout head = LayoutUtil.createHead(bundle, table, CouchTypes.recording, getWindow());
         setWidth(100, Sizeable.UNITS_PERCENTAGE);
         addComponent(head);
 
