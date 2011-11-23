@@ -51,6 +51,7 @@ public class CouchModelUtil {
             CouchModelLite modelLite = new CouchModelLite();
             modelLite.setId(null);
             modelLite.setName("");
+            modelLite.setName("");
             return modelLite;
         } else {
             try {

@@ -15,11 +15,10 @@ import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.terminal.Sizeable;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Table;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.*;
 
 import javax.portlet.PortletRequest;
+import java.nio.channels.NonReadableChannelException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -54,7 +53,7 @@ public class PhoneNumbersContent extends VerticalLayout {
         setWidth(100, Sizeable.UNITS_PERCENTAGE);
         addComponent(head);
 
-        this.phoneNumbersTable.setColumnWidth("", 60);
+        this.phoneNumbersTable.setColumnWidth("", 120);
         this.phoneNumbersTable.setColumnExpandRatio(bundle.getString("wavilon.table.phonenumbers.column.number"), 1);
         this.phoneNumbersTable.setColumnExpandRatio(bundle.getString("wavilon.table.phonenumbers.column.name"), 1);
         this.phoneNumbersTable.setColumnExpandRatio(bundle.getString("wavilon.table.phonenumbers.column.forward.calls.to"), 1);
@@ -106,7 +105,17 @@ public class PhoneNumbersContent extends VerticalLayout {
                 ic.getContainerProperty(object, bundle.getString("wavilon.table.phonenumbers.column.name")).setValue(phoneNumber.getName());
                 ic.getContainerProperty(object, "id").setValue(couchModel.getId());
                 ic.getContainerProperty(object, bundle.getString("wavilon.table.phonenumbers.column.forward.calls.to")).setValue(forward);
-                Button removeButton = new Button("", new Button.ClickListener() {
+
+                // todo change
+                Button editButton = new Button("", new Button.ClickListener() {
+                    public void buttonClick(Button.ClickEvent event) {
+                        phoneNumbersTable.select(object);
+                        LayoutUtil.getForm(couchModel.getId(), object, getWindow(), new PhoneNumbersForm(bundle, phoneNumbersTable));
+                    }
+                });
+                editButton.addStyleName("editButton");
+
+                Button removeButton = new Button("remove", new Button.ClickListener() {
                     public void buttonClick(Button.ClickEvent event) {
                         phoneNumbersTable.select(object);
                         ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
@@ -115,7 +124,10 @@ public class PhoneNumbersContent extends VerticalLayout {
                         confirmingRemove.init(couchModel.getId(), phoneNumbersTable);
                     }
                 });
+                removeButton.addStyleName("removeButton");
+
                 ic.getContainerProperty(object, "").setValue(removeButton);
+
             }
         }
         return ic;
@@ -137,6 +149,7 @@ public class PhoneNumbersContent extends VerticalLayout {
         hiddenFields.add("id");
         hiddenFields.add(bundle.getString("wavilon.table.phonenumbers.column.forward.calls.to"));
         hiddenFields.add("");
+        hiddenFields.add(" ");
 
         return hiddenFields;
     }
@@ -148,6 +161,7 @@ public class PhoneNumbersContent extends VerticalLayout {
         tableFields.add(bundle.getString("wavilon.table.phonenumbers.column.name"));
         tableFields.add(bundle.getString("wavilon.table.phonenumbers.column.forward.calls.to"));
         tableFields.add("");
+        tableFields.add(" ");
 
         return tableFields;
     }

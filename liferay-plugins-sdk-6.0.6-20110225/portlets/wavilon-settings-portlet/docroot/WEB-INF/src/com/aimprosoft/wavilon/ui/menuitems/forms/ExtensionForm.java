@@ -2,8 +2,10 @@ package com.aimprosoft.wavilon.ui.menuitems.forms;
 
 import com.aimprosoft.wavilon.application.GenericPortletApplication;
 import com.aimprosoft.wavilon.couch.CouchModel;
+import com.aimprosoft.wavilon.couch.CouchModelLite;
 import com.aimprosoft.wavilon.couch.CouchTypes;
 import com.aimprosoft.wavilon.model.Extension;
+import com.aimprosoft.wavilon.service.CouchModelLiteDatabaseService;
 import com.aimprosoft.wavilon.service.ExtensionDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.util.CouchModelUtil;
@@ -18,12 +20,11 @@ import com.vaadin.ui.*;
 
 import javax.portlet.PortletRequest;
 import java.io.IOException;
-import java.util.Map;
-import java.util.Random;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class ExtensionForm extends AbstractForm {
     private ExtensionDatabaseService service = ObjectFactory.getBean(ExtensionDatabaseService.class);
+    private CouchModelLiteDatabaseService modelLiteService = ObjectFactory.getBean(CouchModelLiteDatabaseService.class);
     private ResourceBundle bundle;
     private PortletRequest request;
     private Table table;
@@ -93,28 +94,14 @@ public class ExtensionForm extends AbstractForm {
         destination.setImmediate(true);
         destination.setVisible(false);
 
+        ComboBox jumpIfBusyComboBox = createJumpComboBox(bundle.getString("wavilon.form.extensions.extension.jump.if.busy"));
+        ComboBox jumpIfNoAnswerComboBox = createJumpComboBox(bundle.getString("wavilon.form.extensions.extension.jump.if.no.answer"));
+
+
+
         extensionTypeMap = CouchModelUtil.extensionTypeMapPut(bundle);
 
-        ComboBox extensionType = new ComboBox(bundle.getString("wavilon.form.extensions.extension.type"));
-        extensionType.addItem(bundle.getString("wavilon.form.select"));
-//        extensionType.setRequired(true);
-//        extensionType.setRequiredError(bundle.getString("wavilon.error.massage.extensions.extension.type.empty"));
-        extensionType.setImmediate(true);
-
-        for (String s : extensionTypeMap.keySet()) {
-            extensionType.addItem(s);
-            if (null != extension.getChannel() && extension.getChannel().equals(extensionTypeMap.get(s))) {
-                extensionType.setValue(s);
-            }
-        }
-
-        extensionType.setNullSelectionItemId(bundle.getString("wavilon.form.select"));
-        extensionType.addListener(new ComboBox.ValueChangeListener() {
-            public void valueChange(Property.ValueChangeEvent event) {
-                String type = (String) event.getProperty().getValue();
-                changeDestinationValidator(type, destination, form);
-            }
-        });
+        ComboBox extensionType = createExtensionTypeComboBox(form, destination);
 
         if (null != model.getRevision() && !"".equals(model.getRevision())) {
             name.setValue(extension.getName());
@@ -128,10 +115,60 @@ public class ExtensionForm extends AbstractForm {
 //        form.addField("extensionId", extensionId);
         form.addField("name", name);
         form.addField("code", code);
+        form.addField("jumpIfBusyComboBox", jumpIfBusyComboBox);
+        form.addField("jumpIfNoAnswerComboBox", jumpIfNoAnswerComboBox);
         form.addField("extensionType", extensionType);
         form.addField("destination", destination);
 
         return form;
+    }
+
+    private ComboBox createExtensionTypeComboBox(final Form form, final TextField destination) {
+        ComboBox extensionType = new ComboBox(bundle.getString("wavilon.form.extensions.extension.type"));
+        addNullPosition(extensionType);
+//        extensionType.setRequired(true);
+//        extensionType.setRequiredError(bundle.getString("wavilon.error.massage.extensions.extension.type.empty"));
+        extensionType.setImmediate(true);
+
+        for (String s : extensionTypeMap.keySet()) {
+            extensionType.addItem(s);
+            if (null != extension.getChannel() && extension.getChannel().equals(extensionTypeMap.get(s))) {
+                extensionType.setValue(s);
+            }
+        }
+
+        extensionType.addListener(new ComboBox.ValueChangeListener() {
+            public void valueChange(Property.ValueChangeEvent event) {
+                String type = (String) event.getProperty().getValue();
+                changeDestinationValidator(type, destination, form);
+            }
+        });
+        return extensionType;
+    }
+
+    private ComboBox createJumpComboBox(String string) {
+        ComboBox jumpComboBox = new ComboBox(string);
+        addNullPosition(jumpComboBox);
+        List<CouchModelLite> jumpModelList = getJumps();
+
+        for (CouchModelLite couchJumpModel : jumpModelList) {
+            jumpComboBox.addItem(couchJumpModel);
+        }
+
+        return jumpComboBox;
+    }
+
+    private void addNullPosition(ComboBox comboBox) {
+        comboBox.addItem(bundle.getString("wavilon.form.select"));
+        comboBox.setNullSelectionItemId(bundle.getString("wavilon.form.select"));
+    }
+
+    private List<CouchModelLite> getJumps() {
+        try {
+            return modelLiteService.getAllCouchModelsLite(CouchModelUtil.getOrganizationId(request), CouchTypes.extension);
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
     }
 
     private void changeDestinationValidator(String type, TextField destination, Form form) {
@@ -210,10 +247,21 @@ public class ExtensionForm extends AbstractForm {
 
                     String name = (String) form.getField("name").getValue();
                     Integer code = Integer.parseInt((String) form.getField("code").getValue());
-
+                    String jumpIfBusyComboBox = null;
+                    String jumpIfNoAnswerComboBox = null;
 
                     String extensionType = null;
                     String destination = null;
+
+
+                    if (null != form.getField("jumpIfBusyComboBox").getValue()) {
+                        jumpIfBusyComboBox = ((CouchModelLite) form.getField("jumpIfBusyComboBox").getValue()).getId();
+                    }
+                    if (null != form.getField("jumpIfNoAnswerComboBox").getValue()) {
+                        jumpIfNoAnswerComboBox = ((CouchModelLite) form.getField("jumpIfNoAnswerComboBox").getValue()).getId();
+                    }
+
+
 
                     if (null != form.getField("extensionType").getValue()) {
                         extensionType = (String) form.getField("extensionType").getValue();
@@ -243,9 +291,12 @@ public class ExtensionForm extends AbstractForm {
                             }
                         };
 
+                        extension.setJumpIfBusy(jumpIfBusyComboBox);
+                        extension.setJumpIfNoAnswer(jumpIfNoAnswerComboBox);
                         extension.setChannel(extensionTypeMap.get(extensionType));
                         extension.setName(name);
                         extension.setDestination(destination);
+
                         extension.setCode(code);
 
                         service.addExtension(extension, model);
@@ -289,7 +340,7 @@ public class ExtensionForm extends AbstractForm {
         Random random = new Random();
         Integer code = random.nextInt(99999);
 
-        while ( (code < 9999) || checkCode(code)) {
+        while ((code < 9999) || checkCode(code)) {
             code = random.nextInt(99999);
         }
         return code;

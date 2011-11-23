@@ -37,8 +37,9 @@ public class VirtualNumbersForm extends AbstractForm {
     public void init(String id, final Object itemId) {
         removeAllComponents();
         request = ((GenericPortletApplication) getApplication()).getPortletRequest();
-        virtualNumber = new VirtualNumber();
         model = createModel(id);
+        virtualNumber = createVirtualNumber(model);
+
 
         application = getApplication();
 
@@ -75,12 +76,17 @@ public class VirtualNumbersForm extends AbstractForm {
 
                     String name = (String) form.getField("name").getValue();
                     String number = (String) form.getField("number").getValue();
+                    Boolean recordCalls = (Boolean) form.getField("recordCalls").getValue();
                     CouchModelLite forwardCallTo = null;
                     String forwardId = null;
 
                     if (null != form.getField("forwardCallTo").getValue()) {
                         forwardCallTo = ((CouchModelLite) form.getField("forwardCallTo").getValue());
                         forwardId = forwardCallTo.getId();
+                    }
+
+                    if (!recordCalls){
+                        virtualNumber.setRecordCalls(null);
                     }
 
                     virtualNumber.setName(name);
@@ -134,6 +140,23 @@ public class VirtualNumbersForm extends AbstractForm {
 
     }
 
+    private VirtualNumber createVirtualNumber(CouchModel model) {
+        if (null == model.getRevision()) {
+            return newVirtualNumber();
+        }
+        try {
+            return service.getVirtualNumber(model);
+        } catch (Exception e) {
+            return newVirtualNumber();
+        }
+    }
+
+    private VirtualNumber newVirtualNumber() {
+        VirtualNumber virtualNumber = new VirtualNumber();
+        virtualNumber.setName("");
+        return virtualNumber;
+    }
+
     private CouchModel createModel(String id) {
         if ("-1".equals(id)) {
             return CouchModelUtil.newCouchModel(request, CouchTypes.startnode);
@@ -154,6 +177,8 @@ public class VirtualNumbersForm extends AbstractForm {
         name.setRequiredError(bundle.getString("wavilon.error.massage.virtualnumbers.name.empty"));
         form.addField("name", name);
 
+        CheckBox recordCalls = new CheckBox(bundle.getString("wavilon.form.record.calls"));
+
         List<CouchModelLite> forwards = createForwards();
         ComboBox forwardCallTo = new ComboBox(bundle.getString("wavilon.form.phonenumbers.forward.calls.to"));
         forwardCallTo.addItem(bundle.getString("wavilon.form.select"));
@@ -165,12 +190,16 @@ public class VirtualNumbersForm extends AbstractForm {
 //        forwardCallTo.setRequiredError(bundle.getString("wavilon.error.massage.phonenumbers.forward.empty"));
 
         if ((null != this.model.getRevision() && !"".equals(this.model.getRevision())) || null != model.getProperties()) {
-            name.setValue(model.getProperties().get("name"));
+            name.setValue(virtualNumber.getName());
 
             TextField number = new TextField(bundle.getString("wavilon.form.number"));
-            number.setValue(model.getProperties().get("locator"));
+            number.setValue(virtualNumber.getLocator());
             number.setReadOnly(true);
             number.setRequiredError(bundle.getString("wavilon.error.massage.phonenumbers.number.empty"));
+
+            if (null != virtualNumber.getRecordCalls()) {
+                recordCalls.setValue(true);
+            }
 
             form.addField("number", number);
 
@@ -198,6 +227,7 @@ public class VirtualNumbersForm extends AbstractForm {
         cost.setReadOnly(true);
 
         form.addField("cost", cost);
+        form.addField("recordCalls", recordCalls);
 
         return form;
     }

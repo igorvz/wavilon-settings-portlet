@@ -6,6 +6,7 @@ import com.aimprosoft.wavilon.service.QueueDatabaseService;
 import com.fourspaces.couchdb.Document;
 import com.fourspaces.couchdb.View;
 import com.fourspaces.couchdb.ViewResults;
+import org.codehaus.jackson.map.DeserializationConfig;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -16,13 +17,14 @@ import java.util.Map;
 
 @Service
 public class QueueCouchDBServiceImpl extends AbstractViewEntityService implements QueueDatabaseService {
+
+
     private Queue getQueue(String id) throws IOException {
-        CouchModel model = getModel(id);
-        return objectMapper.convertValue(model.getProperties(), Queue.class);
+        return getQueue(getModel(id));
     }
 
     public Queue getQueue(CouchModel model) throws IOException {
-        return objectMapper.convertValue(model.getProperties(), Queue.class);
+        return objectMapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false).convertValue(model.getProperties(), Queue.class);
     }
 
     public CouchModel getModel(String id) throws IOException {
@@ -48,10 +50,9 @@ public class QueueCouchDBServiceImpl extends AbstractViewEntityService implement
         Map<String, Object> outputs = new HashMap<String, Object>();
         outputs.put("agents", agents);
 
-        model.setProperties(properties);
         model.setOutputs(outputs);
 
-        updateCouchModel(model);
+        updateCouchModel(model, properties);
     }
 
     public List<CouchModel> getAllUsersCouchModelQueue(Long organizationId) throws IOException {

@@ -6,6 +6,7 @@ import com.aimprosoft.wavilon.service.VirtualNumberDatabaseService;
 import com.fourspaces.couchdb.Document;
 import com.fourspaces.couchdb.View;
 import com.fourspaces.couchdb.ViewResults;
+import org.codehaus.jackson.map.DeserializationConfig;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -17,12 +18,11 @@ import java.util.Map;
 public class VirtualNumberDBServiceImpl extends AbstractViewEntityService implements VirtualNumberDatabaseService {
 
     private VirtualNumber getVirtualNumber(String id) throws IOException {
-        CouchModel model = getModel(id);
-        return objectMapper.convertValue(model.getProperties(), VirtualNumber.class);
+        return getVirtualNumber(getModel(id));
     }
 
     public VirtualNumber getVirtualNumber(CouchModel model) throws IOException {
-        return objectMapper.convertValue(model.getProperties(), VirtualNumber.class);
+        return objectMapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false).convertValue(model.getProperties(), VirtualNumber.class);
     }
 
     public CouchModel getModel(String id) throws IOException {
@@ -44,10 +44,7 @@ public class VirtualNumberDBServiceImpl extends AbstractViewEntityService implem
 
     public void updateVirtualNumber(VirtualNumber virtualNumber, CouchModel model) throws IOException {
         Map<String, Object> properties = objectMapper.convertValue(virtualNumber, Map.class);
-
-        model.setProperties(properties);
-
-        updateCouchModel(model);
+        updateCouchModel(model, properties);
     }
 
     public List<CouchModel> getAllUsersCouchModelToVirtualNumber(Long organizationId) throws IOException {

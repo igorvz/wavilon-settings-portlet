@@ -6,6 +6,7 @@ import com.aimprosoft.wavilon.service.ExtensionDatabaseService;
 import com.fourspaces.couchdb.Document;
 import com.fourspaces.couchdb.View;
 import com.fourspaces.couchdb.ViewResults;
+import org.codehaus.jackson.map.DeserializationConfig;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -17,12 +18,11 @@ import java.util.Map;
 public class ExtensionCouchDBServiceImpl extends AbstractViewEntityService implements ExtensionDatabaseService {
 
     private Extension getExtension(String id) throws IOException {
-        CouchModel model = getModel(id);
-        return objectMapper.convertValue(model.getProperties(), Extension.class);
+        return getExtension(getModel(id));
     }
 
     public Extension getExtension(CouchModel model) throws IOException {
-        return objectMapper.convertValue(model.getProperties(), Extension.class);
+        return objectMapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false).convertValue(model.getProperties(), Extension.class);
     }
 
     public CouchModel getModel(String id) throws IOException {
@@ -45,10 +45,7 @@ public class ExtensionCouchDBServiceImpl extends AbstractViewEntityService imple
 
     public void updateExtension(Extension extension, CouchModel model) throws IOException {
         Map<String, Object> properties = objectMapper.convertValue(extension, Map.class);
-
-        model.setProperties(properties);
-
-        updateCouchModel(model);
+        updateCouchModel(model, properties);
     }
 
 

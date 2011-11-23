@@ -5,6 +5,7 @@ import com.aimprosoft.wavilon.couch.CouchModel;
 import com.aimprosoft.wavilon.couch.CouchModelLite;
 import com.aimprosoft.wavilon.couch.CouchTypes;
 import com.aimprosoft.wavilon.model.PhoneNumber;
+import com.aimprosoft.wavilon.model.Queue;
 import com.aimprosoft.wavilon.service.AllPhoneNumbersDatabaseService;
 import com.aimprosoft.wavilon.service.PhoneNumberDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
@@ -14,7 +15,7 @@ import com.vaadin.event.ShortcutAction;
 import com.vaadin.ui.*;
 
 import javax.portlet.PortletRequest;
-import java.io.IOException;
+import java.nio.channels.NonWritableChannelException;
 import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -40,7 +41,7 @@ public class PhoneNumbersForm extends AbstractForm {
         request = ((GenericPortletApplication) getApplication()).getPortletRequest();
         application = getApplication();
         model = createModel(id);
-        phoneNumber = new PhoneNumber();
+        phoneNumber = createPhoneNumber(model);
         if ("-1".equals(id)) {
             setCaption(bundle.getString("wavilon.form.phonenumbers.new.phone.number"));
         } else {
@@ -74,10 +75,16 @@ public class PhoneNumbersForm extends AbstractForm {
 
                     String name = (String) form.getField("name").getValue();
                     String number = (String) form.getField("number").getValue();
+                    Boolean recordCalls = (Boolean) form.getField("recordCalls").getValue();
+
                     String forwardId = null;
                     if (null != form.getField("forwardCallTo").getValue()) {
                         CouchModelLite forwardCallTo = ((CouchModelLite) form.getField("forwardCallTo").getValue());
                         forwardId = forwardCallTo.getId();
+                    }
+
+                    if (!recordCalls){
+                        phoneNumber.setRecordCalls(null);
                     }
 
                     phoneNumber.setLocator(number);
@@ -131,6 +138,23 @@ public class PhoneNumbersForm extends AbstractForm {
 
     }
 
+    private PhoneNumber createPhoneNumber(CouchModel model) {
+        if (null == model.getRevision()) {
+            return newPhoneNumber();
+        }
+        try {
+            return service.getPhoneNumber(model);
+        } catch (Exception e) {
+            return newPhoneNumber();
+        }
+    }
+
+    private PhoneNumber newPhoneNumber() {
+        PhoneNumber phoneNumber = new PhoneNumber();
+        phoneNumber.setName("");
+       return phoneNumber;
+    }
+
     private Form createForm() {
         Form form = new Form();
         form.addStyleName("labelField");
@@ -140,6 +164,7 @@ public class PhoneNumbersForm extends AbstractForm {
         name.setRequiredError(bundle.getString("wavilon.error.massage.phonenumbers.name.empty"));
         form.addField("name", name);
 
+        CheckBox recordCalls = new CheckBox(bundle.getString("wavilon.form.record.calls"));
 
         List<CouchModelLite> forwards = createForwards();
         ComboBox forwardCallTo = new ComboBox(bundle.getString("wavilon.form.phonenumbers.forward.calls.to"));
@@ -152,16 +177,20 @@ public class PhoneNumbersForm extends AbstractForm {
 //        forwardCallTo.setRequiredError(bundle.getString("wavilon.error.massage.phonenumbers.forward.empty"));
 
         if ((null != this.model.getRevision() && !"".equals(this.model.getRevision())) || null != model.getProperties()) {
-            name.setValue(model.getProperties().get("name"));
+            name.setValue(phoneNumber.getName());
 
             TextField number = new TextField(bundle.getString("wavilon.form.number"));
-            number.setValue(model.getProperties().get("locator"));
+            number.setValue(phoneNumber.getLocator());
             number.setReadOnly(true);
             number.setRequiredError(bundle.getString("wavilon.error.massage.phonenumbers.number.empty"));
 
             form.addField("number", number);
 
             form.addField("forwardCallTo", forwardCallTo);
+
+            if (null != phoneNumber.getRecordCalls()) {
+                recordCalls.setValue(true);
+            }
 
         } else {
             List<String> virtualNumbers = createGeoNumbers();
@@ -184,6 +213,8 @@ public class PhoneNumbersForm extends AbstractForm {
 
             form.addField("note", note);
         }
+
+        form.addField("recordCalls", recordCalls);
 
         return form;
     }
