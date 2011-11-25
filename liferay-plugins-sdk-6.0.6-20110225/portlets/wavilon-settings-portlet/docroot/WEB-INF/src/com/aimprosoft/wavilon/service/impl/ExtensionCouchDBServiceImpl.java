@@ -25,10 +25,6 @@ public class ExtensionCouchDBServiceImpl extends AbstractViewEntityService imple
         return objectMapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false).convertValue(model.getProperties(), Extension.class);
     }
 
-    public CouchModel getModel(String id) throws IOException {
-        return couchDBService.getModelById(id);
-    }
-
     public List<Extension> getAllExtension() throws IOException {
 
         ViewResults viewResults = database.adhoc(functions.getAllUniqueEntities());

@@ -4,6 +4,7 @@ import com.aimprosoft.wavilon.couch.CouchTypes;
 import com.aimprosoft.wavilon.service.AllPhoneNumbersDatabaseService;
 import com.aimprosoft.wavilon.service.ExtensionDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
+import com.aimprosoft.wavilon.util.LayoutUtil;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 
@@ -20,7 +21,7 @@ public class ConfirmingRemove extends Window {
     }
 
 
-    public void init(String id, Table table) {
+    public void init(String id, Table table, Object type) {
         setCaption(bundle.getString("wavilon.confirming.remove.information"));
 
         setModal(true);
@@ -37,14 +38,14 @@ public class ConfirmingRemove extends Window {
         mainLayout.addComponent(new Label(bundle.getString("wavilon.confirming.remove.part.first")));
         mainLayout.addComponent(new Label(bundle.getString("wavilon.confirming.remove.part.second")));
 
-        HorizontalLayout buttons = createButtons(id, table);
+        HorizontalLayout buttons = createButtons(id, table, type);
         mainLayout.addComponent(buttons);
         buttons.addStyleName("buttonsPanel");
         mainLayout.setComponentAlignment(buttons, Alignment.BOTTOM_RIGHT);
 
     }
 
-    private HorizontalLayout createButtons(final String id, final Table table) {
+    private HorizontalLayout createButtons(final String id, final Table table, final Object type) {
         HorizontalLayout buttons = new HorizontalLayout();
 
         Button cancel = new Button(bundle.getString("wavilon.button.cancel"), new Button.ClickListener() {
@@ -53,6 +54,7 @@ public class ConfirmingRemove extends Window {
             }
         });
         buttons.addComponent(cancel);
+        cancel.setHeight(40, Sizeable.UNITS_PIXELS);
 
         Button ok = new Button(bundle.getString("wavilon.button.ok"));
         ok.addListener(new Button.ClickListener() {
@@ -63,7 +65,7 @@ public class ConfirmingRemove extends Window {
                     if (null != phoneNumbersLocator || null != virtualNumbersLocator) {
                         AllPhoneNumbersDatabaseService allPhonesService = ObjectFactory.getBean(AllPhoneNumbersDatabaseService.class);
 
-                        String docId = "";
+                        String docId;
 
                         if (null == phoneNumbersLocator) {
                             docId = allPhonesService.getVirtualNumbersDocumentId(virtualNumbersLocator);
@@ -79,6 +81,7 @@ public class ConfirmingRemove extends Window {
 
                 table.removeItem(table.getValue());
                 table.select(null);
+                LayoutUtil.setTableBackground(table, type);
 
                 getParent().getWindow().showNotification(bundle.getString("wavilon.well.done.romove"));
                 close();
@@ -87,15 +90,17 @@ public class ConfirmingRemove extends Window {
 
         buttons.addComponent(cancel);
         ok.addStyleName("saveButton");
+        ok.setHeight(40, Sizeable.UNITS_PIXELS);
+
         buttons.addComponent(ok);
 
         return buttons;
     }
 
-    public void setNumbersLocator(String numbersId, CouchTypes type) {
+    public void setNumbersLocator(String numbersId, Object type) {
         if (type.equals(CouchTypes.startnode)) {
             this.virtualNumbersLocator = numbersId;
-        } else {
+        } else if ((type.equals(CouchTypes.service))) {
             this.phoneNumbersLocator = numbersId;
         }
     }

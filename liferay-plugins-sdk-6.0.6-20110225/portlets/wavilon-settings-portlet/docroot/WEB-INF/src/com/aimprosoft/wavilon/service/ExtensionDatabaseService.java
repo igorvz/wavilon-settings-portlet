@@ -6,11 +6,9 @@ import com.aimprosoft.wavilon.model.Extension;
 import java.io.IOException;
 import java.util.List;
 
-public interface ExtensionDatabaseService {
+public interface ExtensionDatabaseService extends GeneralService {
 
     Extension getExtension(CouchModel model) throws IOException;
-
-    CouchModel getModel(String id) throws IOException;
 
     List<Extension> getAllExtension() throws IOException;
 

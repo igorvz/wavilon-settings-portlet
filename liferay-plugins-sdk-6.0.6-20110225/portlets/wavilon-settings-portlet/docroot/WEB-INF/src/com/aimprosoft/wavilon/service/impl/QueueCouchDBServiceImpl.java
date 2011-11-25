@@ -27,10 +27,6 @@ public class QueueCouchDBServiceImpl extends AbstractViewEntityService implement
         return objectMapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false).convertValue(model.getProperties(), Queue.class);
     }
 
-    public CouchModel getModel(String id) throws IOException {
-        return couchDBService.getModelById(id);
-    }
-
     public List<Queue> getAllQueue() throws IOException {
 
         ViewResults viewResults = database.adhoc(functions.getAllUniqueEntities());

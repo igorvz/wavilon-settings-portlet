@@ -7,11 +7,9 @@ import com.aimprosoft.wavilon.model.VirtualNumber;
 import java.io.IOException;
 import java.util.List;
 
-public interface VirtualNumberDatabaseService {
+public interface VirtualNumberDatabaseService  extends GeneralService {
 
     VirtualNumber getVirtualNumber(CouchModel model) throws IOException;
-
-    CouchModel getModel(String id) throws IOException;
 
     List<VirtualNumber> getAllVirtualNumbers() throws IOException;
 

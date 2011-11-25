@@ -7,7 +7,6 @@ import com.aimprosoft.wavilon.couch.CouchTypes;
 import com.aimprosoft.wavilon.model.VirtualNumber;
 import com.aimprosoft.wavilon.service.VirtualNumberDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
-import com.aimprosoft.wavilon.ui.menuitems.forms.ConfirmingRemove;
 import com.aimprosoft.wavilon.ui.menuitems.forms.VirtualNumbersForm;
 import com.aimprosoft.wavilon.util.CouchModelUtil;
 import com.aimprosoft.wavilon.util.LayoutUtil;
@@ -15,7 +14,6 @@ import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.terminal.Sizeable;
-import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
@@ -68,14 +66,7 @@ public class VirtualNumbersContent extends VerticalLayout {
         setWidth(100, Sizeable.UNITS_PERCENTAGE);
         addComponent(head);
 
-        this.virtualNumbers.setColumnWidth("", 60);
-
-        this.virtualNumbers.setColumnExpandRatio(bundle.getString("wavilon.table.virtualnumbers.column.number"), 1);
-        this.virtualNumbers.setColumnExpandRatio(bundle.getString("wavilon.table.virtualnumbers.column.name"), 1);
-        this.virtualNumbers.setColumnExpandRatio(bundle.getString("wavilon.table.virtualnumbers.column.forward.calls.to"), 1);
-
         this.virtualNumbers.setContainerDataSource(this.tableData);
-        this.virtualNumbers.setWidth(100, Sizeable.UNITS_PERCENTAGE);
         this.virtualNumbers.setHeight("555px");
         this.virtualNumbers.addStyleName("tableCustom");
         addComponent(this.virtualNumbers);
@@ -85,6 +76,7 @@ public class VirtualNumbersContent extends VerticalLayout {
         this.virtualNumbers.setVisibleColumns(this.tableFields.toArray());
         this.virtualNumbers.setSelectable(true);
         this.virtualNumbers.setImmediate(true);
+        LayoutUtil.setTableWidth(virtualNumbers, CouchTypes.startnode);
 
         this.virtualNumbers.addListener(new ItemClickEvent.ItemClickListener() {
             public void itemClick(ItemClickEvent event) {
@@ -102,34 +94,30 @@ public class VirtualNumbersContent extends VerticalLayout {
         IndexedContainer ic = new IndexedContainer();
         List<CouchModel> couchModels = getCouchModels();
 
-        for (String field : hiddenFields) {
-            if ("".equals(field)) {
-                ic.addContainerProperty(field, Button.class, "");
-            } else {
-                ic.addContainerProperty(field, String.class, "");
-            }
-        }
+        LayoutUtil.addContainerProperties(hiddenFields, ic);
+
+//        for (String field : hiddenFields) {
+//            if ("".equals(field)) {
+//                ic.addContainerProperty(field, Button.class, "");
+//            } else {
+//                ic.addContainerProperty(field, String.class, "");
+//            }
+//        }
 
         if (!couchModels.isEmpty()) {
 
             for (final CouchModel couchModel : couchModels) {
                 final Object object = ic.addItem();
-                final VirtualNumber virtualNumber  = getVirtualNumber(couchModel);
+                final VirtualNumber virtualNumber = getVirtualNumber(couchModel);
                 CouchModelLite forward = CouchModelUtil.getCouchModelLite((String) couchModel.getProperties().get("forward_to"), bundle);
 
                 ic.getContainerProperty(object, bundle.getString("wavilon.table.virtualnumbers.column.number")).setValue(virtualNumber.getLocator());
                 ic.getContainerProperty(object, bundle.getString("wavilon.table.virtualnumbers.column.name")).setValue(virtualNumber.getName());
                 ic.getContainerProperty(object, "id").setValue(couchModel.getId());
                 ic.getContainerProperty(object, bundle.getString("wavilon.table.virtualnumbers.column.forward.calls.to")).setValue(forward);
-                ic.getContainerProperty(object, "").setValue(new Button("", new Button.ClickListener() {
-                    public void buttonClick(Button.ClickEvent event) {
-                        virtualNumbers.select(object);
-                        ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
-                        getWindow().addWindow(confirmingRemove);
-                        confirmingRemove.setNumbersLocator(virtualNumber.getLocator(), CouchTypes.startnode);
-                        confirmingRemove.init(couchModel.getId(), virtualNumbers);
-                    }
-                }));
+
+                HorizontalLayout buttons = LayoutUtil.createTablesEditRemoveButtons(virtualNumbers, object, couchModel, bundle, virtualNumber.getLocator(), getWindow());
+                ic.getContainerProperty(object, "").setValue(buttons);
             }
         }
         return ic;

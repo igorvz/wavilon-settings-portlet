@@ -1,6 +1,5 @@
 package com.aimprosoft.wavilon.ui.menuitems.forms;
 
-import com.aimprosoft.wavilon.application.GenericPortletApplication;
 import com.aimprosoft.wavilon.couch.CouchModel;
 import com.aimprosoft.wavilon.couch.CouchModelLite;
 import com.aimprosoft.wavilon.couch.CouchTypes;
@@ -9,46 +8,118 @@ import com.aimprosoft.wavilon.service.CouchModelLiteDatabaseService;
 import com.aimprosoft.wavilon.service.ExtensionDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.util.CouchModelUtil;
-import com.vaadin.Application;
+import com.aimprosoft.wavilon.util.LayoutUtil;
 import com.vaadin.data.Property;
 import com.vaadin.data.Validator;
 import com.vaadin.data.validator.EmailValidator;
 import com.vaadin.data.validator.RegexpValidator;
-import com.vaadin.event.ShortcutAction;
 import com.vaadin.terminal.UserError;
 import com.vaadin.ui.*;
 
-import javax.portlet.PortletRequest;
 import java.io.IOException;
 import java.util.*;
 
-public class ExtensionForm extends AbstractForm {
+public class ExtensionForm extends GeneralForm {
     private ExtensionDatabaseService service = ObjectFactory.getBean(ExtensionDatabaseService.class);
     private CouchModelLiteDatabaseService modelLiteService = ObjectFactory.getBean(CouchModelLiteDatabaseService.class);
-    private ResourceBundle bundle;
-    private PortletRequest request;
-    private Table table;
     private Validator mobileValidator = null;
     private Validator emailValidator = null;
-    private Application application;
     private Map<String, String> extensionTypeMap;
-
-    private CouchModel model;
     private Extension extension;
 
     public ExtensionForm(ResourceBundle bundle, Table table) {
-        this.bundle = bundle;
-        this.table = table;
+        super(bundle, table);
+
         mobileValidator = new RegexpValidator("^([+])?+([0-9])+$", bundle.getString("wavilon.error.massage.extensions.phonenumber.wrong"));
         emailValidator = new EmailValidator(bundle.getString("wavilon.error.massage.extensions.email.wrong"));
     }
 
-    private CouchModel createModel(String id) {
-        try {
-            return service.getModel(id);
-        } catch (Exception e) {
-            return CouchModelUtil.newCouchModel(request, CouchTypes.extension);
+    @Override
+    public void init(String id, final Object itemId) {
+        super.init(id, itemId);
+        model = createCoucModel(id, service, CouchTypes.extension);
+        extension = createExtension(model);
+
+        if (!"".equals(extension.getName())) {
+            setCaption(bundle.getString("wavilon.form.extensions.edit.extension"));
+        } else {
+            setCaption(bundle.getString("wavilon.form.extensions.new.extension"));
         }
+
+        final Form form = createForm();
+
+        initForm(form, new Button.ClickListener() {
+            public void buttonClick(Button.ClickEvent event) {
+                try {
+                    form.commit();
+
+                    String name = (String) form.getField("name").getValue();
+                    Integer code = Integer.parseInt((String) form.getField("code").getValue());
+                    String jumpIfBusyComboBox = null;
+                    String jumpIfNoAnswerComboBox = null;
+
+                    String extensionType = null;
+                    String destination = null;
+
+
+                    if (null != form.getField("jumpIfBusyComboBox").getValue()) {
+                        jumpIfBusyComboBox = ((CouchModelLite) form.getField("jumpIfBusyComboBox").getValue()).getId();
+                    }
+                    if (null != form.getField("jumpIfNoAnswerComboBox").getValue()) {
+                        jumpIfNoAnswerComboBox = ((CouchModelLite) form.getField("jumpIfNoAnswerComboBox").getValue()).getId();
+                    }
+
+
+                    if (null != form.getField("extensionType").getValue()) {
+                        extensionType = (String) form.getField("extensionType").getValue();
+                        destination = (String) form.getField("destination").getValue();
+                    }
+
+                    if (checkCode(code)) {
+
+                        code = createCode();
+
+                        UserError userError = new UserError(bundle.getString("wavilon.error.massage.extensions.code.exist") + " " + code);
+                        form.setComponentError(userError);
+                        form.getField("code").setValue(String.valueOf(code));
+
+                    } else {
+
+                        final Object object = table.addItem();
+
+                        extension.setJumpIfBusy(jumpIfBusyComboBox);
+                        extension.setJumpIfNoAnswer(jumpIfNoAnswerComboBox);
+                        extension.setChannel(extensionTypeMap.get(extensionType));
+                        extension.setName(name);
+                        extension.setDestination(destination);
+
+                        extension.setCode(code);
+
+                        service.addExtension(extension, model);
+
+                        if (null != model.getRevision()) {
+                            table.removeItem(itemId);
+                            table.select(null);
+                        }
+
+                        table.getContainerProperty(object, "extensionId").setValue(model.getId());
+                        table.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.code")).setValue(extension.getCode());
+                        table.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.name")).setValue(extension.getName());
+                        table.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.extension.type")).setValue(CouchModelUtil.extensionTypeMapEject(bundle).get(extension.getChannel()));
+                        table.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.destination")).setValue(extension.getDestination());
+                        HorizontalLayout buttons = LayoutUtil.createTablesEditRemoveButtons(table, object, model, bundle, null, application.getMainWindow());
+                        table.getContainerProperty(object, "").setValue(buttons);
+
+                        LayoutUtil.setTableBackground(table, CouchTypes.extension);
+
+                        getParent().getWindow().showNotification(bundle.getString("wavilon.well.done"));
+                        close();
+                    }
+
+                } catch (Exception ignored) {
+                }
+            }
+        });
     }
 
     private Extension createExtension(CouchModel model) {
@@ -56,7 +127,7 @@ public class ExtensionForm extends AbstractForm {
             return newExtension();
         }
         try {
-            return service.getExtension(model);
+            return getModel(model, service, Extension.class);
         } catch (Exception e) {
             return newExtension();
         }
@@ -76,11 +147,6 @@ public class ExtensionForm extends AbstractForm {
         final Form form = new Form();
         form.addStyleName("labelField");
 
-//        TextField extensionId = new TextField(bundle.getString("wavilon.form.extensions.extension.id"));
-//        extensionId.setValue(model.getLiferayOrganizationId());
-//        extensionId.setReadOnly(true);
-
-
         TextField name = new TextField(bundle.getString("wavilon.form.name"));
         name.setRequired(true);
         name.setRequiredError(bundle.getString("wavilon.error.massage.extensions.name.empty"));
@@ -98,7 +164,6 @@ public class ExtensionForm extends AbstractForm {
         ComboBox jumpIfNoAnswerComboBox = createJumpComboBox(bundle.getString("wavilon.form.extensions.extension.jump.if.no.answer"));
 
 
-
         extensionTypeMap = CouchModelUtil.extensionTypeMapPut(bundle);
 
         ComboBox extensionType = createExtensionTypeComboBox(form, destination);
@@ -112,7 +177,6 @@ public class ExtensionForm extends AbstractForm {
             code.setValue(String.valueOf(createCode()));
         }
 
-//        form.addField("extensionId", extensionId);
         form.addField("name", name);
         form.addField("code", code);
         form.addField("jumpIfBusyComboBox", jumpIfBusyComboBox);
@@ -126,8 +190,6 @@ public class ExtensionForm extends AbstractForm {
     private ComboBox createExtensionTypeComboBox(final Form form, final TextField destination) {
         ComboBox extensionType = new ComboBox(bundle.getString("wavilon.form.extensions.extension.type"));
         addNullPosition(extensionType);
-//        extensionType.setRequired(true);
-//        extensionType.setRequiredError(bundle.getString("wavilon.error.massage.extensions.extension.type.empty"));
         extensionType.setImmediate(true);
 
         for (String s : extensionTypeMap.keySet()) {
@@ -196,136 +258,6 @@ public class ExtensionForm extends AbstractForm {
             destination.setRequired(false);
             destination.setVisible(false);
         }
-    }
-
-    private HorizontalLayout createButtons(VerticalLayout content) {
-        HorizontalLayout buttons = new HorizontalLayout();
-        buttons.addStyleName("buttonsPanel");
-        content.addComponent(buttons);
-        content.setComponentAlignment(buttons, Alignment.BOTTOM_RIGHT);
-
-        return buttons;
-    }
-
-    @Override
-    public void init(String id, final Object itemId) {
-        removeAllComponents();
-        application = getApplication();
-        request = ((GenericPortletApplication) application).getPortletRequest();
-
-        model = createModel(id);
-        extension = createExtension(model);
-
-        if (!"".equals(extension.getName())) {
-            setCaption(bundle.getString("wavilon.form.extensions.edit.extension"));
-        } else {
-            setCaption(bundle.getString("wavilon.form.extensions.new.extension"));
-        }
-
-        VerticalLayout content = new VerticalLayout();
-        content.addStyleName("formRegion");
-
-        addComponent(content);
-
-        final Form form = createForm();
-        content.addComponent(form);
-
-        HorizontalLayout buttons = createButtons(content);
-
-        Button cancel = new Button(bundle.getString("wavilon.button.cancel"), new Button.ClickListener() {
-            public void buttonClick(Button.ClickEvent event) {
-                close();
-            }
-        });
-        buttons.addComponent(cancel);
-        cancel.setClickShortcut(ShortcutAction.KeyCode.ESCAPE);
-
-        Button save = new Button(bundle.getString("wavilon.button.save"), new Button.ClickListener() {
-            public void buttonClick(Button.ClickEvent event) {
-                try {
-                    form.commit();
-
-                    String name = (String) form.getField("name").getValue();
-                    Integer code = Integer.parseInt((String) form.getField("code").getValue());
-                    String jumpIfBusyComboBox = null;
-                    String jumpIfNoAnswerComboBox = null;
-
-                    String extensionType = null;
-                    String destination = null;
-
-
-                    if (null != form.getField("jumpIfBusyComboBox").getValue()) {
-                        jumpIfBusyComboBox = ((CouchModelLite) form.getField("jumpIfBusyComboBox").getValue()).getId();
-                    }
-                    if (null != form.getField("jumpIfNoAnswerComboBox").getValue()) {
-                        jumpIfNoAnswerComboBox = ((CouchModelLite) form.getField("jumpIfNoAnswerComboBox").getValue()).getId();
-                    }
-
-
-
-                    if (null != form.getField("extensionType").getValue()) {
-                        extensionType = (String) form.getField("extensionType").getValue();
-                        destination = (String) form.getField("destination").getValue();
-                    }
-
-                    if (checkCode(code)) {
-
-                        code = createCode();
-
-                        UserError userError = new UserError(bundle.getString("wavilon.error.massage.extensions.code.exist") + " " + code);
-                        form.setComponentError(userError);
-                        form.getField("code").setValue(String.valueOf(code));
-
-                    } else {
-
-                        final Object object = table.addItem();
-
-                        Button.ClickListener listener = new Button.ClickListener() {
-                            public void buttonClick(Button.ClickEvent event) {
-
-                                table.select(object);
-                                String phoneNumbersID = (String) table.getItem(object).getItemProperty("extensionId").getValue();
-                                ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
-                                application.getMainWindow().addWindow(confirmingRemove);
-                                confirmingRemove.init(phoneNumbersID, table);
-                            }
-                        };
-
-                        extension.setJumpIfBusy(jumpIfBusyComboBox);
-                        extension.setJumpIfNoAnswer(jumpIfNoAnswerComboBox);
-                        extension.setChannel(extensionTypeMap.get(extensionType));
-                        extension.setName(name);
-                        extension.setDestination(destination);
-
-                        extension.setCode(code);
-
-                        service.addExtension(extension, model);
-
-                        if (null != model.getRevision()) {
-                            table.removeItem(itemId);
-                            table.select(null);
-                        }
-
-                        table.getContainerProperty(object, "extensionId").setValue(model.getId());
-                        table.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.code")).setValue(extension.getCode());
-                        table.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.name")).setValue(extension.getName());
-                        table.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.extension.type")).setValue(CouchModelUtil.extensionTypeMapEject(bundle).get(extension.getChannel()));
-                        table.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.destination")).setValue(extension.getDestination());
-                        table.getContainerProperty(object, "").setValue(new Button("", listener));
-
-                        getParent().getWindow().showNotification(bundle.getString("wavilon.well.done"));
-                        close();
-                    }
-
-                } catch (Exception ignored) {
-                }
-            }
-        });
-        save.setClickShortcut(ShortcutAction.KeyCode.ENTER);
-        save.addStyleName("saveButton");
-        buttons.addComponent(save);
-        save.setClickShortcut(ShortcutAction.KeyCode.ENTER);
-
     }
 
     private boolean checkCode(Integer code) {

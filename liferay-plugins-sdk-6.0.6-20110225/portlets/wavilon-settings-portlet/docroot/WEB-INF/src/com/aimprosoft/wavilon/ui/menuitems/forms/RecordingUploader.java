@@ -30,6 +30,8 @@ public class RecordingUploader extends VerticalLayout {
         setSpacing(true);
 
         upload.setImmediate(false);
+        upload.setHeight("24px");
+        upload.addStyleName("uploadButton");
         upload.setButtonCaption(bundle.getString("wavilon.button.upload"));
 
         HorizontalLayout uploadLabel = new HorizontalLayout();

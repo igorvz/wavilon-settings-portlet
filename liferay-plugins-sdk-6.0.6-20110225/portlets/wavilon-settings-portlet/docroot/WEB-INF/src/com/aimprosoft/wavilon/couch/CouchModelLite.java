@@ -51,7 +51,10 @@ public class CouchModelLite {
     public String toString() {
         if (null == id) {
             return "";
-        } else {
+        } else if(null != id && StringUtils.isEmpty(type)){
+            return name;
+        }
+        else {
             return name + " (" + type + ")";
         }
     }

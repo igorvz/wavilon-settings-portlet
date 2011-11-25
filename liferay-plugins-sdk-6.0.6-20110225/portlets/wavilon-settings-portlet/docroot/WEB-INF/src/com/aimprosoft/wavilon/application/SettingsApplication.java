@@ -30,7 +30,7 @@ public class SettingsApplication extends GenericPortletApplication {
         try {
 
             ThemeDisplay themeDisplay = (ThemeDisplay) renderRequest.getAttribute(WebKeys.THEME_DISPLAY);
-            setTheme(Runo.THEME_NAME);
+//            setTheme(Runo.THEME_NAME);
 
             //get liferay locale
             Locale portalLocale = themeDisplay.getLocale();

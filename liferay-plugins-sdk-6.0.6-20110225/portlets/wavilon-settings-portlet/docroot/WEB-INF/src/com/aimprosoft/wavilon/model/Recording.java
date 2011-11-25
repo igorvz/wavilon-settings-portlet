@@ -20,7 +20,6 @@ public class Recording extends BaseModel {
     private Integer version;
 
     public Recording() {
-
     }
 
     public String getForwardTo() {

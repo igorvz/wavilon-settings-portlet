@@ -8,16 +8,16 @@ import com.aimprosoft.wavilon.couch.CouchTypes;
 import com.aimprosoft.wavilon.model.Recording;
 import com.aimprosoft.wavilon.service.RecordingDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
-import com.aimprosoft.wavilon.ui.menuitems.forms.ConfirmingRemove;
 import com.aimprosoft.wavilon.ui.menuitems.forms.RecordingsForm;
 import com.aimprosoft.wavilon.util.CouchModelUtil;
 import com.aimprosoft.wavilon.util.LayoutUtil;
-import com.liferay.portal.util.PortalUtil;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.terminal.Sizeable;
-import com.vaadin.ui.*;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Table;
+import com.vaadin.ui.VerticalLayout;
 
 import javax.portlet.PortletRequest;
 import java.io.UnsupportedEncodingException;
@@ -55,13 +55,7 @@ public class RecordingsContent extends VerticalLayout {
         setWidth(100, Sizeable.UNITS_PERCENTAGE);
         addComponent(head);
 
-        table.setColumnExpandRatio(bundle.getString("wavilon.table.recordings.column.name"), 1);
-        table.setColumnExpandRatio(bundle.getString("wavilon.table.recordings.column.forward.to.on.end"), 2);
-        table.setColumnExpandRatio(bundle.getString("wavilon.table.recordings.column.media.file"), 2);
-
-        table.setContainerDataSource(tableData);
         table.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-        table.setColumnWidth("", 60);
         table.setHeight("555px");
         table.addStyleName("tableCustom");
         addComponent(table);
@@ -70,16 +64,19 @@ public class RecordingsContent extends VerticalLayout {
     private void initRecording() {
 
         table.setContainerDataSource(tableData);
-        table.setVisibleColumns(hiddenFields.toArray());
+        table.setVisibleColumns(tableFields.toArray());
         table.setSelectable(true);
         table.setImmediate(true);
+        LayoutUtil.setTableWidth(table, CouchTypes.recording, new HashMap<String, Integer>() {{
+            put(bundle.getString("wavilon.table.recordings.column.media.file"), 2);
+        }});
 
         table.addListener(new ItemClickEvent.ItemClickListener() {
             public void itemClick(ItemClickEvent event) {
                 if (event.isDoubleClick()) {
                     Item item = event.getItem();
                     if (null != item) {
-                        LayoutUtil.getForm((String) event.getItem().getItemProperty("id").getValue(), event.getItemId(), getWindow(), new RecordingsForm(bundle,table));
+                        LayoutUtil.getForm((String) event.getItem().getItemProperty("id").getValue(), event.getItemId(), getWindow(), new RecordingsForm(bundle, table));
 
                     }
                 }
@@ -90,12 +87,8 @@ public class RecordingsContent extends VerticalLayout {
     private IndexedContainer createTableData() {
         IndexedContainer ic = new IndexedContainer();
         List<CouchModel> recordingModelLiteList = getAllRecordingLite();
-        for (String field : tableFields) {
-            if ("".equals(field)) {
-                ic.addContainerProperty(field, Component.class, null);
-            }
-            ic.addContainerProperty(field, String.class, "");
-        }
+
+        LayoutUtil.addContainerProperties(hiddenFields, ic);
 
         if (!recordingModelLiteList.isEmpty()) {
 
@@ -113,12 +106,7 @@ public class RecordingsContent extends VerticalLayout {
                     } catch (UnsupportedEncodingException ignore) {
                     }
                 }
-                Map<String, Object> param = new HashMap<String, Object>();
 
-                param.put("id", couchModel.getId());
-                param.put("object", object);
-                Button delete = new Button("");
-                delete.setData(param);
 
                 CouchModelLite forwardModel = createForward(couchModel);
 
@@ -126,16 +114,10 @@ public class RecordingsContent extends VerticalLayout {
                 ic.getContainerProperty(object, bundle.getString("wavilon.table.recordings.column.forward.to.on.end")).setValue(forwardModel.getName());
                 ic.getContainerProperty(object, bundle.getString("wavilon.table.recordings.column.media.file")).setValue(fileName);
                 ic.getContainerProperty(object, "id").setValue(couchModel.getId());
-                ic.getContainerProperty(object, "").setValue(delete);
 
-                delete.addListener(new Button.ClickListener() {
-                    public void buttonClick(Button.ClickEvent event) {
-                        table.select(object);
-                        ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
-                        getWindow().addWindow(confirmingRemove);
-                        confirmingRemove.init(couchModel.getId(), table);
-                    }
-                });
+                HorizontalLayout buttons = LayoutUtil.createTablesEditRemoveButtons(table, object, couchModel, bundle, null, getWindow());
+                ic.getContainerProperty(object, "").setValue(buttons);
+
             }
         }
         return ic;
@@ -176,6 +158,7 @@ public class RecordingsContent extends VerticalLayout {
         tableFields.add(bundle.getString("wavilon.table.recordings.column.forward.to.on.end"));
         tableFields.add(bundle.getString("wavilon.table.recordings.column.media.file"));
         tableFields.add("");
+        tableFields.add("id");
 
         return tableFields;
     }
@@ -187,7 +170,6 @@ public class RecordingsContent extends VerticalLayout {
         tableFields.add(bundle.getString("wavilon.table.recordings.column.forward.to.on.end"));
         tableFields.add(bundle.getString("wavilon.table.recordings.column.media.file"));
         tableFields.add("");
-        tableFields.add("id");
 
         return tableFields;
     }

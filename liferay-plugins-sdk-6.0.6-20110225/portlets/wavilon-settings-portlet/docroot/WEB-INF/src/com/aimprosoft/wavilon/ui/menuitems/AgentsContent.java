@@ -57,10 +57,9 @@ public class AgentsContent extends VerticalLayout {
         setWidth(100, Sizeable.UNITS_PERCENTAGE);
         addComponent(head);
 
-        table.setColumnWidth("", 60);
         table.setContainerDataSource(this.tableData);
-        table.setWidth(100, Sizeable.UNITS_PERCENTAGE);
         table.setHeight("555px");
+        table.setWidth(100, Sizeable.UNITS_PERCENTAGE);
         table.addStyleName("tableCustom");
         addComponent(table);
     }
@@ -69,6 +68,8 @@ public class AgentsContent extends VerticalLayout {
         table.setVisibleColumns(this.tableFields.toArray());
         table.setSelectable(true);
         table.setImmediate(true);
+        LayoutUtil.setTableWidth(table, CouchTypes.agent);
+
 
         table.addListener(new ItemClickEvent.ItemClickListener() {
             public void itemClick(ItemClickEvent event) {
@@ -87,13 +88,7 @@ public class AgentsContent extends VerticalLayout {
 
         List<CouchModel> couchModels = getCouchModels();
 
-        for (String field : hiddenFields) {
-            if ("".equals(field)) {
-                ic.addContainerProperty(field, Button.class, "");
-            } else {
-                ic.addContainerProperty(field, String.class, "");
-            }
-        }
+        LayoutUtil.addContainerProperties(hiddenFields, ic);
 
         if (!couchModels.isEmpty()) {
 
@@ -104,14 +99,9 @@ public class AgentsContent extends VerticalLayout {
                 ic.getContainerProperty(object, bundle.getString("wavilon.table.agents.column.name")).setValue(agent.getName());
                 ic.getContainerProperty(object, bundle.getString("wavilon.table.agents.column.current.extension")).setValue(extension);
                 ic.getContainerProperty(object, "id").setValue(couchModel.getId());
-                ic.getContainerProperty(object, "").setValue(new Button("", new Button.ClickListener() {
-                    public void buttonClick(Button.ClickEvent event) {
-                        table.select(object);
-                        ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
-                        getWindow().addWindow(confirmingRemove);
-                        confirmingRemove.init(couchModel.getId(), table);
-                    }
-                }));
+
+                HorizontalLayout buttons = LayoutUtil.createTablesEditRemoveButtons(table, object, couchModel, bundle, null, getWindow());
+                ic.getContainerProperty(object, "").setValue(buttons);
             }
         }
         return ic;

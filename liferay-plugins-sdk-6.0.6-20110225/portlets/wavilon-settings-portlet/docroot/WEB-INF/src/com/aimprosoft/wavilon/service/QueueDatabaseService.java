@@ -6,11 +6,9 @@ import com.aimprosoft.wavilon.model.Queue;
 import java.io.IOException;
 import java.util.List;
 
-public interface QueueDatabaseService {
+public interface QueueDatabaseService extends GeneralService {
 
     Queue getQueue(CouchModel model) throws IOException;
-
-    CouchModel getModel(String id) throws IOException;
 
     List<Queue> getAllQueue() throws IOException;
 

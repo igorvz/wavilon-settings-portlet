@@ -18,18 +18,14 @@ import java.util.Map;
 
 @Service
 public class PhoneNumberDBServiceImpl extends AbstractViewEntityService implements PhoneNumberDatabaseService {
+
     private PhoneNumber getVirtualNumber(String id) throws IOException {
         CouchModel model = getModel(id);
         return objectMapper.convertValue(model.getProperties(), PhoneNumber.class);
     }
 
-
     public PhoneNumber getPhoneNumber(CouchModel model) throws IOException {
         return objectMapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false).convertValue(model.getProperties(), PhoneNumber.class);
-    }
-
-    public CouchModel getModel(String id) throws IOException {
-        return couchDBService.getModelById(id);
     }
 
     public List<PhoneNumber> getAllPhoneNumber() throws IOException {

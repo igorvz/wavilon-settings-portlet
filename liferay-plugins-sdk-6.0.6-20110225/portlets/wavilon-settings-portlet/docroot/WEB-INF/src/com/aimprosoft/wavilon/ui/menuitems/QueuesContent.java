@@ -7,28 +7,22 @@ import com.aimprosoft.wavilon.couch.CouchTypes;
 import com.aimprosoft.wavilon.model.Queue;
 import com.aimprosoft.wavilon.service.QueueDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
-import com.aimprosoft.wavilon.ui.menuitems.forms.ConfirmingRemove;
 import com.aimprosoft.wavilon.ui.menuitems.forms.QueuesDragAndDropAgents;
 import com.aimprosoft.wavilon.ui.menuitems.forms.QueuesForm;
 import com.aimprosoft.wavilon.util.CouchModelUtil;
 import com.aimprosoft.wavilon.util.LayoutUtil;
-import com.liferay.portal.util.PortalUtil;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.terminal.Sizeable;
-import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
 
 import javax.portlet.PortletRequest;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class QueuesContent extends VerticalLayout {
     private ResourceBundle bundle;
@@ -66,15 +60,10 @@ public class QueuesContent extends VerticalLayout {
         setWidth(100, Sizeable.UNITS_PERCENTAGE);
         top.addComponent(head);
 
-
-        this.queuesTable.setColumnExpandRatio(bundle.getString("wavilon.table.queues.column.name"), 1);
-        this.queuesTable.setColumnExpandRatio(bundle.getString("wavilon.table.queues.column.forward.to.on.max.time"), 2);
-        this.queuesTable.setColumnExpandRatio(bundle.getString("wavilon.table.queues.column.forward.to.on.max.length"), 2);
-        this.queuesTable.setColumnWidth("", 60);
         this.queuesTable.setContainerDataSource(this.tableData);
-        this.queuesTable.setWidth(100, Sizeable.UNITS_PERCENTAGE);
         this.queuesTable.setHeight(207, Sizeable.UNITS_PIXELS);
         this.queuesTable.addStyleName("queuesCustom");
+
         top.addComponent(this.queuesTable);
     }
 
@@ -82,7 +71,10 @@ public class QueuesContent extends VerticalLayout {
         this.queuesTable.setVisibleColumns(this.tableFields.toArray());
         this.queuesTable.setSelectable(true);
         this.queuesTable.setImmediate(true);
-
+        LayoutUtil.setTableWidth(queuesTable, CouchTypes.queue);
+        this.queuesTable.setColumnExpandRatio(bundle.getString("wavilon.table.queues.column.name"), 2);
+        this.queuesTable.setColumnExpandRatio(bundle.getString("wavilon.table.queues.column.forward.to.on.max.time"), 3);
+        this.queuesTable.setColumnExpandRatio(bundle.getString("wavilon.table.queues.column.forward.to.on.max.length"), 3);
 
         this.queuesTable.addListener(new Property.ValueChangeListener() {
             public void valueChange(Property.ValueChangeEvent event) {
@@ -115,13 +107,7 @@ public class QueuesContent extends VerticalLayout {
 
         List<CouchModel> couchModels = getCouchModels();
 
-        for (String field : hiddenFields) {
-            if ("".equals(field)) {
-                ic.addContainerProperty(field, Button.class, "");
-            } else {
-                ic.addContainerProperty(field, String.class, "");
-            }
-        }
+        LayoutUtil.addContainerProperties(hiddenFields, ic);
 
         if (!couchModels.isEmpty()) {
 
@@ -134,14 +120,9 @@ public class QueuesContent extends VerticalLayout {
                 ic.getContainerProperty(object, bundle.getString("wavilon.table.queues.column.forward.to.on.max.time")).setValue(forwardToOnMaxTime);
                 ic.getContainerProperty(object, bundle.getString("wavilon.table.queues.column.forward.to.on.max.length")).setValue(forwardToOnMaxLength);
                 ic.getContainerProperty(object, "id").setValue(couchModel.getId());
-                ic.getContainerProperty(object, "").setValue(new Button("", new Button.ClickListener() {
-                    public void buttonClick(Button.ClickEvent event) {
-                        queuesTable.select(object);
-                        ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
-                        getWindow().addWindow(confirmingRemove);
-                        confirmingRemove.init(couchModel.getId(), queuesTable);
-                    }
-                }));
+
+                HorizontalLayout buttons = LayoutUtil.createTablesEditRemoveButtons(queuesTable, object, couchModel, bundle, null, getWindow());
+                ic.getContainerProperty(object, "").setValue(buttons);
 
             }
         }

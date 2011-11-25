@@ -15,6 +15,7 @@ public class SettingsPage extends VerticalLayout {
     private VerticalLayout leftColumn;
     private VerticalLayout detailsContent;
     private List<String> styles = new LinkedList<String>();
+    private Button phoneNumbers;
 
     {
         styles.add("phoneNumbers");
@@ -23,6 +24,7 @@ public class SettingsPage extends VerticalLayout {
         styles.add("agents");
         styles.add("extensions");
         styles.add("recordings");
+        styles.add("contacts");
     }
 
     public SettingsPage(final ResourceBundle bundle) {
@@ -67,12 +69,13 @@ public class SettingsPage extends VerticalLayout {
         PhoneNumbersContent phoneNumbersContent = new PhoneNumbersContent(bundle);
         detailsContent.addComponent(phoneNumbersContent);
         phoneNumbersContent.init();
+        assignActiveButton(phoneNumbers);
 
     }
 
     private void addButtons() {
 
-        Button phoneNumbers = new NativeButton(bundle.getString("wavilon.menuitem.phonenumbers"));
+        phoneNumbers = new NativeButton(bundle.getString("wavilon.menuitem.phonenumbers"));
         phoneNumbers.addStyleName("phoneNumbersButton");
         phoneNumbers.addListener(new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
@@ -161,12 +164,28 @@ public class SettingsPage extends VerticalLayout {
             }
         });
 
+        Button contacts = new NativeButton(bundle.getString("wavilon.menuitem.contacts"));
+        contacts.addStyleName("contactsButton");
+        contacts.addListener(new Button.ClickListener() {
+            public void buttonClick(Button.ClickEvent event) {
+                Button button = event.getButton();
+                ContactsContent contactsContent = new ContactsContent(bundle);
+
+                assignActiveButton(button);
+
+                detailsContent.removeAllComponents();
+                detailsContent.addComponent(contactsContent);
+                contactsContent.init();
+            }
+        });
+
         leftColumn.addComponent(phoneNumbers);
         leftColumn.addComponent(virtualNumbers);
         leftColumn.addComponent(queues);
         leftColumn.addComponent(agents);
         leftColumn.addComponent(extensions);
         leftColumn.addComponent(recordings);
+        leftColumn.addComponent(contacts);
     }
 
     private void assignActiveButton(Button button) {
@@ -181,8 +200,10 @@ public class SettingsPage extends VerticalLayout {
             button.addStyleName("agentsButtonSelect");
         } else if ((bundle.getString("wavilon.menuitem.extensions")).equals(button.getCaption())) {
             button.addStyleName("extensionsButtonSelect");
-        } else {
+        } else if ((bundle.getString("wavilon.menuitem.recordings")).equals(button.getCaption())){
             button.addStyleName("recordingsButtonSelect");
+        }else {
+            button.addStyleName("contactsButtonSelect");
         }
     }
 

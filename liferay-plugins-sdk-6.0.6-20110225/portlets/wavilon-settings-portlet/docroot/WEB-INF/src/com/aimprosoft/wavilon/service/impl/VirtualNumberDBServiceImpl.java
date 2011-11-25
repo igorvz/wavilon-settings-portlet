@@ -25,10 +25,6 @@ public class VirtualNumberDBServiceImpl extends AbstractViewEntityService implem
         return objectMapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false).convertValue(model.getProperties(), VirtualNumber.class);
     }
 
-    public CouchModel getModel(String id) throws IOException {
-        return couchDBService.getModelById(id);
-    }
-
     public List<VirtualNumber> getAllVirtualNumbers() throws IOException {
         ViewResults viewResults = database.adhoc(functions.getAllUniqueEntities());
         List<VirtualNumber> virtualNumberList = new LinkedList<VirtualNumber>();
