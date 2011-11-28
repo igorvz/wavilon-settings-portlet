@@ -96,7 +96,7 @@ public class PhoneNumbersContent extends VerticalLayout {
                 ic.getContainerProperty(object, "id").setValue(couchModel.getId());
                 ic.getContainerProperty(object, bundle.getString("wavilon.table.phonenumbers.column.forward.calls.to")).setValue(forward);
 
-                HorizontalLayout buttons = LayoutUtil.createTablesEditRemoveButtons(phoneNumbersTable, object, couchModel, bundle, phoneNumber.getLocator(), getWindow());
+                HorizontalLayout buttons = LayoutUtil.createTablesEditRemoveButtons(phoneNumbersTable, object, couchModel, bundle, phoneNumber.getLocator(), getWindow(), new PhoneNumbersForm(bundle, phoneNumbersTable));
                 ic.getContainerProperty(object, "").setValue(buttons);
             }
         }

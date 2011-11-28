@@ -100,7 +100,7 @@ public class QueuesForm extends GeneralForm {
                     table.getContainerProperty(object, bundle.getString("wavilon.table.queues.column.forward.to.on.max.time")).setValue(CouchModelUtil.getCouchModelLite(queue.getForwardToOnMaxTime(), bundle));
                     table.getContainerProperty(object, bundle.getString("wavilon.table.queues.column.forward.to.on.max.length")).setValue(CouchModelUtil.getCouchModelLite(queue.getForwardToOnMaxLength(), bundle));
                     table.getContainerProperty(object, "id").setValue(model.getId());
-                    HorizontalLayout buttons = LayoutUtil.createTablesEditRemoveButtons(table, object, model, bundle, null, application.getMainWindow());
+                    HorizontalLayout buttons = LayoutUtil.createTablesEditRemoveButtons(table, object, model, bundle, null, application.getMainWindow(), new QueuesForm(bundle, table));
                     table.getContainerProperty(object, "").setValue(buttons);
 
                     LayoutUtil.setTableBackground(table, CouchTypes.queue);

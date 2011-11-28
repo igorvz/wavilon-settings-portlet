@@ -116,7 +116,7 @@ public class VirtualNumbersContent extends VerticalLayout {
                 ic.getContainerProperty(object, "id").setValue(couchModel.getId());
                 ic.getContainerProperty(object, bundle.getString("wavilon.table.virtualnumbers.column.forward.calls.to")).setValue(forward);
 
-                HorizontalLayout buttons = LayoutUtil.createTablesEditRemoveButtons(virtualNumbers, object, couchModel, bundle, virtualNumber.getLocator(), getWindow());
+                HorizontalLayout buttons = LayoutUtil.createTablesEditRemoveButtons(virtualNumbers, object, couchModel, bundle, virtualNumber.getLocator(), getWindow(), new VirtualNumbersForm(bundle, virtualNumbers));
                 ic.getContainerProperty(object, "").setValue(buttons);
             }
         }

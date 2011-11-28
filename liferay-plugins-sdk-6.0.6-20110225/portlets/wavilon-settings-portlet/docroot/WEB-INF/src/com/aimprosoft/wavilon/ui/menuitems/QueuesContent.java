@@ -121,7 +121,7 @@ public class QueuesContent extends VerticalLayout {
                 ic.getContainerProperty(object, bundle.getString("wavilon.table.queues.column.forward.to.on.max.length")).setValue(forwardToOnMaxLength);
                 ic.getContainerProperty(object, "id").setValue(couchModel.getId());
 
-                HorizontalLayout buttons = LayoutUtil.createTablesEditRemoveButtons(queuesTable, object, couchModel, bundle, null, getWindow());
+                HorizontalLayout buttons = LayoutUtil.createTablesEditRemoveButtons(queuesTable, object, couchModel, bundle, null, getWindow(), new QueuesForm(bundle, queuesTable));
                 ic.getContainerProperty(object, "").setValue(buttons);
 
             }

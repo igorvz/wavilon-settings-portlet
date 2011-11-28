@@ -78,7 +78,7 @@ public class PhoneNumbersForm extends GeneralForm {
                     table.getContainerProperty(object, bundle.getString("wavilon.table.phonenumbers.column.name")).setValue(phoneNumber.getName());
                     table.getContainerProperty(object, bundle.getString("wavilon.table.phonenumbers.column.forward.calls.to")).setValue(CouchModelUtil.getCouchModelLite(forwardId, bundle));
                     table.getContainerProperty(object, "id").setValue(model.getId());
-                    HorizontalLayout buttons = LayoutUtil.createTablesEditRemoveButtons(table, object, model, bundle, phoneNumber.getLocator(), application.getMainWindow());
+                    HorizontalLayout buttons = LayoutUtil.createTablesEditRemoveButtons(table, object, model, bundle, phoneNumber.getLocator(), application.getMainWindow(), new PhoneNumbersForm(bundle, table));
                     table.getContainerProperty(object, "").setValue(buttons);
 
                     LayoutUtil.setTableBackground(table, CouchTypes.service);

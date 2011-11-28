@@ -115,7 +115,7 @@ public class RecordingsContent extends VerticalLayout {
                 ic.getContainerProperty(object, bundle.getString("wavilon.table.recordings.column.media.file")).setValue(fileName);
                 ic.getContainerProperty(object, "id").setValue(couchModel.getId());
 
-                HorizontalLayout buttons = LayoutUtil.createTablesEditRemoveButtons(table, object, couchModel, bundle, null, getWindow());
+                HorizontalLayout buttons = LayoutUtil.createTablesEditRemoveButtons(table, object, couchModel, bundle, null, getWindow(), new RecordingsForm(bundle, table));
                 ic.getContainerProperty(object, "").setValue(buttons);
 
             }

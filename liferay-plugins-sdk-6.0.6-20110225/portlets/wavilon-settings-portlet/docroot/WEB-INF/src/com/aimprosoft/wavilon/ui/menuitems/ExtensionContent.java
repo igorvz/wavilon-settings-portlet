@@ -99,7 +99,7 @@ public class ExtensionContent extends VerticalLayout {
                 ic.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.extension.type")).setValue(extensionTypeMap.get(extension.getChannel()));
                 ic.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.destination")).setValue(extension.getDestination());
 
-                HorizontalLayout buttons = LayoutUtil.createTablesEditRemoveButtons(table, object, couchModel, bundle, null, getWindow());
+                HorizontalLayout buttons = LayoutUtil.createTablesEditRemoveButtons(table, object, couchModel, bundle, null, getWindow(), new ExtensionForm(bundle, table));
                 ic.getContainerProperty(object, "").setValue(buttons);
             }
         }

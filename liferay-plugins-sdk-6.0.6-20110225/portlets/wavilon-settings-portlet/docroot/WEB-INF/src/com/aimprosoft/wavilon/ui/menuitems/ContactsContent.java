@@ -7,6 +7,7 @@ import com.aimprosoft.wavilon.model.PhoneNumber;
 import com.aimprosoft.wavilon.service.ContactDatabaseService;
 import com.aimprosoft.wavilon.service.impl.ContactDatabaseServiceImpl;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
+import com.aimprosoft.wavilon.ui.menuitems.forms.ContactsForm;
 import com.aimprosoft.wavilon.ui.menuitems.forms.PhoneNumbersForm;
 import com.aimprosoft.wavilon.util.CouchModelUtil;
 import com.aimprosoft.wavilon.util.LayoutUtil;
@@ -56,13 +57,12 @@ public class ContactsContent extends GenerelContent {
                 final Object object = tableData.addItem();
                 final PhoneNumber phoneNumber = getModel(couchModel, service, PhoneNumber.class);
                 CouchModelLite forward = CouchModelUtil.getCouchModelLite((String) couchModel.getOutputs().get("startnode"), bundle);
+                HorizontalLayout buttons = LayoutUtil.createTablesEditRemoveButtons(table, object, couchModel, bundle, phoneNumber.getLocator(), getWindow(), new ContactsForm(bundle, table));
 
                 tableData.getContainerProperty(object, bundle.getString("wavilon.table.phonenumbers.column.number")).setValue(phoneNumber.getLocator());
                 tableData.getContainerProperty(object, bundle.getString("wavilon.table.phonenumbers.column.name")).setValue(phoneNumber.getName());
                 tableData.getContainerProperty(object, "id").setValue(couchModel.getId());
                 tableData.getContainerProperty(object, bundle.getString("wavilon.table.phonenumbers.column.forward.calls.to")).setValue(forward);
-
-                HorizontalLayout buttons = LayoutUtil.createTablesEditRemoveButtons(table, object, couchModel, bundle, phoneNumber.getLocator(), getWindow());
                 tableData.getContainerProperty(object, "").setValue(buttons);
             }
         }

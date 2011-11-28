@@ -9,6 +9,7 @@ import com.aimprosoft.wavilon.service.AgentDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.ui.menuitems.forms.AgentsForm;
 import com.aimprosoft.wavilon.ui.menuitems.forms.ConfirmingRemove;
+import com.aimprosoft.wavilon.ui.menuitems.forms.GeneralForm;
 import com.aimprosoft.wavilon.util.CouchModelUtil;
 import com.aimprosoft.wavilon.util.LayoutUtil;
 import com.liferay.portal.util.PortalUtil;
@@ -100,7 +101,7 @@ public class AgentsContent extends VerticalLayout {
                 ic.getContainerProperty(object, bundle.getString("wavilon.table.agents.column.current.extension")).setValue(extension);
                 ic.getContainerProperty(object, "id").setValue(couchModel.getId());
 
-                HorizontalLayout buttons = LayoutUtil.createTablesEditRemoveButtons(table, object, couchModel, bundle, null, getWindow());
+                HorizontalLayout buttons = LayoutUtil.createTablesEditRemoveButtons(table, object, couchModel, bundle, null, getWindow(), new AgentsForm(bundle, table));
                 ic.getContainerProperty(object, "").setValue(buttons);
             }
         }

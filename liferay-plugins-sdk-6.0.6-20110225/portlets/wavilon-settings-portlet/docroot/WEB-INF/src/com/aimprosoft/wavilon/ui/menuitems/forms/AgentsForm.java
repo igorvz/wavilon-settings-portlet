@@ -64,7 +64,7 @@ public class AgentsForm extends GeneralForm {
                     table.getContainerProperty(object, bundle.getString("wavilon.table.agents.column.name")).setValue(agent.getName());
                     table.getContainerProperty(object, bundle.getString("wavilon.table.agents.column.current.extension")).setValue(form.getField("extensions").getValue());
                     table.getContainerProperty(object, "id").setValue(model.getId());
-                    HorizontalLayout buttons = LayoutUtil.createTablesEditRemoveButtons(table, object, model, bundle, null, application.getMainWindow());
+                    HorizontalLayout buttons = LayoutUtil.createTablesEditRemoveButtons(table, object, model, bundle, null, application.getMainWindow(), new AgentsForm(bundle, table));
                     table.getContainerProperty(object, "").setValue(buttons);
 
                     LayoutUtil.setTableBackground(table, CouchTypes.agent);

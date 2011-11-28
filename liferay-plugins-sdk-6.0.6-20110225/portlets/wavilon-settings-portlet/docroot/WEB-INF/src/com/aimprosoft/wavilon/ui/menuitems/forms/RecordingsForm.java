@@ -96,7 +96,7 @@ public class RecordingsForm extends GeneralForm {
                             table.getContainerProperty(object, bundle.getString("wavilon.table.recordings.column.media.file")).setValue(fileName);
                             table.getContainerProperty(object, "id").setValue(model.getId());
 
-                            HorizontalLayout buttons = LayoutUtil.createTablesEditRemoveButtons(table, object, model, bundle, null, application.getMainWindow());
+                            HorizontalLayout buttons = LayoutUtil.createTablesEditRemoveButtons(table, object, model, bundle, null, application.getMainWindow(), new RecordingsForm(bundle, table));
                             table.getContainerProperty(object, "").setValue(buttons);
 
                             LayoutUtil.setTableBackground(table, CouchTypes.recording);

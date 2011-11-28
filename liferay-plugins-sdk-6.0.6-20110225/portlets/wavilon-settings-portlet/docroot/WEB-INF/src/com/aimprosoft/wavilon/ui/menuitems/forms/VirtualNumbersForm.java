@@ -82,7 +82,7 @@ public class VirtualNumbersForm extends GeneralForm {
                     table.getContainerProperty(object, "id").setValue(model.getId());
                     table.getContainerProperty(object, bundle.getString("wavilon.table.virtualnumbers.column.forward.calls.to")).setValue(CouchModelUtil.getCouchModelLite(forwardId, bundle));
 
-                    HorizontalLayout buttons = LayoutUtil.createTablesEditRemoveButtons(table, object, model, bundle, virtualNumber.getLocator(), application.getMainWindow());
+                    HorizontalLayout buttons = LayoutUtil.createTablesEditRemoveButtons(table, object, model, bundle, virtualNumber.getLocator(), application.getMainWindow(), new VirtualNumbersForm(bundle,table));
                     table.getContainerProperty(object, "").setValue(buttons);
 
                     LayoutUtil.setTableBackground(table, CouchTypes.startnode);

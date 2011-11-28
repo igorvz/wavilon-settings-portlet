@@ -7,6 +7,8 @@ import com.aimprosoft.wavilon.service.impl.ExportCSVServiceImpl;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.ui.menuitems.forms.*;
 import com.vaadin.data.util.IndexedContainer;
+import com.vaadin.event.FieldEvents.TextChangeEvent;
+import com.vaadin.event.FieldEvents.TextChangeListener;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.terminal.StreamResource;
 import com.vaadin.ui.*;
@@ -24,7 +26,7 @@ import java.util.ResourceBundle;
 public class LayoutUtil {
     private static ExportCSVService exportCSVService = ObjectFactory.getBean(ExportCSVServiceImpl.class);
 
-    public static VerticalLayout createHead(ResourceBundle bundle, Table table, CouchTypes types, Window window) {
+    public static VerticalLayout createHead(ResourceBundle bundle, Table table, CouchTypes type, Window window) {
         table.addStyleName(Runo.TABLE_BORDERLESS);
         VerticalLayout head = new VerticalLayout();
         head.setWidth(100, Sizeable.UNITS_PERCENTAGE);
@@ -33,36 +35,36 @@ public class LayoutUtil {
         StringBuilder addButtonCaption = new StringBuilder(bundle.getString("wavilon.button.add")).append(" ");
         String tableCaption = "";
 
-        if (types.toString().equals("agent")) {
+        if (type.toString().equals("agent")) {
             tableCaption = bundle.getString("wavilon.menuitem.agents");
             addButtonCaption.append(bundle.getString("wavilon.menuitem.agent"));
             form = new AgentsForm(bundle, table);
 
-        } else if (types.toString().equals("extension")) {
+        } else if (type.toString().equals("extension")) {
             tableCaption = (bundle.getString("wavilon.menuitem.extensions"));
             addButtonCaption.append(bundle.getString("wavilon.menuitem.extension"));
             form = new ExtensionForm(bundle, table);
 
-        } else if (types.toString().equals("recording")) {
+        } else if (type.toString().equals("recording")) {
             tableCaption = bundle.getString("wavilon.menuitem.recordings");
             addButtonCaption.append(bundle.getString("wavilon.menuitem.recording"));
             form = new RecordingsForm(bundle, table);
 
-        } else if (types.toString().equals("queue")) {
+        } else if (type.toString().equals("queue")) {
             tableCaption = bundle.getString("wavilon.menuitem.queues");
             addButtonCaption.append(bundle.getString("wavilon.menuitem.queue"));
             form = new QueuesForm(bundle, table);
 
-        } else if (types.toString().equals("startnode")) {
+        } else if (type.toString().equals("startnode")) {
             tableCaption = bundle.getString("wavilon.menuitem.virtualnumbers");
             addButtonCaption.append(bundle.getString("wavilon.menuitem.virtualnumber"));
             form = new VirtualNumbersForm(bundle, table);
 
-        } else if (types.toString().equals("contact")) {
+        } else if (type.toString().equals("contact")) {
             tableCaption = bundle.getString("wavilon.menuitem.contacts");
             addButtonCaption.append(bundle.getString("wavilon.menuitem.contacts"));
             form = new ContactsForm(bundle, table);
-        } else if (types.toString().equals("service")) {
+        } else if (type.toString().equals("service")) {
             tableCaption = bundle.getString("wavilon.menuitem.phonenumbers");
             addButtonCaption.append(bundle.getString("wavilon.menuitem.phonenumber"));
             form = new PhoneNumbersForm(bundle, table);
@@ -76,7 +78,7 @@ public class LayoutUtil {
 
         head.setComponentAlignment(headLabel, Alignment.TOP_LEFT);
 
-        HorizontalLayout secondRow = createSecondRow(bundle, table, window, form, addButtonCaption.toString(), tableCaption);
+        HorizontalLayout secondRow = createSecondRow(bundle, table, window, form, addButtonCaption.toString(), tableCaption, type);
         head.addComponent(secondRow);
 
         return head;
@@ -117,14 +119,14 @@ public class LayoutUtil {
         }
     }
 
-    public static HorizontalLayout createTablesEditRemoveButtons(final Table table, final Object object, final CouchModel couchModel, final ResourceBundle bundle, final String phoneNumber, final Window mainWindow) {
+    public static HorizontalLayout createTablesEditRemoveButtons(final Table table, final Object object, final CouchModel couchModel, final ResourceBundle bundle, final String phoneNumber, final Window mainWindow, final GeneralForm generalForm) {
         HorizontalLayout buttons = new HorizontalLayout();
         buttons.setSizeFull();
 
         Button editButton = new Button("", new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
                 table.select(object);
-                LayoutUtil.getForm(couchModel.getId(), object, mainWindow, new PhoneNumbersForm(bundle, table));
+                LayoutUtil.getForm(couchModel.getId(), object, mainWindow, generalForm);
             }
         });
 
@@ -155,33 +157,34 @@ public class LayoutUtil {
         return buttons;
     }
 
-    private static HorizontalLayout createSecondRow(final ResourceBundle bundle, Table table, final Window window, final GeneralForm form, String addButtonCaption, String tableCaption) {
+    private static HorizontalLayout createSecondRow(final ResourceBundle bundle, final Table table, final Window window, final GeneralForm form, String addButtonCaption, String tableCaption, CouchTypes type) {
         HorizontalLayout secondRow = new HorizontalLayout();
         secondRow.setWidth(100, Sizeable.UNITS_PERCENTAGE);
 
-//        SearchField searchField = new SearchField(new SearchField.ResultDisplayer() {
-//            @Override
-//            public Layout processSearch(SearchField.SearchEvent searchEvent) {
-//                final Layout cssLayout = new CssLayout();
-//                for (String s : searchEvent.getKeywords()) {
-//                    cssLayout.addComponent(new Label(s));
-//                }
-//                return cssLayout;
-//            }
-//        });
-//        secondRow.addComponent(searchField);
+        TextChangeListener listener = new TextChangeListener() {
+            public void textChange(TextChangeEvent event) {
+                IndexedContainer indexedContainer = (IndexedContainer) table.getContainerDataSource();
+                indexedContainer.removeAllContainerFilters();
+                indexedContainer.addContainerFilter("NAME", event.getText(), true, false);
 
-        HorizontalLayout headButtons = createHeadButtons(addButtonCaption, table, window, form, tableCaption, bundle);
+            }
+        };
 
+        TextField filterField = new TextField();
+        filterField.setInputPrompt("Search " + tableCaption.toLowerCase() + "...");
+        filterField.addListener((TextChangeListener) listener);
 
+        HorizontalLayout headButtons = createHeadButtons(addButtonCaption, table, window, form, tableCaption, bundle, type);
+
+        secondRow.addComponent(filterField);
         secondRow.addComponent(headButtons);
         secondRow.setHeight("69px");
-//        secondRow.setComponentAlignment(searchField, Alignment.MIDDLE_LEFT);
+        secondRow.setComponentAlignment(filterField, Alignment.MIDDLE_LEFT);
         secondRow.setComponentAlignment(headButtons, Alignment.MIDDLE_RIGHT);
         return secondRow;
     }
 
-    private static HorizontalLayout createHeadButtons(String addButtonCaption, final Table table, final Window window, final GeneralForm form, final String tableCaption, final ResourceBundle resourceBundle) {
+    private static HorizontalLayout createHeadButtons(String addButtonCaption, final Table table, final Window window, final GeneralForm form, final String tableCaption, final ResourceBundle resourceBundle, CouchTypes type) {
         HorizontalLayout headButtons = new HorizontalLayout();
 
         Button addButton = new Button(addButtonCaption, new Button.ClickListener() {
@@ -192,6 +195,13 @@ public class LayoutUtil {
         addButton.addStyleName("addButton");
         addButton.setHeight("40px");
         headButtons.addComponent(addButton);
+
+        if (CouchTypes.contact.equals(type)) {
+            Button syncButton = new Button("Sync");
+            syncButton.addStyleName("exportButton");
+            syncButton.setHeight("40px");
+            headButtons.addComponent(syncButton);
+        }
 
         Button exportButton = new Button("Export", new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
@@ -241,7 +251,7 @@ public class LayoutUtil {
             } else if (contentType.equals(CouchTypes.service) || contentType.equals(CouchTypes.service.toString())) {
                 table.addStyleName("phoneNumberTable");
             } else if (contentType.equals(CouchTypes.contact) || contentType.equals(CouchTypes.contact.toString())) {
-                table.addStyleName("contactTable");
+                table.addStyleName("contactTable-");
             }
 
             return true;
