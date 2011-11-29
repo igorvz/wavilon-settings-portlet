@@ -114,7 +114,7 @@ public class SettingsPage extends VerticalLayout {
                 detailsContent.removeAllComponents();
                 QueuesContent queuesContent = new QueuesContent(bundle);
                 detailsContent.addComponent(queuesContent);
-                queuesContent.init();
+                queuesContent.init(bundle);
             }
         });
 

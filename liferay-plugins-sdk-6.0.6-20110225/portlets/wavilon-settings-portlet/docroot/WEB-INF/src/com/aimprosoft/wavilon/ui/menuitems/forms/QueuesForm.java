@@ -100,8 +100,7 @@ public class QueuesForm extends GeneralForm {
                     table.getContainerProperty(object, bundle.getString("wavilon.table.queues.column.forward.to.on.max.time")).setValue(CouchModelUtil.getCouchModelLite(queue.getForwardToOnMaxTime(), bundle));
                     table.getContainerProperty(object, bundle.getString("wavilon.table.queues.column.forward.to.on.max.length")).setValue(CouchModelUtil.getCouchModelLite(queue.getForwardToOnMaxLength(), bundle));
                     table.getContainerProperty(object, "id").setValue(model.getId());
-                    HorizontalLayout buttons = LayoutUtil.createTablesEditRemoveButtons(table, object, model, bundle, null, application.getMainWindow(), new QueuesForm(bundle, table));
-                    table.getContainerProperty(object, "").setValue(buttons);
+                    table.getContainerProperty(object, "").setValue(createTablesEditRemoveButtons(table, object, model, null));
 
                     LayoutUtil.setTableBackground(table, CouchTypes.queue);
 
@@ -181,9 +180,14 @@ public class QueuesForm extends GeneralForm {
             if (null != queue.getMaxLength()) {
                 maxLengthInput.setValue(queue.getMaxLength());
             }
-
             if (null != queue.getMusicOnHold()) {
                 musicOnHold.setValue(true);
+            }
+            if (null != queue.getForwardToOnMaxLength()) {
+                forwardToOnMaxLengthInput.setValue(CouchModelUtil.getCouchModelLite(queue.getForwardToOnMaxLength(), bundle));
+            }
+            if (null != queue.getForwardToOnMaxTime()){
+                forwardToOnMaxTimeInput.setValue(CouchModelUtil.getCouchModelLite(queue.getForwardToOnMaxTime(), bundle));
             }
 
         }

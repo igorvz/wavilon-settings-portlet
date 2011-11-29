@@ -54,18 +54,6 @@ public abstract class AbstractViewEntityService {
         }
     }
 
-//    protected void updateModel(CouchModel model) throws IOException {
-//        if (null == model.getRevision()) {
-//            couchDBService.updateModel(model);
-//        } else {
-//            String id = model.getId();
-//            Map<String, Object> mergeMap = couchDBService.getMapById(id);
-//            Map<String, Object> modelForPutMap = objectMapper.convertValue(model, Map.class);
-//            mergeMap.putAll(modelForPutMap);
-//            couchDBService.updateModel(mergeMap);
-//        }
-//    }
-
     public CouchModel getModel(String id) throws IOException {
         return couchDBService.getModelById(id);
     }

@@ -7,6 +7,7 @@ import com.aimprosoft.wavilon.couch.CouchTypes;
 import com.aimprosoft.wavilon.model.BaseModel;
 import com.aimprosoft.wavilon.service.GeneralService;
 import com.aimprosoft.wavilon.util.CouchModelUtil;
+import com.aimprosoft.wavilon.util.LayoutUtil;
 import com.vaadin.Application;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.ui.*;
@@ -94,6 +95,10 @@ public class GeneralForm extends Window {
 
     protected <T> T getModel(CouchModel model, GeneralService service, Class<T> modelClass) throws IOException {
         return service.getModel(model, modelClass);
+    }
+
+    protected HorizontalLayout createTablesEditRemoveButtons(Table table, Object object, CouchModel couchModel, String phoneNumber) {
+       return LayoutUtil.createTablesEditRemoveButtons(table, object, couchModel, bundle, phoneNumber, application.getMainWindow());
     }
 
     @Override

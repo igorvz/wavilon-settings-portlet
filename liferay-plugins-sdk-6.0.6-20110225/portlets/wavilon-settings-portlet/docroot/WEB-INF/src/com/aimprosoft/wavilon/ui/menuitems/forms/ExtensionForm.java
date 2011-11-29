@@ -102,13 +102,12 @@ public class ExtensionForm extends GeneralForm {
                             table.select(null);
                         }
 
-                        table.getContainerProperty(object, "extensionId").setValue(model.getId());
+                        table.getContainerProperty(object, "id").setValue(model.getId());
                         table.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.code")).setValue(extension.getCode());
                         table.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.name")).setValue(extension.getName());
                         table.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.extension.type")).setValue(CouchModelUtil.extensionTypeMapEject(bundle).get(extension.getChannel()));
                         table.getContainerProperty(object, bundle.getString("wavilon.table.extensions.column.destination")).setValue(extension.getDestination());
-                        HorizontalLayout buttons = LayoutUtil.createTablesEditRemoveButtons(table, object, model, bundle, null, application.getMainWindow(), new ExtensionForm(bundle, table));
-                        table.getContainerProperty(object, "").setValue(buttons);
+                        table.getContainerProperty(object, "").setValue(createTablesEditRemoveButtons(table, object, model, null));
 
                         LayoutUtil.setTableBackground(table, CouchTypes.extension);
 
@@ -173,6 +172,14 @@ public class ExtensionForm extends GeneralForm {
             destination.setValue(extension.getDestination());
             changeDestinationValidator(CouchModelUtil.extensionTypeMapEject(bundle).get(extension.getChannel()), destination, form);
             code.setValue(String.valueOf(extension.getCode()));
+
+            if (null != extension.getJumpIfBusy()) {
+                jumpIfBusyComboBox.setValue(CouchModelUtil.getCouchModelLite(extension.getJumpIfBusy(), bundle));
+            }
+            if (null != extension.getJumpIfNoAnswer()) {
+                jumpIfNoAnswerComboBox.setValue(CouchModelUtil.getCouchModelLite(extension.getJumpIfNoAnswer(), bundle));
+            }
+
         } else {
             code.setValue(String.valueOf(createCode()));
         }
@@ -208,8 +215,8 @@ public class ExtensionForm extends GeneralForm {
         return extensionType;
     }
 
-    private ComboBox createJumpComboBox(String string) {
-        ComboBox jumpComboBox = new ComboBox(string);
+    private ComboBox createJumpComboBox(String comboboxName) {
+        ComboBox jumpComboBox = new ComboBox(comboboxName);
         addNullPosition(jumpComboBox);
         List<CouchModelLite> jumpModelList = getJumps();
 

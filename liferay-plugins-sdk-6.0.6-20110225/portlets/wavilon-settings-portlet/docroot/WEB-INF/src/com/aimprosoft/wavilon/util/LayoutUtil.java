@@ -119,14 +119,18 @@ public class LayoutUtil {
         }
     }
 
-    public static HorizontalLayout createTablesEditRemoveButtons(final Table table, final Object object, final CouchModel couchModel, final ResourceBundle bundle, final String phoneNumber, final Window mainWindow, final GeneralForm generalForm) {
+    public static HorizontalLayout createTablesEditRemoveButtons(final Table table, final Object object, final CouchModel couchModel, final ResourceBundle bundle, final String phoneNumber, final Window mainWindow) {
         HorizontalLayout buttons = new HorizontalLayout();
+        final Object type = couchModel.getType();
+        final String couchModelId = couchModel.getId();
         buttons.setSizeFull();
+
 
         Button editButton = new Button("", new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
                 table.select(object);
-                LayoutUtil.getForm(couchModel.getId(), object, mainWindow, generalForm);
+
+                LayoutUtil.getForm(couchModelId, object, mainWindow, getGeneralForm(type, bundle, table));
             }
         });
 
@@ -135,8 +139,8 @@ public class LayoutUtil {
                 table.select(object);
                 ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
                 mainWindow.addWindow(confirmingRemove);
-                confirmingRemove.setNumbersLocator(phoneNumber, couchModel.getType());
-                confirmingRemove.init(couchModel.getId(), table, couchModel.getType());
+                confirmingRemove.setNumbersLocator(phoneNumber, type);
+                confirmingRemove.init(couchModelId, table, type);
             }
         });
 
@@ -289,6 +293,26 @@ public class LayoutUtil {
         }
         table.setWidth(100, Sizeable.UNITS_PERCENTAGE);
         setTableBackground(table, contentType);
+    }
+
+    public static GeneralForm getGeneralForm(Object couchType, ResourceBundle bundle, Table table) {
+        String type = couchType.toString();
+
+        if (type.equals(CouchTypes.startnode.toString())) {
+            return new VirtualNumbersForm(bundle, table);
+        } else if (type.equals(CouchTypes.service.toString())) {
+            return new PhoneNumbersForm(bundle, table);
+        } else if (type.equals(CouchTypes.agent.toString())) {
+            return new AgentsForm(bundle, table);
+        } else if (type.equals(CouchTypes.queue.toString())) {
+            return new QueuesForm(bundle, table);
+        } else if (type.equals(CouchTypes.extension.toString())) {
+            return new ExtensionForm(bundle, table);
+        } else if (type.equals(CouchTypes.recording.toString())) {
+            return new RecordingsForm(bundle, table);
+        } else {
+            return new ContactsForm(bundle, table);
+        }
     }
 
 }

@@ -81,9 +81,7 @@ public class VirtualNumbersForm extends GeneralForm {
                     table.getContainerProperty(object, bundle.getString("wavilon.table.virtualnumbers.column.name")).setValue(virtualNumber.getName());
                     table.getContainerProperty(object, "id").setValue(model.getId());
                     table.getContainerProperty(object, bundle.getString("wavilon.table.virtualnumbers.column.forward.calls.to")).setValue(CouchModelUtil.getCouchModelLite(forwardId, bundle));
-
-                    HorizontalLayout buttons = LayoutUtil.createTablesEditRemoveButtons(table, object, model, bundle, virtualNumber.getLocator(), application.getMainWindow(), new VirtualNumbersForm(bundle,table));
-                    table.getContainerProperty(object, "").setValue(buttons);
+                    table.getContainerProperty(object, "").setValue(createTablesEditRemoveButtons(table, object, model, virtualNumber.getLocator()));
 
                     LayoutUtil.setTableBackground(table, CouchTypes.startnode);
 
@@ -134,7 +132,7 @@ public class VirtualNumbersForm extends GeneralForm {
         }
         forwardCallTo.setNullSelectionItemId(bundle.getString("wavilon.form.select"));
 
-        if ((null != this.model.getRevision() && !"".equals(this.model.getRevision())) || null != model.getProperties()) {
+        if ((null != model.getRevision() && !"".equals(model.getRevision())) || null != model.getProperties()) {
             name.setValue(virtualNumber.getName());
 
             TextField number = new TextField(bundle.getString("wavilon.form.number"));
@@ -146,8 +144,11 @@ public class VirtualNumbersForm extends GeneralForm {
                 recordCalls.setValue(true);
             }
 
-            form.addField("number", number);
+            if (null != virtualNumber.getForwardTo()) {
+                forwardCallTo.setValue(CouchModelUtil.getCouchModelLite(virtualNumber.getForwardTo(), bundle));
+            }
 
+            form.addField("number", number);
             form.addField("forwardCallTo", forwardCallTo);
         } else {
             List<String> virtualNumbers = createVirtualNumbers();

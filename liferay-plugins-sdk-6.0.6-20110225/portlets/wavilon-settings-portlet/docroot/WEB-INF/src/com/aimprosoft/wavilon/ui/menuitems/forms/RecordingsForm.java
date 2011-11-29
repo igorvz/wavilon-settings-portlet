@@ -95,9 +95,7 @@ public class RecordingsForm extends GeneralForm {
                             table.getContainerProperty(object, bundle.getString("wavilon.table.recordings.column.forward.to.on.end")).setValue(CouchModelUtil.getCouchModelLite(forwardId, bundle).getName());
                             table.getContainerProperty(object, bundle.getString("wavilon.table.recordings.column.media.file")).setValue(fileName);
                             table.getContainerProperty(object, "id").setValue(model.getId());
-
-                            HorizontalLayout buttons = LayoutUtil.createTablesEditRemoveButtons(table, object, model, bundle, null, application.getMainWindow(), new RecordingsForm(bundle, table));
-                            table.getContainerProperty(object, "").setValue(buttons);
+                            table.getContainerProperty(object, "").setValue(createTablesEditRemoveButtons(table, object, model, null));
 
                             LayoutUtil.setTableBackground(table, CouchTypes.recording);
 
@@ -152,6 +150,10 @@ public class RecordingsForm extends GeneralForm {
 
         if (null != model.getRevision() && !"".equals(model.getRevision())) {
             name.setValue(model.getProperties().get("name"));
+
+            if (null != recording.getForwardTo()){
+                forwardComboBox.setValue(CouchModelUtil.getCouchModelLite(recording.getForwardTo(), bundle));
+            }
         }
         return form;
     }

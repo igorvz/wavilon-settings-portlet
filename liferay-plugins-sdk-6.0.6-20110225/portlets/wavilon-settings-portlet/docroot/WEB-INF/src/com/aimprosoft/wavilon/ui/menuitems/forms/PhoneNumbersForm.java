@@ -78,8 +78,7 @@ public class PhoneNumbersForm extends GeneralForm {
                     table.getContainerProperty(object, bundle.getString("wavilon.table.phonenumbers.column.name")).setValue(phoneNumber.getName());
                     table.getContainerProperty(object, bundle.getString("wavilon.table.phonenumbers.column.forward.calls.to")).setValue(CouchModelUtil.getCouchModelLite(forwardId, bundle));
                     table.getContainerProperty(object, "id").setValue(model.getId());
-                    HorizontalLayout buttons = LayoutUtil.createTablesEditRemoveButtons(table, object, model, bundle, phoneNumber.getLocator(), application.getMainWindow(), new PhoneNumbersForm(bundle, table));
-                    table.getContainerProperty(object, "").setValue(buttons);
+                    table.getContainerProperty(object, "").setValue(createTablesEditRemoveButtons(table, object, model, phoneNumber.getLocator()));
 
                     LayoutUtil.setTableBackground(table, CouchTypes.service);
 
@@ -143,6 +142,14 @@ public class PhoneNumbersForm extends GeneralForm {
             if (null != phoneNumber.getRecordCalls()) {
                 recordCalls.setValue(true);
             }
+
+            if (null != model.getOutputs()) {
+                if (null != model.getOutputs().get("startnode")) {
+                    String forwardsId = (String) model.getOutputs().get("startnode");
+                    forwardCallTo.setValue(CouchModelUtil.getCouchModelLite(forwardsId, bundle));
+                }
+            }
+
 
         } else {
             List<String> virtualNumbers = createGeoNumbers();

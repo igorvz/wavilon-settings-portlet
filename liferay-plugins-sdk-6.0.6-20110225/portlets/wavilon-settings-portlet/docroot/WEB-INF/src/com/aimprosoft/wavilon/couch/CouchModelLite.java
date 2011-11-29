@@ -41,7 +41,7 @@ public class CouchModelLite {
 
     @Override
     public boolean equals(Object obj) {
-        if (null != null && obj instanceof CouchModelLite) {
+        if (null != obj && obj instanceof CouchModelLite) {
             CouchModelLite modelLite = (CouchModelLite) obj;
             return this.id.equals(modelLite.id);
         } else return false;
@@ -51,7 +51,7 @@ public class CouchModelLite {
     public String toString() {
         if (null == id) {
             return "";
-        } else if(null != id && StringUtils.isEmpty(type)){
+        } else if(StringUtils.isEmpty(type)){
             return name;
         }
         else {

@@ -4,29 +4,28 @@ import com.aimprosoft.wavilon.application.GenericPortletApplication;
 import com.aimprosoft.wavilon.couch.CouchModel;
 import com.aimprosoft.wavilon.couch.CouchTypes;
 import com.aimprosoft.wavilon.service.GeneralService;
-import com.aimprosoft.wavilon.ui.menuitems.forms.ConfirmingRemove;
-import com.aimprosoft.wavilon.ui.menuitems.forms.PhoneNumbersForm;
 import com.aimprosoft.wavilon.util.CouchModelUtil;
 import com.aimprosoft.wavilon.util.LayoutUtil;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.terminal.Sizeable;
-import com.vaadin.ui.*;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Table;
+import com.vaadin.ui.VerticalLayout;
 
 import javax.portlet.PortletRequest;
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class GenerelContent extends VerticalLayout {
     protected PortletRequest request;
     protected ResourceBundle bundle;
-    protected Table table;
+    protected Table table = new Table();
     protected IndexedContainer tableData;
     protected List<String> hiddenFields = new LinkedList<String>();
     protected List<String> visibleFields = new LinkedList<String>();
+    protected List<CouchModel> couchModels;
 
     public GenerelContent(ResourceBundle bundle) {
         this.bundle = bundle;
@@ -41,19 +40,19 @@ public class GenerelContent extends VerticalLayout {
 
 
     protected void fillHiddenFields() {
+        visibleFields.add("");
         hiddenFields.addAll(visibleFields);
         hiddenFields.add("id");
     }
 
-    protected List<CouchModel> getCouchModels(GeneralService service, CouchTypes type) {
-        List<CouchModel> couchModelList = new LinkedList<CouchModel>();
+    private void getCouchModels(GeneralService service, CouchTypes type) {
+        couchModels = new LinkedList<CouchModel>();
 
         try {
-            couchModelList.addAll(service.getAvailableCouchModels(CouchModelUtil.getOrganizationId(request), type));
+            couchModels.addAll(service.getAvailableCouchModels(CouchModelUtil.getOrganizationId(request), type));
         } catch (Exception ignored) {
         }
 
-        return couchModelList;
     }
 
     protected <T> T getModel(CouchModel model, GeneralService service, Class<T> modelClass) {
@@ -64,61 +63,35 @@ public class GenerelContent extends VerticalLayout {
         }
     }
 
-    protected HorizontalLayout createTablesEditRemoveButtons(final Table table, final Object object, final CouchModel couchModel, final ResourceBundle bundle, final String phoneNumber, final Window mainWindow) {
-        HorizontalLayout buttons = new HorizontalLayout();
-        buttons.setSizeFull();
-
-        Button editButton = new Button("", new Button.ClickListener() {
-            public void buttonClick(Button.ClickEvent event) {
-                table.select(object);
-                LayoutUtil.getForm(couchModel.getId(), object, mainWindow, new PhoneNumbersForm(bundle, table));
-            }
-        });
-
-        Button removeButton = new Button("", new Button.ClickListener() {
-            public void buttonClick(Button.ClickEvent event) {
-                table.select(object);
-                ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
-                mainWindow.addWindow(confirmingRemove);
-                confirmingRemove.setNumbersLocator(phoneNumber, couchModel.getType());
-                confirmingRemove.init(couchModel.getId(), table, couchModel.getType());
-            }
-        });
-
-        editButton.addStyleName("editButton");
-        editButton.setWidth("20px");
-        editButton.setDescription(bundle.getString("wavilon.button.edit"));
-        removeButton.addStyleName("removeButton");
-        removeButton.setWidth("20px");
-        removeButton.setDescription(bundle.getString("wavilon.button.delete"));
-
-        buttons.addComponent(editButton);
-        buttons.setComponentAlignment(editButton, Alignment.MIDDLE_LEFT);
-        buttons.addComponent(removeButton);
-        buttons.setComponentAlignment(removeButton, Alignment.MIDDLE_LEFT);
-
-        buttons.addStyleName("buttonsContainer");
-
-        return buttons;
+    protected HorizontalLayout createTablesEditRemoveButtons(final Object object, final CouchModel couchModel, final String phoneNumber) {
+        return LayoutUtil.createTablesEditRemoveButtons(table, object, couchModel, bundle, phoneNumber, getWindow());
     }
 
-    protected void initLayout( CouchTypes type) {
-        table = new Table();
+    protected void initLayout(CouchTypes type) {
+        initLayout(type, null);
+    }
+
+    protected void initLayout(final CouchTypes type, Map<String, Integer> nonstandardColumn) {
         table.setContainerDataSource(tableData);
-        table.setHeight("555px");
+        if (CouchTypes.queue != type) {
+            table.setHeight("555px");
+        } else {
+            table.setHeight("207px");
+        }
         table.setFooterVisible(false);
         table.addStyleName("tableCustom");
         table.setVisibleColumns(visibleFields.toArray());
         table.setSelectable(true);
         table.setImmediate(true);
-        LayoutUtil.setTableWidth(table, CouchTypes.contact);
+
+        LayoutUtil.setTableWidth(table, type, nonstandardColumn);
 
         table.addListener(new ItemClickEvent.ItemClickListener() {
             public void itemClick(ItemClickEvent event) {
                 if (event.isDoubleClick()) {
                     Item item = event.getItem();
                     if (null != item) {
-                        LayoutUtil.getForm((String) event.getItem().getItemProperty("id").getValue(), event.getItemId(), getWindow(), new PhoneNumbersForm(bundle, table));
+                        LayoutUtil.getForm((String) event.getItem().getItemProperty("id").getValue(), event.getItemId(), getWindow(), LayoutUtil.getGeneralForm(type, bundle, table));
                     }
                 }
             }
@@ -131,5 +104,20 @@ public class GenerelContent extends VerticalLayout {
 
     }
 
+    protected void createTableData(GeneralService service, CouchTypes type) {
+        tableData = new IndexedContainer();
+        getCouchModels(service, type);
+        LayoutUtil.addContainerProperties(hiddenFields, tableData);
+    }
+
+    protected Map<String, Integer> ratioMap(Integer... ratioUnits) {
+        if (null != ratioUnits && ratioUnits.length > 0) {
+            Map<String, Integer> ratioMap = new LinkedHashMap<String, Integer>();
+            for (int i = 0; i < ratioUnits.length; i++) {
+                ratioMap.put(visibleFields.get(i), ratioUnits[i]);
+            }
+            return ratioMap;
+        } else return null;
+    }
 
 }
