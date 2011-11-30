@@ -16,10 +16,12 @@ import java.util.ResourceBundle;
 @Service
 public class ExportCSVServiceImpl implements ExportCSVService {
     @Override
-    public void exportTableData(Table table, Writer writer, ResourceBundle bundle) throws IOException {
+    public void exportTableData(Table table, Writer writer, ResourceBundle bundle, String tableCaption) throws IOException {
         table.getVisibleItemIds();
         CSVWriter csvWriter = new CSVWriter(writer);
         List<String[]> rows = new LinkedList<String[]>();
+
+        rows.add(new String[]{"Table ["+tableCaption+"]"});
 
         for (Object itemObj : table.getVisibleItemIds()) {
             Item item = table.getItem(itemObj);

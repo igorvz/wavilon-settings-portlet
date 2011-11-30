@@ -55,6 +55,8 @@ public class VirtualNumbersForm extends GeneralForm {
 
                     if (!recordCalls) {
                         virtualNumber.setRecordCalls(null);
+                    }else {
+                        virtualNumber.setRecordCalls("yes");
                     }
 
                     virtualNumber.setName(name);

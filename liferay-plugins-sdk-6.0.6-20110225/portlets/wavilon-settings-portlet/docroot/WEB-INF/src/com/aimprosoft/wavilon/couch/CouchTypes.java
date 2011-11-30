@@ -7,6 +7,7 @@ public enum CouchTypes {
     queue,
     extension,
     recording,
-    contact
+    contact,
+    account
 
 }

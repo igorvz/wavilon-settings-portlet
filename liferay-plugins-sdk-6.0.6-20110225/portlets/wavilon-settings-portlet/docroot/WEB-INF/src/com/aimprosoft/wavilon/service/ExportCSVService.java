@@ -8,5 +8,5 @@ import java.io.Writer;
 import java.util.ResourceBundle;
 
 public interface ExportCSVService {
-    void exportTableData(Table table,  Writer writer, ResourceBundle bundle) throws IOException;
+    void exportTableData(Table table,  Writer writer, ResourceBundle bundle, String tableCaption) throws IOException;
 }

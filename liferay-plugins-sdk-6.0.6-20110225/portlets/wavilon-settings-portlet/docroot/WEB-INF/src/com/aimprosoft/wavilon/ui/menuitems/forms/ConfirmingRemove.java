@@ -4,6 +4,7 @@ import com.aimprosoft.wavilon.couch.CouchTypes;
 import com.aimprosoft.wavilon.service.AllPhoneNumbersDatabaseService;
 import com.aimprosoft.wavilon.service.ExtensionDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
+import com.aimprosoft.wavilon.util.FormatUtil;
 import com.aimprosoft.wavilon.util.LayoutUtil;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
@@ -27,7 +28,7 @@ public class ConfirmingRemove extends Window {
         setModal(true);
         center();
         setWidth("320px");
-        setHeight("180px");
+        setHeight("190px");
 
         VerticalLayout mainLayout = new VerticalLayout();
         mainLayout.setWidth(290, Sizeable.UNITS_PIXELS);
@@ -53,8 +54,7 @@ public class ConfirmingRemove extends Window {
                 close();
             }
         });
-        buttons.addComponent(cancel);
-        cancel.setHeight(40, Sizeable.UNITS_PIXELS);
+
 
         Button ok = new Button(bundle.getString("wavilon.button.ok"));
         ok.addListener(new Button.ClickListener() {
@@ -88,19 +88,22 @@ public class ConfirmingRemove extends Window {
             }
         });
 
-        buttons.addComponent(cancel);
         ok.addStyleName("saveButton");
         ok.setHeight(40, Sizeable.UNITS_PIXELS);
-
         buttons.addComponent(ok);
+
+        cancel.addStyleName("cancelButton ");
+        cancel.setHeight(40, Sizeable.UNITS_PIXELS);
+        buttons.addComponent(cancel);
+
 
         return buttons;
     }
 
     public void setNumbersLocator(String numbersId, Object type) {
-        if (type.equals(CouchTypes.startnode)) {
+        if (FormatUtil.isSameType(type, CouchTypes.startnode)) {
             this.virtualNumbersLocator = numbersId;
-        } else if ((type.equals(CouchTypes.service))) {
+        } else if (FormatUtil.isSameType(type, CouchTypes.service)) {
             this.phoneNumbersLocator = numbersId;
         }
     }

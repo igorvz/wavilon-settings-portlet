@@ -54,6 +54,8 @@ public class PhoneNumbersForm extends GeneralForm {
 
                     if (!recordCalls) {
                         phoneNumber.setRecordCalls(null);
+                    }else {
+                        phoneNumber.setRecordCalls("yes");
                     }
 
                     phoneNumber.setLocator(number);

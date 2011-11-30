@@ -31,43 +31,34 @@ public class LayoutUtil {
         VerticalLayout head = new VerticalLayout();
         head.setWidth(100, Sizeable.UNITS_PERCENTAGE);
         Label headLabel;
-        GeneralForm form = null;
+        GeneralForm form = getGeneralForm(type, bundle, table);
         StringBuilder addButtonCaption = new StringBuilder(bundle.getString("wavilon.button.add")).append(" ");
         String tableCaption = "";
 
-        if (type.toString().equals("agent")) {
+        if (FormatUtil.isSameType(type, CouchTypes.agent)) {
             tableCaption = bundle.getString("wavilon.menuitem.agents");
             addButtonCaption.append(bundle.getString("wavilon.menuitem.agent"));
-            form = new AgentsForm(bundle, table);
-
-        } else if (type.toString().equals("extension")) {
+        } else if (FormatUtil.isSameType(type, CouchTypes.extension)) {
             tableCaption = (bundle.getString("wavilon.menuitem.extensions"));
             addButtonCaption.append(bundle.getString("wavilon.menuitem.extension"));
-            form = new ExtensionForm(bundle, table);
-
-        } else if (type.toString().equals("recording")) {
+        } else if (FormatUtil.isSameType(type, CouchTypes.recording)) {
             tableCaption = bundle.getString("wavilon.menuitem.recordings");
             addButtonCaption.append(bundle.getString("wavilon.menuitem.recording"));
-            form = new RecordingsForm(bundle, table);
-
-        } else if (type.toString().equals("queue")) {
+        } else if (FormatUtil.isSameType(type, CouchTypes.queue)) {
             tableCaption = bundle.getString("wavilon.menuitem.queues");
             addButtonCaption.append(bundle.getString("wavilon.menuitem.queue"));
-            form = new QueuesForm(bundle, table);
-
-        } else if (type.toString().equals("startnode")) {
+        } else if (FormatUtil.isSameType(type, CouchTypes.startnode)) {
             tableCaption = bundle.getString("wavilon.menuitem.virtualnumbers");
             addButtonCaption.append(bundle.getString("wavilon.menuitem.virtualnumber"));
-            form = new VirtualNumbersForm(bundle, table);
-
-        } else if (type.toString().equals("contact")) {
+        } else if (FormatUtil.isSameType(type, CouchTypes.contact)) {
             tableCaption = bundle.getString("wavilon.menuitem.contacts");
             addButtonCaption.append(bundle.getString("wavilon.menuitem.contacts"));
-            form = new ContactsForm(bundle, table);
-        } else if (type.toString().equals("service")) {
+        } else if (FormatUtil.isSameType(type, CouchTypes.service)) {
             tableCaption = bundle.getString("wavilon.menuitem.phonenumbers");
             addButtonCaption.append(bundle.getString("wavilon.menuitem.phonenumber"));
-            form = new PhoneNumbersForm(bundle, table);
+        } else if (FormatUtil.isSameType(type, CouchTypes.account)) {
+            tableCaption = bundle.getString("wavilon.menuitem.account");
+            addButtonCaption.append(bundle.getString("wavilon.menuitem.account"));
         }
 
         headLabel = new Label(tableCaption);
@@ -174,16 +165,17 @@ public class LayoutUtil {
             }
         };
 
-        TextField filterField = new TextField();
-        filterField.setInputPrompt("Search " + tableCaption.toLowerCase() + "...");
-        filterField.addListener((TextChangeListener) listener);
+        TextField searchField = new TextField();
+        searchField.setInputPrompt("Search " + tableCaption.toLowerCase() + "...");
+        searchField.addListener((TextChangeListener) listener);
+        searchField.addStyleName("searchField");
 
         HorizontalLayout headButtons = createHeadButtons(addButtonCaption, table, window, form, tableCaption, bundle, type);
 
-        secondRow.addComponent(filterField);
+        secondRow.addComponent(searchField);
         secondRow.addComponent(headButtons);
         secondRow.setHeight("69px");
-        secondRow.setComponentAlignment(filterField, Alignment.MIDDLE_LEFT);
+        secondRow.setComponentAlignment(searchField, Alignment.MIDDLE_LEFT);
         secondRow.setComponentAlignment(headButtons, Alignment.MIDDLE_RIGHT);
         return secondRow;
     }
@@ -213,7 +205,7 @@ public class LayoutUtil {
                 StringWriter stringWriter = new StringWriter();
 
                 try {
-                    exportCSVService.exportTableData(table, stringWriter, resourceBundle);
+                    exportCSVService.exportTableData(table, stringWriter, resourceBundle, tableCaption);
                 } catch (IOException ignored) {
                 }
 
@@ -240,22 +232,24 @@ public class LayoutUtil {
         }
     }
 
-    public static boolean setTableBackground(Table table, Object contentType) {
+    public static boolean setTableBackground(Table table, Object type) {
         if (0 == table.getContainerDataSource().getItemIds().size()) {
-            if (contentType.equals(CouchTypes.agent) || contentType.equals(CouchTypes.agent.toString())) {
+            if (FormatUtil.isSameType(type, CouchTypes.agent)) {
                 table.addStyleName("agentTable");
-            } else if (contentType.equals(CouchTypes.extension) || contentType.equals(CouchTypes.extension.toString())) {
+            } else if (FormatUtil.isSameType(type, CouchTypes.extension)) {
                 table.addStyleName("extensionTable");
-            } else if (contentType.equals(CouchTypes.recording) || contentType.equals(CouchTypes.recording.toString())) {
+            } else if (FormatUtil.isSameType(type, CouchTypes.recording)) {
                 table.addStyleName("recordingTable");
-            } else if (contentType.equals(CouchTypes.queue) || contentType.equals(CouchTypes.queue.toString())) {
+            } else if (FormatUtil.isSameType(type, CouchTypes.queue)) {
                 table.addStyleName("queueTable");
-            } else if (contentType.equals(CouchTypes.startnode) || contentType.equals(CouchTypes.startnode.toString())) {
+            } else if (FormatUtil.isSameType(type, CouchTypes.startnode)) {
                 table.addStyleName("virtualNumberTable");
-            } else if (contentType.equals(CouchTypes.service) || contentType.equals(CouchTypes.service.toString())) {
+            } else if (FormatUtil.isSameType(type, CouchTypes.service)) {
                 table.addStyleName("phoneNumberTable");
-            } else if (contentType.equals(CouchTypes.contact) || contentType.equals(CouchTypes.contact.toString())) {
-                table.addStyleName("contactTable-");
+            } else if (FormatUtil.isSameType(type, CouchTypes.contact)) {
+                table.addStyleName("contactTable");
+            } else if (FormatUtil.isSameType(type, CouchTypes.account)) {
+                table.addStyleName("accountTable");
             }
 
             return true;
@@ -265,16 +259,13 @@ public class LayoutUtil {
             table.removeStyleName("extensionTable");
             table.removeStyleName("recordingTable");
             table.removeStyleName("queueTable");
-            table.removeStyleName("contactTable");
-            table.removeStyleName("phoneNumberTable");
             table.removeStyleName("virtualNumberTable");
+            table.removeStyleName("phoneNumberTable");
+            table.removeStyleName("contactTable");
+            table.removeStyleName("accountTable");
 
             return false;
         }
-    }
-
-    public static void setTableWidth(Table table, Object contentType) {
-        setTableWidth(table, contentType, null);
     }
 
     public static void setTableWidth(Table table, Object contentType, Map<String, Integer> nonstandardColumn) {
@@ -295,21 +286,22 @@ public class LayoutUtil {
         setTableBackground(table, contentType);
     }
 
-    public static GeneralForm getGeneralForm(Object couchType, ResourceBundle bundle, Table table) {
-        String type = couchType.toString();
+    public static GeneralForm getGeneralForm(Object type, ResourceBundle bundle, Table table) {
 
-        if (type.equals(CouchTypes.startnode.toString())) {
+        if (FormatUtil.isSameType(type, CouchTypes.startnode)) {
             return new VirtualNumbersForm(bundle, table);
-        } else if (type.equals(CouchTypes.service.toString())) {
+        } else if (FormatUtil.isSameType(type, CouchTypes.service)) {
             return new PhoneNumbersForm(bundle, table);
-        } else if (type.equals(CouchTypes.agent.toString())) {
+        } else if (FormatUtil.isSameType(type, CouchTypes.agent)) {
             return new AgentsForm(bundle, table);
-        } else if (type.equals(CouchTypes.queue.toString())) {
+        } else if (FormatUtil.isSameType(type, CouchTypes.queue)) {
             return new QueuesForm(bundle, table);
-        } else if (type.equals(CouchTypes.extension.toString())) {
+        } else if (FormatUtil.isSameType(type, CouchTypes.extension)) {
             return new ExtensionForm(bundle, table);
-        } else if (type.equals(CouchTypes.recording.toString())) {
+        } else if (FormatUtil.isSameType(type, CouchTypes.recording)) {
             return new RecordingsForm(bundle, table);
+        }else if (FormatUtil.isSameType(type, CouchTypes.account)) {
+            return new AccountsForm(bundle, table);
         } else {
             return new ContactsForm(bundle, table);
         }

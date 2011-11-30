@@ -25,6 +25,7 @@ public class SettingsPage extends VerticalLayout {
         styles.add("extensions");
         styles.add("recordings");
         styles.add("contacts");
+        styles.add("accounts");
     }
 
     public SettingsPage(final ResourceBundle bundle) {
@@ -179,6 +180,21 @@ public class SettingsPage extends VerticalLayout {
             }
         });
 
+        Button account = new NativeButton(bundle.getString("wavilon.menuitem.account"));
+        account.addStyleName("accountsButton");
+        account.addListener(new Button.ClickListener() {
+            public void buttonClick(Button.ClickEvent event) {
+                Button button = event.getButton();
+                AccountContent accountContent = new AccountContent(bundle);
+
+                assignActiveButton(button);
+
+                detailsContent.removeAllComponents();
+                detailsContent.addComponent(accountContent);
+                accountContent.init();
+            }
+        });
+
         leftColumn.addComponent(phoneNumbers);
         leftColumn.addComponent(virtualNumbers);
         leftColumn.addComponent(queues);
@@ -186,6 +202,7 @@ public class SettingsPage extends VerticalLayout {
         leftColumn.addComponent(extensions);
         leftColumn.addComponent(recordings);
         leftColumn.addComponent(contacts);
+        leftColumn.addComponent(account);
     }
 
     private void assignActiveButton(Button button) {
@@ -202,6 +219,8 @@ public class SettingsPage extends VerticalLayout {
             button.addStyleName("extensionsButtonSelect");
         } else if ((bundle.getString("wavilon.menuitem.recordings")).equals(button.getCaption())){
             button.addStyleName("recordingsButtonSelect");
+        } else if ((bundle.getString("wavilon.menuitem.account")).equals(button.getCaption())){
+            button.addStyleName("accountsButtonSelect");
         }else {
             button.addStyleName("contactsButtonSelect");
         }
