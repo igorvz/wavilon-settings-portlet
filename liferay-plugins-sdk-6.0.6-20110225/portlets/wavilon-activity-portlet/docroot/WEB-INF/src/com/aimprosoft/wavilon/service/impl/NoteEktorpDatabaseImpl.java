@@ -18,7 +18,7 @@ import java.util.Map;
 public class NoteEktorpDatabaseImpl extends AbstractViewEntityService implements NoteDatabaseService {
 
     @Autowired
-    @Qualifier("pushtestDatabaseConnector")
+    @Qualifier("notesDatabaseConnector")
     private CouchDbConnector connector;
 
     private Note getNote(String id) throws IOException {
@@ -39,8 +39,8 @@ public class NoteEktorpDatabaseImpl extends AbstractViewEntityService implements
     @Override
     public List<CouchModel> getAllNote() throws IOException {
         ViewQuery query = new ViewQuery()
-                .designDocId(functions.getPushTestDesignDocument())
-                .viewName(functions.getFunctionPushTestAllNotes());
+                .designDocId(functions.getNotesTestDesignDocument())
+                .viewName(functions.getFunctionNodesTestAllNodes());
 
         return getCouchModelList(query);
     }
@@ -56,8 +56,8 @@ public class NoteEktorpDatabaseImpl extends AbstractViewEntityService implements
     @Override
     public List<CouchModel> getAllUsersCouchModelNote(Long organizationId) throws IOException {
         ViewQuery query = new ViewQuery()
-                .designDocId(functions.getPushTestDesignDocument())
-                .viewName(functions.getFunctionPushTestFilterNotes())
+                .designDocId(functions.getNotesTestDesignDocument())
+                .viewName(functions.getFunctionNodesTestFilterAllNodes())
                 .key(organizationId);
 
         return getCouchModelList(query);

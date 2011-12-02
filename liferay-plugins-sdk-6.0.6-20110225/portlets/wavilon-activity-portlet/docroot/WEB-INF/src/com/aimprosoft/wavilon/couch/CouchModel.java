@@ -5,7 +5,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.util.Map;
 
-@JsonIgnoreProperties(value = {"id", "liferayUserId", "liferayOrganizationId", "liferayPortalId", "revision", "attachments"}, ignoreUnknown = true)
+@JsonIgnoreProperties(value = {"id", "liferayUserId", "liferayOrganizationId", "liferayPortalId", "revision", "attachments", "cdrId"}, ignoreUnknown = true)
 //PLEASE NOTE:
 // 1. Annotation overrides in child classes
 // 2. Do not ignore properties, where field name equals to JSON name
@@ -36,6 +36,9 @@ public class CouchModel{
 
     @JsonProperty("_attachments")
     private Map<String, Attachment> attachments;
+
+   @JsonProperty("cdr_id")
+   private String cdrId;
 
     public String getId() {
         return id;
@@ -107,6 +110,14 @@ public class CouchModel{
 
     public void setAttachments(Map<String, Attachment> attachments) {
         this.attachments = attachments;
+    }
+
+    public String getCdrId() {
+        return cdrId;
+    }
+
+    public void setCdrId(String cdrId) {
+        this.cdrId = cdrId;
     }
 
     @Override

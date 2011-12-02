@@ -8,20 +8,24 @@
        default-autowire="no">
 
     <bean id="pushtestDatabaseConnector" class="org.ektorp.impl.StdCouchDbConnector">
-        <constructor-arg value="pushtest"/>
+        <constructor-arg value="${db.name.push}"/>
+        <constructor-arg ref="couchDbInstance"/>
+    </bean>
+
+    <bean id="notesDatabaseConnector" class="org.ektorp.impl.StdCouchDbConnector">
+        <constructor-arg value="${db.name.notes}"/>
+        <constructor-arg ref="couchDbInstance"/>
+    </bean>
+
+    <bean id="couchDbInstance" class="org.ektorp.impl.StdCouchDbInstance">
         <constructor-arg>
-            <bean id="couchDbInstance" class="org.ektorp.impl.StdCouchDbInstance">
-                <constructor-arg>
-                    <bean class="org.ektorp.spring.HttpClientFactoryBean">
-                        <property name="url" value="http://${db.host}:${db.port}"/>
-                        <property name="connectionTimeout" value="15000"/>
-                        <property name="maxConnections" value="100"/>
-                    </bean>
-                </constructor-arg>
+            <bean class="org.ektorp.spring.HttpClientFactoryBean">
+                <property name="url" value="http://${db.host}:${db.port}"/>
+                <property name="connectionTimeout" value="15000"/>
+                <property name="maxConnections" value="100"/>
             </bean>
         </constructor-arg>
     </bean>
-
 
     <context:component-scan base-package="com.aimprosoft.wavilon.service.impl"/>
 </beans>

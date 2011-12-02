@@ -1,27 +1,36 @@
 package com.aimprosoft.wavilon.ui.menuitems;
 
 import com.aimprosoft.wavilon.application.GenericPortletApplication;
+import com.aimprosoft.wavilon.model.CdrModel;
 import com.aimprosoft.wavilon.model.Person;
 import com.aimprosoft.wavilon.service.AvatarService;
+import com.aimprosoft.wavilon.service.CdrEktorpDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
+import com.liferay.portal.model.User;
+import com.liferay.portal.service.UserLocalServiceUtil;
+import com.liferay.portal.util.PortalUtil;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.Reindeer;
+import org.vaadin.artur.icepush.ICEPush;
 
 import javax.portlet.PortletRequest;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.io.IOException;
+import java.util.*;
 
 public class CallsContent extends Panel {
     private AvatarService avatarService = ObjectFactory.getBean(AvatarService.class);
+    private CdrEktorpDatabaseService cdrService = ObjectFactory.getBean(CdrEktorpDatabaseService.class);
     private ResourceBundle bundle;
     private PortletRequest request;
     private VerticalLayout mainLayout;
     private VerticalLayout itemContent;
     private CategoryFilter categoryFilter;
     private String headCaption;
+    private ICEPush icePush;
+    private CdrModel model = null;
+    private List<String> globalStoreId = new ArrayList<String>();
+
     //todo remove
     private String[] fnames = {"Peter", "Alice", "Joshua", "Mike", "Olivia",
             "Nina", "Alex", "Rita", "Dan", "Umberto", "Henrik", "Rene",
@@ -39,13 +48,13 @@ public class CallsContent extends Panel {
     private String[] avatarNames = {"face1.png", "face2.png", "face3.png", "face4.png"};
 
 
-
-    private Person createRandomPerson() {
+    private Person createRandomPerson(String id) {
         Person person = new Person();
         person.setName(fnames[(int) (fnames.length * Math.random())]);
         person.setSurname(lnames[(int) (lnames.length * Math.random())]);
         person.setTime(times[(int) (times.length * Math.random())]);
         person.setAvatarName(avatarNames[(int) (avatarNames.length * Math.random())]);
+        person.setId(id);
 
         List<String> personsCategories = new LinkedList<String>();
         for (int i = 0; i < 4; i++) {
@@ -65,7 +74,7 @@ public class CallsContent extends Panel {
 
         List<String> personsCategories = new LinkedList<String>();
         for (int i = 0; i < 4; i++) {
-            personsCategories.add(categories[i+1]);
+            personsCategories.add(categories[i + 1]);
         }
         person.setCategories(personsCategories);
 
@@ -80,6 +89,9 @@ public class CallsContent extends Panel {
         request = ((GenericPortletApplication) getApplication()).getPortletRequest();
         this.categoryFilter = categoryFilter;
         this.headCaption = headCaption;
+
+        icePush = new ICEPush();
+        getApplication().getMainWindow().addComponent(icePush);
 
         setSizeFull();
         setStyleName(Reindeer.PANEL_LIGHT);
@@ -111,26 +123,27 @@ public class CallsContent extends Panel {
         listViewLayout.addComponent(listViewButtons);
         listViewLayout.setComponentAlignment(listViewButtons, Alignment.TOP_RIGHT);
 
-        createMainContent();
+        new PushThread().start();
     }
 
-    private void createMainContent() {
+    private void createMainContent(String id) {
         itemContent = new VerticalLayout();
         mainLayout.addComponent(itemContent);
 
         //todo iteration adding cells from DB
-        for (int i = 0; i < 2; i++) {
-            DialogCell dialogCell = new DialogCell(bundle);
-            itemContent.addComponent(dialogCell);
-            itemContent.addStyleName("itemStyle");
-            dialogCell.init(createRandomPerson());
-        }
+        DialogCell dialogCell = new DialogCell(bundle);
+//        DialogCell dialogCell = new DialogCell(bundle, request);
+        itemContent.addComponent(dialogCell);
+        itemContent.addStyleName("itemStyle");
+        dialogCell.init(createRandomPerson(id));
+
     }
 
     private HorizontalLayout createListViewPart() {
         HorizontalLayout listViewPart = new HorizontalLayout();
         Label listViewLabel = new Label(bundle.getString("wavilon.activity.label.list.view"));
 
+        final Button createCdrModel = new Button("Create cdr model");
         final Button avatarButton = new NativeButton();
         final Button nonAvatarButton = new NativeButton();
         avatarButton.setStyleName("avatarButtonSelect");
@@ -140,65 +153,158 @@ public class CallsContent extends Panel {
         Button.ClickListener avatarButtonListener = new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
 
-                getWindow().executeJavaScript("showImgBox()");
+                try {
+                    getWindow().executeJavaScript("showImgBox()");
 
-                Iterator<Component> componentIterator = itemContent.getComponentIterator();
-                while (componentIterator.hasNext()) {
-                    DialogCell dialogCell = (DialogCell) componentIterator.next();
-                    dialogCell.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-                    Iterator<Component> dialogCellComponentIterator = dialogCell.getComponentIterator();
-                    while (dialogCellComponentIterator.hasNext()) {
-                        Component component = dialogCellComponentIterator.next();
-                        if (component instanceof GridLayout) {
-                            component.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+                    Iterator<Component> componentIterator = itemContent.getComponentIterator();
+                    while (componentIterator.hasNext()) {
+                        DialogCell dialogCell = (DialogCell) componentIterator.next();
+                        dialogCell.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+                        Iterator<Component> dialogCellComponentIterator = dialogCell.getComponentIterator();
+                        while (dialogCellComponentIterator.hasNext()) {
+                            Component component = dialogCellComponentIterator.next();
+                            if (component instanceof GridLayout) {
+                                component.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+                            }
                         }
                     }
+
+                    nonAvatarButton.removeStyleName("nonAvatarButtonSelect");
+                    avatarButton.removeStyleName("avatarButtonNonSelect");
+                    nonAvatarButton.setStyleName("nonAvatarButtonNonSelect");
+                    avatarButton.setStyleName("avatarButtonSelect");
+                } catch (Exception ignore) {
                 }
-
-                nonAvatarButton.removeStyleName("nonAvatarButtonSelect");
-                avatarButton.removeStyleName("avatarButtonNonSelect");
-                nonAvatarButton.setStyleName("nonAvatarButtonNonSelect");
-                avatarButton.setStyleName("avatarButtonSelect");
-
             }
         };
 
         Button.ClickListener nonAvatarButtonListener = new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
+                try {
+                    getWindow().executeJavaScript("hideImgBox()");
 
-                getWindow().executeJavaScript("hideImgBox()");
-
-                Iterator<Component> componentIterator = itemContent.getComponentIterator();
-                while (componentIterator.hasNext()) {
-                    DialogCell dialogCell = (DialogCell) componentIterator.next();
-                    dialogCell.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-                    Iterator<Component> dialogCellComponentIterator = dialogCell.getComponentIterator();
-                    while (dialogCellComponentIterator.hasNext()) {
-                        Component component = dialogCellComponentIterator.next();
-                        if (component instanceof GridLayout) {
-                            component.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+                    Iterator<Component> componentIterator = itemContent.getComponentIterator();
+                    while (componentIterator.hasNext()) {
+                        DialogCell dialogCell = (DialogCell) componentIterator.next();
+                        dialogCell.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+                        Iterator<Component> dialogCellComponentIterator = dialogCell.getComponentIterator();
+                        while (dialogCellComponentIterator.hasNext()) {
+                            Component component = dialogCellComponentIterator.next();
+                            if (component instanceof GridLayout) {
+                                component.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+                            }
                         }
                     }
-                }
 
-                nonAvatarButton.removeStyleName("nonAvatarButtonNonSelect");
-                avatarButton.removeStyleName("avatarButtonSelect");
-                nonAvatarButton.setStyleName("nonAvatarButtonSelect");
-                avatarButton.setStyleName("avatarButtonNonSelect");
+                    nonAvatarButton.removeStyleName("nonAvatarButtonNonSelect");
+                    avatarButton.removeStyleName("avatarButtonSelect");
+                    nonAvatarButton.setStyleName("nonAvatarButtonSelect");
+                    avatarButton.setStyleName("avatarButtonNonSelect");
+                } catch (Exception ignore) {
+                }
             }
         };
 
+        createCdrModel.addListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent event) {
+                model = createCdrModelTest();
+                try {
+                    cdrService.addCdrModel(model);
+                } catch (IOException e) {
+                }
+            }
+        });
 
         avatarButton.addListener(avatarButtonListener);
         nonAvatarButton.addListener(nonAvatarButtonListener);
-
 
         listViewPart.addComponent(listViewLabel);
         listViewPart.setComponentAlignment(listViewLabel, Alignment.MIDDLE_CENTER);
         listViewPart.addComponent(avatarButton);
         listViewPart.addComponent(nonAvatarButton);
 
+        listViewPart.addComponent(createCdrModel);
+
         return listViewPart;
     }
 
+    private CdrModel createCdrModelTest() {
+
+        CdrModel model = new CdrModel();
+        model.setId(UUID.randomUUID().toString());
+
+        while (model.getLiferayPortalId() == null || model.getLiferayUserId() == null || model.getLiferayOrganizationId() == null) {
+            try {
+                model.setLiferayUserId(PortalUtil.getUserId(request));
+                model.setLiferayOrganizationId(getOrganizationId(request));
+                model.setLiferayPortalId(PortalUtil.getCompany(request).getWebId());
+            } catch (Exception ignore) {
+            }
+        }
+
+        model.setType("cdr");
+        model.setCalldate("2011-11-03 19:49:41+01");
+        model.setClidnum(916595811);
+        model.setDuration(515.325853);
+        model.setRecorded(false);
+        model.setUniqueid("arcas-1320346181.8545");
+
+        return model;
+    }
+
+    public class PushThread extends Thread {
+        @Override
+        public void run() {
+
+            while (true) {
+
+                List<String> idAllModels = cdrService.getModelsId();
+
+                if (!globalStoreId.containsAll(idAllModels)) {
+
+                    List<String> localStore = new ArrayList<String>();
+
+                    localStore.addAll(globalStoreId);
+
+                    idAllModels.removeAll(globalStoreId);
+
+                    globalStoreId.clear();
+                    globalStoreId.addAll(localStore);
+                    globalStoreId.addAll(idAllModels);
+
+                    for (String id : idAllModels) {
+                        createMainContent(id);
+                    }
+
+                    localStore.clear();
+                    idAllModels.clear();
+
+                    icePush.push();
+                }
+
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                }
+            }
+        }
+    }
+
+    public static Long getOrganizationId(PortletRequest request) {
+        try {
+            Long userId = PortalUtil.getUserId(request);
+            Long companyId = PortalUtil.getDefaultCompanyId();
+            User currentUser = UserLocalServiceUtil.getUserById(companyId, userId);
+            long organizationIds[] = currentUser.getOrganizationIds();
+
+            if (organizationIds.length != 0) {
+                return organizationIds[0];
+            } else {
+                return -1l;
+            }
+        } catch (Exception ignored) {
+            return -1l;
+        }
+    }
 }

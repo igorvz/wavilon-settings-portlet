@@ -54,21 +54,22 @@ public class ActivityPage extends VerticalLayout {
 
         addButtons();
 
-//        getWindow().executeJavaScript("blockPage()");
+        getWindow().executeJavaScript("blockPage()");
 
-//        detailsContent.removeAllComponents();
-//        CallsContent callsContent = new CallsContent(bundle);
-//        detailsContent.addComponent(callsContent);
-//        callsContent.init(null, bundle.getString("wavilon.activity.menuitem.real.time.calls.feed"));
+        detailsContent.removeAllComponents();
+        CallsContent callsContent = new CallsContent(bundle);
+        detailsContent.addComponent(callsContent);
+        callsContent.init(null, bundle.getString("wavilon.activity.menuitem.real.time.calls.feed"));
 
-//        getWindow().executeJavaScript("unblockPage()");
+        getWindow().executeJavaScript("unblockPage()");
 
     }
 
     private void addButtons() {
 
         Button realTimeCallsFeed = new NativeButton(bundle.getString("wavilon.activity.menuitem.real.time.calls.feed"));
-        realTimeCallsFeed.addStyleName("button");
+        realTimeCallsFeed.addStyleName("buttonSelect");
+//        realTimeCallsFeed.addStyleName("button");
         realTimeCallsFeed.addListener(new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
 

@@ -8,6 +8,7 @@ public class Person {
     private List<String> categories;
     private String time;
     private String avatarName;
+    private String id;
 
     public Person() {
     }
@@ -50,5 +51,13 @@ public class Person {
 
     public void setAvatarName(String avatarName) {
         this.avatarName = avatarName;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

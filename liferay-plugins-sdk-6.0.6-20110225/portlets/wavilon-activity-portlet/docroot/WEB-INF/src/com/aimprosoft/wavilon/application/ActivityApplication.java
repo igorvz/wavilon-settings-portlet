@@ -32,7 +32,6 @@ public class ActivityApplication extends GenericPortletApplication {
 
             ThemeDisplay themeDisplay = (ThemeDisplay) renderRequest.getAttribute(WebKeys.THEME_DISPLAY);
 
-
             //get liferay locale
             Locale portalLocale = themeDisplay.getLocale();
             //window locale will be used everywhere

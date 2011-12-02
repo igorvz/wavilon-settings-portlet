@@ -34,9 +34,9 @@ public class DialogCell extends HorizontalLayout {
     private VerticalLayout chat;
     private ICEPush icePush;
 
+
     public DialogCell(ResourceBundle bundle) {
         this.bundle = bundle;
-
     }
 
     public void init(Person person) {
@@ -45,10 +45,11 @@ public class DialogCell extends HorizontalLayout {
         request = ((GenericPortletApplication) getApplication()).getPortletRequest();
 
         initLayout();
-        new BackgroundThread().start();
+//        new BackgroundThread().start();
     }
 
     private void initLayout() {
+
         setStyleName("item");
         setWidth(100, Sizeable.UNITS_PERCENTAGE);
 
@@ -164,6 +165,7 @@ public class DialogCell extends HorizontalLayout {
                 note.setUpdateDate(cal.getTime());
 
                 CouchModel couchModel = CouchModelUtil.newCouchModel(request, "note");
+                couchModel.setCdrId(person.getId());
 
                 try {
                     noteService.addNote(note, couchModel);
@@ -171,12 +173,10 @@ public class DialogCell extends HorizontalLayout {
                 } catch (IOException ignored) {
                 }
 
-
                 createNoteLayout(chat, couchModel);
                 textArea.setValue("");
 
                 count.setValue(String.valueOf(notes.size()));
-
             }
         });
         newNote.addComponent(addNoteButton, 4, 2);
@@ -341,7 +341,6 @@ public class DialogCell extends HorizontalLayout {
         }
     }
 
-
     public class BackgroundThread extends Thread {
 
         @Override
@@ -367,16 +366,12 @@ public class DialogCell extends HorizontalLayout {
                 icePush.push();
 
             }
-
         }
     }
-
 
     public void repaint() {
 
         chat.removeAllComponents();
         fillChatLayout(chat);
-
     }
-
 }
