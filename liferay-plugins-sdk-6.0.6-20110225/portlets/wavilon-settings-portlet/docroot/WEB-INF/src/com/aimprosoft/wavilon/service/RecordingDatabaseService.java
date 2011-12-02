@@ -6,11 +6,9 @@ import com.aimprosoft.wavilon.model.Recording;
 import java.io.IOException;
 import java.util.List;
 
-public interface RecordingDatabaseService {
+public interface RecordingDatabaseService extends GeneralService {
 
     Recording getRecording(CouchModel model) throws IOException;
-
-    CouchModel getModel(String id) throws IOException;
 
     List<Recording> getAllRecording() throws IOException;
 

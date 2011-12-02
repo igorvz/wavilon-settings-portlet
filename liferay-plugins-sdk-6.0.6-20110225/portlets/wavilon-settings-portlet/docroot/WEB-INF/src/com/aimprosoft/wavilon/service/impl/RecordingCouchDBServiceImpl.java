@@ -6,6 +6,7 @@ import com.aimprosoft.wavilon.service.RecordingDatabaseService;
 import com.fourspaces.couchdb.Document;
 import com.fourspaces.couchdb.View;
 import com.fourspaces.couchdb.ViewResults;
+import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,12 +25,11 @@ public class RecordingCouchDBServiceImpl extends AbstractViewEntityService imple
     private ObjectMapper objectMapper;
 
     private Recording getRecording(String id) throws IOException {
-        CouchModel model = getModel(id);
-        return objectMapper.convertValue(model.getProperties(), Recording.class);
+        return getRecording(getModel(id));
     }
 
     public Recording getRecording(CouchModel model) throws IOException {
-        return objectMapper.convertValue(model.getProperties(), Recording.class);
+        return objectMapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false).convertValue(model.getProperties(), Recording.class);
     }
 
     public CouchModel getModel(String id) throws IOException {
@@ -51,10 +51,7 @@ public class RecordingCouchDBServiceImpl extends AbstractViewEntityService imple
 
     public void updateRecording(Recording recording, CouchModel model) throws IOException {
         Map<String, Object> properties = objectMapper.convertValue(recording, Map.class);
-
-        model.setProperties(properties);
-
-        updateCouchModel(model);
+        updateCouchModel(model, properties);
     }
 
     public List<CouchModel> getAllUsersCouchModelToRecording(Long organizationId, boolean attachment) throws IOException {

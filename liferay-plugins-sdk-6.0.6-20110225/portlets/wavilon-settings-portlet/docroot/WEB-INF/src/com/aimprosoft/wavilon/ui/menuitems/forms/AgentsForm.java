@@ -1,6 +1,5 @@
 package com.aimprosoft.wavilon.ui.menuitems.forms;
 
-import com.aimprosoft.wavilon.application.GenericPortletApplication;
 import com.aimprosoft.wavilon.couch.CouchModel;
 import com.aimprosoft.wavilon.couch.CouchModelLite;
 import com.aimprosoft.wavilon.couch.CouchTypes;
@@ -9,37 +8,27 @@ import com.aimprosoft.wavilon.service.AgentDatabaseService;
 import com.aimprosoft.wavilon.service.CouchModelLiteDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.util.CouchModelUtil;
-import com.vaadin.Application;
-import com.vaadin.event.ShortcutAction;
+import com.aimprosoft.wavilon.util.LayoutUtil;
 import com.vaadin.ui.*;
 
-import javax.portlet.PortletRequest;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
 
-public class AgentsForm extends AbstractForm {
+public class AgentsForm extends GeneralForm {
     private AgentDatabaseService service = ObjectFactory.getBean(AgentDatabaseService.class);
     private CouchModelLiteDatabaseService modelLiteService = ObjectFactory.getBean(CouchModelLiteDatabaseService.class);
-    private ResourceBundle bundle;
-    private PortletRequest request;
-    private Table table;
-    private Application application;
-    private CouchModel model;
     private Agent agent;
 
     public AgentsForm(ResourceBundle bundle, Table table) {
-        this.bundle = bundle;
-        this.table = table;
+        super(bundle, table);
     }
 
+    @Override
     public void init(String id, final Object itemId) {
-        removeAllComponents();
-
-        application = getApplication();
-        request = ((GenericPortletApplication) application).getPortletRequest();
-        model = createModel(id);
+        super.init(id, itemId);
+        model = createCoucModel(id, service, CouchTypes.agent);
         agent = createAgent(model);
 
         if ("-1".equals(id)) {
@@ -47,26 +36,9 @@ public class AgentsForm extends AbstractForm {
         } else {
             setCaption(bundle.getString("wavilon.form.agents.edit.agent"));
         }
-
-        VerticalLayout content = new VerticalLayout();
-        content.addStyleName("formRegion");
-
-        addComponent(content);
-
         final Form form = createForm();
-        content.addComponent(form);
 
-        HorizontalLayout buttons = createButtons(content);
-
-        Button cancel = new Button(bundle.getString("wavilon.button.cancel"), new Button.ClickListener() {
-            public void buttonClick(Button.ClickEvent event) {
-                close();
-            }
-        });
-        buttons.addComponent(cancel);
-        cancel.setClickShortcut(ShortcutAction.KeyCode.ESCAPE);
-
-        Button save = new Button(bundle.getString("wavilon.button.save"), new Button.ClickListener() {
+        initForm(form, new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
                 try {
                     form.commit();
@@ -74,8 +46,8 @@ public class AgentsForm extends AbstractForm {
                     String name = (String) form.getField("firstName").getValue();
                     String extension = null;
 
-                    if(null != form.getField("extensions").getValue()){
-                        extension = ((CouchModelLite)form.getField("extensions").getValue()).getId();
+                    if (null != form.getField("extensions").getValue()) {
+                        extension = ((CouchModelLite) form.getField("extensions").getValue()).getId();
                     }
 
                     agent.setName(name);
@@ -89,21 +61,12 @@ public class AgentsForm extends AbstractForm {
                     }
                     final Object object = table.addItem();
 
-                    Button.ClickListener listener = new Button.ClickListener() {
-                        public void buttonClick(Button.ClickEvent event) {
-
-                            table.select(object);
-                            String phoneNumbersID = (String) table.getItem(object).getItemProperty("id").getValue();
-                            ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
-                            application.getMainWindow().addWindow(confirmingRemove);
-                            confirmingRemove.init(phoneNumbersID, table);
-                        }
-                    };
-
                     table.getContainerProperty(object, bundle.getString("wavilon.table.agents.column.name")).setValue(agent.getName());
                     table.getContainerProperty(object, bundle.getString("wavilon.table.agents.column.current.extension")).setValue(form.getField("extensions").getValue());
                     table.getContainerProperty(object, "id").setValue(model.getId());
-                    table.getContainerProperty(object, "").setValue(new Button("", listener));
+                    table.getContainerProperty(object, "").setValue(createTablesEditRemoveButtons(table, object, model, null));
+
+                    LayoutUtil.setTableBackground(table, CouchTypes.agent);
 
                     getParent().getWindow().showNotification(bundle.getString("wavilon.well.done"));
                     close();
@@ -111,8 +74,6 @@ public class AgentsForm extends AbstractForm {
                 }
             }
         });
-        save.addStyleName("saveButton");
-        buttons.addComponent(save);
     }
 
     private Agent createAgent(CouchModel model) {
@@ -120,7 +81,7 @@ public class AgentsForm extends AbstractForm {
             return newAgent();
         }
         try {
-            return service.getAgent(model);
+            return getModel(model, service, Agent.class);
         } catch (Exception e) {
             return newAgent();
         }
@@ -157,10 +118,10 @@ public class AgentsForm extends AbstractForm {
 
     private CouchModelLite getCurrentExtension() {
         try {
-            if(null != model.getOutputs().get("extension")){
-            return modelLiteService.getCouchLiteModel((String) model.getOutputs().get("extension"));
-            }else {
-               return null;
+            if (null != model.getOutputs().get("extension")) {
+                return modelLiteService.getCouchLiteModel((String) model.getOutputs().get("extension"));
+            } else {
+                return null;
             }
         } catch (IOException e) {
             return null;
@@ -177,9 +138,6 @@ public class AgentsForm extends AbstractForm {
         }
 
         extensions.setNullSelectionItemId(bundle.getString("wavilon.form.select"));
-//        extensions.setRequired(true);
-//        extensions.setRequiredError(bundle.getString("wavilon.error.massage.agents.extension.empty"));
-
         return extensions;
     }
 
@@ -188,22 +146,6 @@ public class AgentsForm extends AbstractForm {
             return modelLiteService.getAllCouchModelsLite(CouchModelUtil.getOrganizationId(request), CouchTypes.extension);
         } catch (Exception e) {
             return Collections.emptyList();
-        }
-    }
-
-    private HorizontalLayout createButtons(VerticalLayout content) {
-        HorizontalLayout buttons = new HorizontalLayout();
-        content.addComponent(buttons);
-        content.setComponentAlignment(buttons, Alignment.MIDDLE_RIGHT);
-        buttons.addStyleName("buttonsPanel");
-        return buttons;
-    }
-
-    private CouchModel createModel(String id) {
-        try {
-            return service.getModel(id);
-        } catch (Exception e) {
-            return CouchModelUtil.newCouchModel(request, CouchTypes.agent);
         }
     }
 

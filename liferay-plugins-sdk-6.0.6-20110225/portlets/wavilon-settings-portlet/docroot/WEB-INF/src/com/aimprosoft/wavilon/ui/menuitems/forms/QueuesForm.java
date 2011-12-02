@@ -1,6 +1,5 @@
 package com.aimprosoft.wavilon.ui.menuitems.forms;
 
-import com.aimprosoft.wavilon.application.GenericPortletApplication;
 import com.aimprosoft.wavilon.couch.CouchModel;
 import com.aimprosoft.wavilon.couch.CouchModelLite;
 import com.aimprosoft.wavilon.couch.CouchTypes;
@@ -8,40 +7,29 @@ import com.aimprosoft.wavilon.model.Queue;
 import com.aimprosoft.wavilon.service.QueueDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.util.CouchModelUtil;
-import com.vaadin.Application;
+import com.aimprosoft.wavilon.util.LayoutUtil;
 import com.vaadin.data.validator.IntegerValidator;
-import com.vaadin.event.ShortcutAction;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 
-import javax.portlet.PortletRequest;
 import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
 
-public class QueuesForm extends AbstractForm {
-
+public class QueuesForm extends GeneralForm {
     private QueueDatabaseService service = ObjectFactory.getBean(QueueDatabaseService.class);
-    private ResourceBundle bundle;
-    private PortletRequest request;
-    private Table table;
-    private CouchModel model;
     private Queue queue;
     private Boolean oldMusicOnHold = false;
 
     public QueuesForm(final ResourceBundle bundle, Table table) {
-        this.bundle = bundle;
-        this.table = table;
+        super(bundle, table);
     }
 
+    @Override
     public void init(String id, final Object itemId) {
-        removeAllComponents();
-        final Application application = getApplication();
-        request = ((GenericPortletApplication) application).getPortletRequest();
-        model = createModel(id);
+        super.init(id, itemId);
+        model = createCoucModel(id, service, CouchTypes.queue);
         queue = createQueue(model);
 
         if ("-1".equals(id)) {
@@ -49,27 +37,9 @@ public class QueuesForm extends AbstractForm {
         } else {
             setCaption(bundle.getString("wavilon.form.queues.edit.queue"));
         }
-
-        VerticalLayout content = new VerticalLayout();
-        content.addStyleName("formRegion");
-        content.setSizeFull();
-
-        addComponent(content);
-
         final Form form = createForm();
-        content.addComponent(form);
 
-        HorizontalLayout buttons = createButtons(content);
-
-        Button cancel = new Button(bundle.getString("wavilon.button.cancel"), new Button.ClickListener() {
-            public void buttonClick(Button.ClickEvent event) {
-                close();
-            }
-        });
-        buttons.addComponent(cancel);
-        cancel.setClickShortcut(ShortcutAction.KeyCode.ESCAPE);
-
-        Button save = new Button(bundle.getString("wavilon.button.save"), new Button.ClickListener() {
+        initForm(form, new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
                 try {
                     form.commit();
@@ -99,7 +69,7 @@ public class QueuesForm extends AbstractForm {
 
                     if (!musicOnHold) {
                         queue.setMusicOnHold(null);
-                    } else if (!oldMusicOnHold){
+                    } else if (!oldMusicOnHold) {
                         queue.setMusicOnHold(musicOnHold);
                     }
 
@@ -126,22 +96,13 @@ public class QueuesForm extends AbstractForm {
 
                     final Object object = table.addItem();
 
-                    Button.ClickListener listener = new Button.ClickListener() {
-                        public void buttonClick(Button.ClickEvent event) {
-
-                            table.select(object);
-                            String phoneNumbersID = (String) table.getItem(object).getItemProperty("id").getValue();
-                            ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
-                            application.getMainWindow().addWindow(confirmingRemove);
-                            confirmingRemove.init(phoneNumbersID, table);
-                        }
-                    };
-
                     table.getContainerProperty(object, bundle.getString("wavilon.table.queues.column.name")).setValue(queue.getName());
                     table.getContainerProperty(object, bundle.getString("wavilon.table.queues.column.forward.to.on.max.time")).setValue(CouchModelUtil.getCouchModelLite(queue.getForwardToOnMaxTime(), bundle));
                     table.getContainerProperty(object, bundle.getString("wavilon.table.queues.column.forward.to.on.max.length")).setValue(CouchModelUtil.getCouchModelLite(queue.getForwardToOnMaxLength(), bundle));
                     table.getContainerProperty(object, "id").setValue(model.getId());
-                    table.getContainerProperty(object, "").setValue(new Button("", listener));
+                    table.getContainerProperty(object, "").setValue(createTablesEditRemoveButtons(table, object, model, null));
+
+                    LayoutUtil.setTableBackground(table, CouchTypes.queue);
 
                     getParent().getWindow().showNotification(bundle.getString("wavilon.well.done"));
                     close();
@@ -149,10 +110,6 @@ public class QueuesForm extends AbstractForm {
                 }
             }
         });
-        save.addStyleName("saveButton");
-        buttons.addComponent(save);
-        save.setClickShortcut(ShortcutAction.KeyCode.ENTER);
-
     }
 
     private Queue createQueue(CouchModel model) {
@@ -160,8 +117,8 @@ public class QueuesForm extends AbstractForm {
             return newQueue();
         }
         try {
-            Queue existingQueue = service.getQueue(model);
-            if (null != existingQueue.getMusicOnHold()){
+            Queue existingQueue = getModel(model, service, Queue.class);
+            if (null != existingQueue.getMusicOnHold()) {
                 oldMusicOnHold = true;
             }
             return existingQueue;
@@ -194,60 +151,28 @@ public class QueuesForm extends AbstractForm {
         //second row
         TextField maxTimeInput = new TextField();
         maxTimeInput.setWidth(150, Sizeable.UNITS_PIXELS);
-//        maxTimeInput.setRequired(true);
-//        maxTimeInput.setRequiredError(bundle.getString("wavilon.error.massage.queues.max.time.empty"));
         maxTimeInput.addValidator(new IntegerValidator(bundle.getString("wavilon.error.massage.queues.max.time.integer")));
 
         //third row
         TextField maxLengthInput = new TextField();
         maxLengthInput.setWidth(150, Sizeable.UNITS_PIXELS);
-//        maxLengthInput.setRequired(true);
-//        maxLengthInput.setRequiredError(bundle.getString("wavilon.error.massage.queues.extension.max.length.empty"));
-//        maxLengthInput.addValidator(new IntegerValidator(bundle.getString("wavilon.error.massage.queues.max.length.integer")));
 
         List<CouchModelLite> forwards = getForwards();
 
         //fourth
         ComboBox forwardToOnMaxTimeInput = new ComboBox();
         fillForward(forwards, forwardToOnMaxTimeInput);
-//        forwardToOnMaxTimeInput.setRequiredError(bundle.getString("wavilon.error.massage.queues.max.time.empty"));
 
         //fifth
         ComboBox forwardToOnMaxLengthInput = new ComboBox();
         fillForward(forwards, forwardToOnMaxLengthInput);
-//        forwardToOnMaxLengthInput.setRequiredError(bundle.getString("wavilon.error.massage.queues.max.length.empty"));
 
         //sixth
 
         CheckBox musicOnHold = new CheckBox();
 
-//        ComboBox musicOnHold = new ComboBox();
-//        musicOnHold.setWidth(230, Sizeable.UNITS_PIXELS);
-//        musicOnHold.setRequired(true);
-//        musicOnHold.setRequiredError(bundle.getString("wavilon.error.massage.queues.music.empty"));
-//        musicOnHold.setNullSelectionItemId(bundle.getString("wavilon.form.select"));
-
-
-//        List<String> musicOnHoldList = new LinkedList<String>();
-//        musicOnHoldList.add("Music 1");
-//        musicOnHoldList.add("Music 2");
-//        musicOnHoldList.add("Music 3");
-//        musicOnHoldList.add(0, bundle.getString("wavilon.form.select"));
-
-//        for (String s : musicOnHoldList) {
-//            musicOnHold.addItem(s);
-//
-//            if (null != model.getRevision()) {
-//                if (null != queue.getMusicOnHold() && queue.getMusicOnHold().equals(s)) {
-//                    musicOnHold.setValue(s);
-//                }
-//            }
-//        }
-
-
         if (null != model.getRevision()) {
             name.setValue(queue.getName());
-
 
             if (null != queue.getMaxTime()) {
                 maxTimeInput.setValue(queue.getMaxTime());
@@ -255,9 +180,14 @@ public class QueuesForm extends AbstractForm {
             if (null != queue.getMaxLength()) {
                 maxLengthInput.setValue(queue.getMaxLength());
             }
-
             if (null != queue.getMusicOnHold()) {
                 musicOnHold.setValue(true);
+            }
+            if (null != queue.getForwardToOnMaxLength()) {
+                forwardToOnMaxLengthInput.setValue(CouchModelUtil.getCouchModelLite(queue.getForwardToOnMaxLength(), bundle));
+            }
+            if (null != queue.getForwardToOnMaxTime()){
+                forwardToOnMaxTimeInput.setValue(CouchModelUtil.getCouchModelLite(queue.getForwardToOnMaxTime(), bundle));
             }
 
         }
@@ -278,25 +208,7 @@ public class QueuesForm extends AbstractForm {
             forwardTo.addItem(forward);
         }
         forwardTo.setWidth(230, Sizeable.UNITS_PIXELS);
-//        forwardTo.setRequired(true);
         forwardTo.setNullSelectionItemId(bundle.getString("wavilon.form.select"));
-    }
-
-    private HorizontalLayout createButtons(VerticalLayout content) {
-        HorizontalLayout buttons = new HorizontalLayout();
-        content.addComponent(buttons);
-        buttons.addStyleName("buttonsPanel");
-        content.setComponentAlignment(buttons, Alignment.BOTTOM_RIGHT);
-
-        return buttons;
-    }
-
-    private List<CouchModelLite> getForwards() {
-        try {
-            return CouchModelUtil.getForwards(CouchModelUtil.getOrganizationId(request));
-        } catch (Exception ignored) {
-            return Collections.emptyList();
-        }
     }
 
     private static class QueuesFormLayout extends Form {
@@ -343,14 +255,6 @@ public class QueuesForm extends AbstractForm {
             } else if (propertyId.equals("musicOnHold")) {
                 layout.addComponent(field, 1, 5, 2, 5);
             }
-        }
-    }
-
-    private CouchModel createModel(String id) {
-        try {
-            return service.getModel(id);
-        } catch (Exception e) {
-            return CouchModelUtil.newCouchModel(request, CouchTypes.queue);
         }
     }
 

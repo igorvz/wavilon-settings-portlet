@@ -18,8 +18,8 @@ public class Recording extends BaseModel {
 
     @JsonProperty("version")
     private Integer version;
-    public Recording() {
 
+    public Recording() {
     }
 
     public String getForwardTo() {

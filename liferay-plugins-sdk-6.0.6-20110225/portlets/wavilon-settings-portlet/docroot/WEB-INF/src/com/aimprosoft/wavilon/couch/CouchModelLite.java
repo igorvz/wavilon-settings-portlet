@@ -1,8 +1,11 @@
 package com.aimprosoft.wavilon.couch;
 
+import org.apache.commons.lang.StringUtils;
+
 public class CouchModelLite {
     private String id;
     private String name;
+    private String type;
 
     public CouchModelLite() {
     }
@@ -23,6 +26,14 @@ public class CouchModelLite {
         this.name = name;
     }
 
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
     @Override
     public int hashCode() {
         return id.hashCode();
@@ -30,7 +41,7 @@ public class CouchModelLite {
 
     @Override
     public boolean equals(Object obj) {
-        if (null != null && obj instanceof CouchModelLite) {
+        if (null != obj && obj instanceof CouchModelLite) {
             CouchModelLite modelLite = (CouchModelLite) obj;
             return this.id.equals(modelLite.id);
         } else return false;
@@ -38,6 +49,13 @@ public class CouchModelLite {
 
     @Override
     public String toString() {
-        return name;
+        if (null == id) {
+            return "";
+        } else if(StringUtils.isEmpty(type)){
+            return name;
+        }
+        else {
+            return name + " (" + type + ")";
+        }
     }
 }

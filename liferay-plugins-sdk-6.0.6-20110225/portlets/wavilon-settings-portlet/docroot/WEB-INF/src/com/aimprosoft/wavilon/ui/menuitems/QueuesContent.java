@@ -1,199 +1,99 @@
 package com.aimprosoft.wavilon.ui.menuitems;
 
-import com.aimprosoft.wavilon.application.GenericPortletApplication;
 import com.aimprosoft.wavilon.couch.CouchModel;
 import com.aimprosoft.wavilon.couch.CouchModelLite;
 import com.aimprosoft.wavilon.couch.CouchTypes;
 import com.aimprosoft.wavilon.model.Queue;
 import com.aimprosoft.wavilon.service.QueueDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
-import com.aimprosoft.wavilon.ui.menuitems.forms.ConfirmingRemove;
 import com.aimprosoft.wavilon.ui.menuitems.forms.QueuesDragAndDropAgents;
-import com.aimprosoft.wavilon.ui.menuitems.forms.QueuesForm;
 import com.aimprosoft.wavilon.util.CouchModelUtil;
-import com.aimprosoft.wavilon.util.LayoutUtil;
-import com.liferay.portal.util.PortalUtil;
-import com.vaadin.data.Item;
 import com.vaadin.data.Property;
-import com.vaadin.data.util.IndexedContainer;
-import com.vaadin.event.ItemClickEvent;
-import com.vaadin.terminal.Sizeable;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
 
-import javax.portlet.PortletRequest;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.ResourceBundle;
 
 public class QueuesContent extends VerticalLayout {
-    private ResourceBundle bundle;
-    private PortletRequest request;
-    private IndexedContainer tableData;
-    private List<String> tableFields;
-    private List<String> hiddenFields;
-    private Table queuesTable = new Table();
-    private QueueDatabaseService service = ObjectFactory.getBean(QueueDatabaseService.class);
-    private VerticalLayout bottom;
+    private Content content;
+    private VerticalLayout bottom = new VerticalLayout();
 
     public QueuesContent(ResourceBundle bundle) {
-        this.bundle = bundle;
+        content = new Content(bundle);
     }
 
-    public void init() {
-        request = ((GenericPortletApplication) getApplication()).getPortletRequest();
-        this.hiddenFields = fillHiddenFields();
-        this.tableFields = fillFields();
-        this.tableData = createTableData();
-
-        setSizeFull();
-        initLayout();
-        initQueuesTable();
-    }
-
-    private void initLayout() {
-        VerticalLayout top = new VerticalLayout();
-        addComponent(top);
-
-        bottom = new VerticalLayout();
+    public void init(final ResourceBundle b) {
+        addComponent(content);
+        content.init();
         addComponent(bottom);
 
-        VerticalLayout head = LayoutUtil.createHead(bundle, queuesTable, CouchTypes.queue, getWindow());
-        setWidth(100, Sizeable.UNITS_PERCENTAGE);
-        top.addComponent(head);
-
-
-        this.queuesTable.setColumnExpandRatio(bundle.getString("wavilon.table.queues.column.name"), 1);
-        this.queuesTable.setColumnExpandRatio(bundle.getString("wavilon.table.queues.column.forward.to.on.max.time"), 2);
-        this.queuesTable.setColumnExpandRatio(bundle.getString("wavilon.table.queues.column.forward.to.on.max.length"), 2);
-        this.queuesTable.setColumnWidth("", 60);
-        this.queuesTable.setContainerDataSource(this.tableData);
-        this.queuesTable.setWidth(100, Sizeable.UNITS_PERCENTAGE);
-        this.queuesTable.setHeight(207, Sizeable.UNITS_PIXELS);
-        this.queuesTable.addStyleName("queuesCustom");
-        top.addComponent(this.queuesTable);
-    }
-
-    private void initQueuesTable() {
-        this.queuesTable.setVisibleColumns(this.tableFields.toArray());
-        this.queuesTable.setSelectable(true);
-        this.queuesTable.setImmediate(true);
-
-
-        this.queuesTable.addListener(new Property.ValueChangeListener() {
+        content.getTable().addStyleName("queuesCustom");
+        content.getTable().addListener(new Property.ValueChangeListener() {
             public void valueChange(Property.ValueChangeEvent event) {
-                Object id = queuesTable.getValue();
+                Object id = content.getTable().getValue();
                 if (null != id) {
-                    String queueId = (String) queuesTable.getItem(id).getItemProperty("id").getValue();
-                    getAgentsTwinColumns(queueId);
+                    String queueId = (String) content.getTable().getItem(id).getItemProperty("id").getValue();
+                    getAgentsTwinColumns(queueId, b);
                 } else {
                     bottom.removeAllComponents();
                 }
             }
         });
 
-        this.queuesTable.addListener(new ItemClickEvent.ItemClickListener() {
-            public void itemClick(ItemClickEvent event) {
-                if (event.isDoubleClick()) {
-                    Item item = event.getItem();
-                    if (null != item) {
-                        String queueId = (String) item.getItemProperty("id").getValue();
-                        getAgentsTwinColumns(queueId);
-                        LayoutUtil.getForm(queueId, event.getItemId(), getWindow(), new QueuesForm(bundle, queuesTable));
-                    }
-                }
-            }
-        });
     }
 
-    private IndexedContainer createTableData() {
-        IndexedContainer ic = new IndexedContainer();
-
-        List<CouchModel> couchModels = getCouchModels();
-
-        for (String field : hiddenFields) {
-            if ("".equals(field)) {
-                ic.addContainerProperty(field, Button.class, "");
-            } else {
-                ic.addContainerProperty(field, String.class, "");
-            }
-        }
-
-        if (!couchModels.isEmpty()) {
-
-            for (final CouchModel couchModel : couchModels) {
-                Queue queue = getQueue(couchModel);
-                CouchModelLite forwardToOnMaxLength = CouchModelUtil.getCouchModelLite(queue.getForwardToOnMaxLength(), bundle);
-                CouchModelLite forwardToOnMaxTime = CouchModelUtil.getCouchModelLite(queue.getForwardToOnMaxTime(), bundle);
-                final Object object = ic.addItem();
-                ic.getContainerProperty(object, bundle.getString("wavilon.table.queues.column.name")).setValue(queue.getName());
-                ic.getContainerProperty(object, bundle.getString("wavilon.table.queues.column.forward.to.on.max.time")).setValue(forwardToOnMaxTime);
-                ic.getContainerProperty(object, bundle.getString("wavilon.table.queues.column.forward.to.on.max.length")).setValue(forwardToOnMaxLength);
-                ic.getContainerProperty(object, "id").setValue(couchModel.getId());
-                ic.getContainerProperty(object, "").setValue(new Button("", new Button.ClickListener() {
-                    public void buttonClick(Button.ClickEvent event) {
-                        queuesTable.select(object);
-                        ConfirmingRemove confirmingRemove = new ConfirmingRemove(bundle);
-                        getWindow().addWindow(confirmingRemove);
-                        confirmingRemove.init(couchModel.getId(), queuesTable);
-                    }
-                }));
-
-            }
-        }
-        return ic;
-    }
-
-    private Queue getQueue(CouchModel couchModel) {
-        try {
-            return service.getQueue(couchModel);
-        } catch (IOException e) {
-            return new Queue();
-        }
-    }
-
-    private List<CouchModel> getCouchModels() {
-        try {
-            return service.getAllUsersCouchModelQueue(CouchModelUtil.getOrganizationId(request));
-        } catch (Exception e) {
-            return Collections.emptyList();
-        }
-    }
-
-    private void getAgentsTwinColumns(String id) {
-        QueuesDragAndDropAgents agentsLayout = new QueuesDragAndDropAgents(bundle);
+    private void getAgentsTwinColumns(String id, ResourceBundle b) {
+        QueuesDragAndDropAgents agentsLayout = new QueuesDragAndDropAgents(b);
 
         this.bottom.removeAllComponents();
         this.bottom.addComponent(agentsLayout);
         agentsLayout.init(id);
     }
 
-    private List<String> fillHiddenFields() {
-        List<String> hiddenFields = new LinkedList<String>();
+    private class Content extends GenerelContent {
+        private QueueDatabaseService service = ObjectFactory.getBean(QueueDatabaseService.class);
 
-        hiddenFields.add(bundle.getString("wavilon.table.queues.column.name"));
-        hiddenFields.add(bundle.getString("wavilon.table.queues.column.forward.to.on.max.time"));
-        hiddenFields.add(bundle.getString("wavilon.table.queues.column.forward.to.on.max.length"));
-        hiddenFields.add("id");
-        hiddenFields.add("");
+        public Content(ResourceBundle bundle) {
+            super(bundle);
+        }
 
-        return hiddenFields;
+        public void init() {
+            super.init();
+            fillVisibleFields();
+            fillHiddenFields();
+            createTableData(service, CouchTypes.queue);
+            fillTable();
+            initLayout(CouchTypes.queue, ratioMap(1, 2, 2));
+        }
+
+        private void fillVisibleFields() {
+            visibleFields.add(bundle.getString("wavilon.table.queues.column.name"));
+            visibleFields.add(bundle.getString("wavilon.table.queues.column.forward.to.on.max.time"));
+            visibleFields.add(bundle.getString("wavilon.table.queues.column.forward.to.on.max.length"));
+        }
+
+        private void fillTable() {
+            if (!couchModels.isEmpty()) {
+
+                for (final CouchModel couchModel : couchModels) {
+                    Queue queue = getModel(couchModel, service, Queue.class);
+                    CouchModelLite forwardToOnMaxLength = CouchModelUtil.getCouchModelLite(queue.getForwardToOnMaxLength(), bundle);
+                    CouchModelLite forwardToOnMaxTime = CouchModelUtil.getCouchModelLite(queue.getForwardToOnMaxTime(), bundle);
+                    final Object object = tableData.addItem();
+
+                    tableData.getContainerProperty(object, "id").setValue(couchModel.getId());
+                    tableData.getContainerProperty(object, bundle.getString("wavilon.table.queues.column.name")).setValue(queue.getName());
+                    tableData.getContainerProperty(object, bundle.getString("wavilon.table.queues.column.forward.to.on.max.time")).setValue(forwardToOnMaxTime);
+                    tableData.getContainerProperty(object, bundle.getString("wavilon.table.queues.column.forward.to.on.max.length")).setValue(forwardToOnMaxLength);
+                    tableData.getContainerProperty(object, "").setValue(createTablesEditRemoveButtons(object, couchModel, null));
+
+                }
+            }
+        }
+
+
+        public Table getTable() {
+            return table;
+        }
     }
-
-    private List<String> fillFields() {
-        List<String> tableFields = new LinkedList<String>();
-
-        tableFields.add(bundle.getString("wavilon.table.queues.column.name"));
-        tableFields.add(bundle.getString("wavilon.table.queues.column.forward.to.on.max.time"));
-        tableFields.add(bundle.getString("wavilon.table.queues.column.forward.to.on.max.length"));
-        tableFields.add("");
-
-        return tableFields;
-    }
-
-
 }

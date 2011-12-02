@@ -6,6 +6,8 @@ import com.aimprosoft.wavilon.service.PhoneNumberDatabaseService;
 import com.fourspaces.couchdb.Document;
 import com.fourspaces.couchdb.View;
 import com.fourspaces.couchdb.ViewResults;
+import org.codehaus.jackson.map.DeserializationConfig;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -22,13 +24,8 @@ public class PhoneNumberDBServiceImpl extends AbstractViewEntityService implemen
         return objectMapper.convertValue(model.getProperties(), PhoneNumber.class);
     }
 
-
     public PhoneNumber getPhoneNumber(CouchModel model) throws IOException {
-        return objectMapper.convertValue(model.getProperties(), PhoneNumber.class);
-    }
-
-    public CouchModel getModel(String id) throws IOException {
-        return couchDBService.getModelById(id);
+        return objectMapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false).convertValue(model.getProperties(), PhoneNumber.class);
     }
 
     public List<PhoneNumber> getAllPhoneNumber() throws IOException {
@@ -49,10 +46,9 @@ public class PhoneNumberDBServiceImpl extends AbstractViewEntityService implemen
         Map<String, Object> outputs = new HashMap<String, Object>();
         outputs.put("startnode", forwardId);
 
-        model.setProperties(properties);
         model.setOutputs(outputs);
 
-        updateCouchModel(model);
+        updateCouchModel(model, properties);
     }
 
     public List<CouchModel> getAllUsersCouchModelToPhoneNumber(Long organizationId) throws IOException {

@@ -6,6 +6,8 @@ import com.aimprosoft.wavilon.service.AgentDatabaseService;
 import com.fourspaces.couchdb.Document;
 import com.fourspaces.couchdb.View;
 import com.fourspaces.couchdb.ViewResults;
+import org.codehaus.jackson.map.DeserializationConfig;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -18,16 +20,11 @@ import java.util.Map;
 public class AgentCouchDBServiceImpl extends AbstractViewEntityService implements AgentDatabaseService {
 
     public Agent getAgent(String id) throws IOException {
-        CouchModel model = getModel(id);
-        return objectMapper.convertValue(model.getProperties(), Agent.class);
+        return getAgent(getModel(id));
     }
 
     public Agent getAgent(CouchModel model) throws IOException {
-        return objectMapper.convertValue(model.getProperties(), Agent.class);
-    }
-
-    public CouchModel getModel(String id) throws IOException {
-        return couchDBService.getModelById(id);
+        return objectMapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false).convertValue(model.getProperties(), Agent.class);
     }
 
     public List<Agent> getAllAgent() throws IOException {
@@ -49,10 +46,9 @@ public class AgentCouchDBServiceImpl extends AbstractViewEntityService implement
         Map<String, Object> outputs = new HashMap<String, Object>();
         outputs.put("extension", extension);
 
-        model.setProperties(properties);
         model.setOutputs(outputs);
 
-        updateCouchModel(model);
+        updateCouchModel(model, properties);
 
     }
 

@@ -15,11 +15,12 @@
     float: none !important;
 }
 
-.v-splitpanel-first-container{
+.v-splitpanel-first-container {
     background: none repeat scroll 0 0 #EBEBEB;
 }
-.v-splitpanel-second-container{
-    background: none repeat scroll 0 0 #f5f5f5;
+
+.v-splitpanel-second-container {
+    background: none repeat scroll 0 0 #fff;
 }
 
 .leftcolumn .v-nativebutton {
@@ -28,7 +29,7 @@
     padding: 0 0 0 38px;
     text-align: left;
     text-shadow: none;
-    height: 34px;
+    height: 37px;
     vertical-align: middle;
     width: 100%;
     color: #5f5f5f;
@@ -80,11 +81,11 @@
 }
 
 .leftcolumn .v-nativebutton-agentsButton {
-    background-image: url("../images/agents_new.png");
+    background-image: url("../images/agent.png");
 }
 
 .leftcolumn .v-nativebutton-agentsButtonSelect {
-    background-image: url("../images/agents_new.png");
+    background-image: url("../images/agentSelect.png");
     background-color: #6093e0;
     color: #FFFFFF;
 }
@@ -109,31 +110,25 @@
     color: #FFFFFF;
 }
 
-
-
-.leftcolumn .v-nativebutton-realTimeCallsFeedButton {
-    background-position: 17px 50%;
+.leftcolumn .v-nativebutton-contactsButton {
+    background-image: url("../images/contacts.png");
 }
 
-.leftcolumn .v-nativebutton-filterCallsByLabelsButtonSelect {
+.leftcolumn .v-nativebutton-contactsButtonSelect {
+    background-image: url("../images/contactsSelect.png");
     background-color: #6093e0;
-    background-position: 17px 50%;
     color: #FFFFFF;
 }
 
-
-.leftcolumn .v-nativebutton-filterCallsByLabelsButton {
-    background-position: 17px 50%;
+.leftcolumn .v-nativebutton-accountsButton {
+    background-image: url("../images/contacts.png");
 }
 
-.leftcolumn .v-nativebutton-filterCallsByLabelsButtonSelect {
+.leftcolumn .v-nativebutton-accountsButtonSelect {
+    background-image: url("../images/contactsSelect.png");
     background-color: #6093e0;
-    background-position: 17px 50%;
     color: #FFFFFF;
 }
-
-
-
 
 /*******************************************************************************************************************************/
 /*-----------------------------------------------------Right Column Design----------------------------------------------------*/
@@ -148,32 +143,49 @@
 
 }
 
+.rightcolumn .head .v-textfield-searchField {
+    background-color: #FFFFFF !important;
+    background: url("../images/search.png") right no-repeat;
+    border-radius: 0px !important;
+    border-color: #CCCCCC;
+    height: 24px;
+    padding-left: 10px;
+    margin-left: 26px;
+    width: 300px;
+}
+
 .rightcolumn .head .label {
-    color: #959595;
+    color: #5f5f5f;
     font-family: Verdana;
     font-size: 20px;
-    height: 43px;
-    line-height: 43px;
+    height: 41px;
+    line-height: 41px;
     padding-left: 26px;
     vertical-align: middle;
 }
 
 /*---------------------------------------------Right Column Design   ["Add" button]----------------------------------------------------*/
+.rightcolumn .v-button:active .v-button-wrap{
+    box-shadow: none !important;
+    margin-top: 1px;
+    padding-bottom: 1px;
+}
+
 .rightcolumn .head .v-button,
 .rightcolumn .head .v-button:active,
 .rightcolumn .head .v-button.v-pressed,
 .rightcolumn .head .v-button:focus {
     background: none transparent;
-    margin: 5px 5px 0;
-}
-.rightcolumn .head .v-button{
-   border-bottom: 1px solid #dbdbdb;
+    padding: 0;
+    margin: 0 10px 0 0;
+    cursor: pointer;
 }
 
-.rightcolumn .head .v-button .v-button-wrap{
+.rightcolumn .head .v-button .v-button-wrap {
     height: 35px;
     background: #ebedee none;
     border: 1px solid #929293;
+    box-shadow: 0px 1px 1px #5f5f5f;
 }
 
 .rightcolumn .head .v-button-addButton .v-button-wrap,
@@ -181,30 +193,23 @@
 .rightcolumn .head .v-button-addButton.v-pressed .v-button-wrap,
 .rightcolumn .head .v-button-addButton:focus .v-button-wrap {
     /*background: url("../images/AddButton.png") no-repeat scroll 0 0 transparent;*/
+    cursor: pointer;
     background: #6093e0 none;
     line-height: 24px;
     padding: 0;
     height: 35px;
     border: 1px solid #5374a4;
-    box-shadow:0 0 0 #fff;
 }
 
-
-.rightcolumn .head .v-button:active .v-button-wrap,
-.rightcolumn .head .v-button.v-pressed .v-button-wrap{
-    box-shadow:0 0 0 #fff;
-    -webkit-box-shadow:0 0 0 #fff;
-    -moz-box-shadow:0 0 0 #fff;
-    -khtml-box-shadow:0 0 0 #fff;
-}
-.rightcolumn .head .v-button .v-button-caption{
+.rightcolumn .head .v-button .v-button-caption {
     color: #000;
     font-size: 14px;
     font-weight: normal;
     line-height: 35px;
     padding: 0 10px;
 }
-.rightcolumn .head .v-button-addButton .v-button-caption{
+
+.rightcolumn .head .v-button-addButton .v-button-caption {
     color: #FFFFFF;
     font-size: 14px;
     font-weight: normal;
@@ -212,18 +217,51 @@
     padding: 0 10px;
     text-shadow: 1px 0 0 #FFFFFF;
 }
-.rightcolumn .head .v-button .v-button-wrap{
-    border-radius: 2px;
-    -moz-border-radius:  2px;
-    -webkit-border-radius:  2px;
-    -khtml-border-radius:  2px;
+
+.rightcolumn .head .v-button .v-button-wrap {
+    border-radius: 6px;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    -khtml-border-radius: 6px;
     padding: 0;
 }
 
 /*---------------------------------------------Right Column Design   [table]----------------------------------------------------*/
 
+.rightcolumn .v-table-phoneNumberTable .v-table-body {
+    background: #ffffff url("../images/noPhoneNumbers.png") no-repeat center center;
+}
+
+.rightcolumn .v-table-agentTable .v-table-body {
+    background: #ffffff url("../images/noAgents.png") no-repeat center center;
+}
+
+.rightcolumn .v-table-extensionTable .v-table-body {
+    background: #ffffff url("../images/noExtensions.png") no-repeat 50% 35%;
+}
+
+.rightcolumn .v-table-recordingTable .v-table-body {
+    background: #ffffff url("../images/noRecordings.png") no-repeat center center;
+}
+
+.rightcolumn .v-table-queueTable .v-table-body {
+    background: #ffffff url("../images/noQueues.png") no-repeat center center;
+}
+
+.rightcolumn .v-table-virtualNumberTable .v-table-body {
+    background: #ffffff url("../images/noVirtualNumbers.png") no-repeat center center;
+}
+
+.rightcolumn .v-table-contactTable .v-table-body {
+    background: #ffffff url("../images/noContacts.png") no-repeat center center;
+}
+
+.rightcolumn .v-table-accountTable .v-table-body {
+    background: #ffffff;
+}
+
 .rightcolumn .v-table-row-odd {
-    background: none repeat scroll 0 0 #f1f5fb !important;
+    background: none repeat scroll 0 0 #fff !important;
 }
 
 .rightcolumn .v-table-header-wrap {
@@ -236,7 +274,7 @@
 }
 
 .rightcolumn .v-table .v-table-header .v-table-caption-container {
-    color: #545454;
+    color: #5f5f5f;
     font-size: 12px;
     padding: 1px 0;
     text-shadow: 0 0 0 #FFFFFF;
@@ -262,35 +300,56 @@
 
 .rightcolumn .v-table .v-table-cell-wrapper {
     padding: 1px 0;
+    color: #000;
 }
 
-.rightcolumn .v-table .v-table-table{
-   width: 100% !important;
+.rightcolumn .v-table .v-selected .v-table-cell-wrapper {
+    color: #fff;
 }
 
+.rightcolumn .v-table .v-table-table {
+    width: 100% !important;
+}
 
-.rightcolumn .tableCustom, .rightcolumn .tableCustom .v-table-body{
+.rightcolumn .tableCustom, .rightcolumn .tableCustom .v-table-body {
     border: medium none;
 }
 
-.rightcolumn .tableCustom .v-table-body{
-     width: 100%;
+.rightcolumn .tableCustom .v-table-body {
+    width: 100%;
 }
 
-.rightcolumn .v-table .v-table-row{
-   width: 100%;
+.rightcolumn .v-table .v-table-row,
+.rightcolumn .v-table .v-table-row-odd {
+    width: 100%;
+    height: 35px;
 }
 
-.rightcolumn .v-table .v-table-header-wrap{
+.rightcolumn .v-table .v-table-header-wrap {
     border: medium none;
     height: 38px;
 }
 
-.rightcolumn .v-table .v-table-header{
-    height: 18px;
+.rightcolumn .v-table .v-table-header {
+    height: 38px;
 }
 
-.rightcolumn .v-table-footer-wrap{
+.rightcolumn .v-table .v-table-header td.v-table-header-cell,
+.rightcolumn .v-table .v-table-header td.v-table-header-cell-desc,
+.rightcolumn .v-table .v-table-header td.v-table-header-cell-asc {
+    height: 38px;
+    background: url(../images/border.png) no-repeat 0 1px transparent;
+}
+
+.v-table-header-cell-desc .v-table-caption-container {
+    background: url("../images/bg-arrow-asc.png") no-repeat 98% 5px transparent !important;
+}
+
+.v-table-header-cell-asc .v-table-caption-container {
+    background: url("../images/bg-arrow-desc.png") no-repeat 98% 5px transparent !important;
+}
+
+.rightcolumn .v-table-footer-wrap {
     height: 0;
 }
 
@@ -301,33 +360,61 @@
     border: medium none;
     height: 20px;
     width: 20px;
-    margin: 5px 0 0;
+    padding: 0;
+    /*margin: 5px 0 0;*/
 }
 
-.rightcolumn .v-table-row .v-button .v-button-wrap,
-.rightcolumn .v-table-row .v-button:active .v-button-wrap,
-.rightcolumn .v-table-row .v-button.v-pressed .v-button-wrap,
-.rightcolumn .v-table-row .v-button:focus .v-button-wrap,
-.rightcolumn .v-table-row-odd .v-button .v-button-wrap,
-.rightcolumn .v-table-row-odd .v-button:active .v-button-wrap,
-.rightcolumn .v-table-row-odd .v-button.v-pressed .v-button-wrap,
-.rightcolumn .v-table-row-odd .v-button:focus .v-button-wrap {
+.rightcolumn .v-table .v-selected  .v-button-editButton .v-button-wrap,
+.rightcolumn .v-table .v-selected  .v-button-editButton:active .v-button-wrap,
+.rightcolumn .v-table .v-selected  .v-button-editButton .v-pressed .v-button-wrap,
+.rightcolumn .v-table .v-selected  .v-button-editButton:focus .v-button-wrap {
+    background: url("../images/editRowSelect.png") no-repeat scroll 0 50% transparent;
+    border: medium none;
+    height: 20px;
+    padding: 0;
+    width: 19px;
+    cursor: pointer;
+}
+
+.rightcolumn .v-button-removeButton .v-button-wrap,
+.rightcolumn .v-button-removeButton:active .v-button-wrap,
+.rightcolumn .v-button-removeButton .v-pressed .v-button-wrap,
+.rightcolumn .v-button-removeButton:focus .v-button-wrap {
     background: url("../images/close-row.png") no-repeat scroll 0 50% transparent;
     border: medium none;
     height: 20px;
     padding: 0;
     width: 19px;
+    cursor: pointer;
 }
 
-.rightcolumn .v-table .v-selected  .v-button .v-button-wrap,
-.rightcolumn .v-table .v-selected  .v-button:active .v-button-wrap,
-.rightcolumn .v-table .v-selected  .v-button.v-pressed .v-button-wrap,
-.rightcolumn .v-table .v-selected  .v-button:focus .v-button-wrap {
+.rightcolumn .v-button-editButton .v-button-wrap,
+.rightcolumn .v-button-editButton:active .v-button-wrap,
+.rightcolumn .v-button-editButton .v-pressed .v-button-wrap,
+.rightcolumn .v-button-editButton:focus .v-button-wrap {
+    background: url("../images/editRow.png") no-repeat scroll 0 50% transparent;
+    border: medium none;
+    height: 20px;
+    padding: 0;
+    width: 19px;
+    cursor: pointer;
+}
+
+.rightcolumn .v-table .v-selected  .v-button-removeButton .v-button-wrap,
+.rightcolumn .v-table .v-selected  .v-button-removeButton:active .v-button-wrap,
+.rightcolumn .v-table .v-selected  .v-button-removeButton .v-pressed .v-button-wrap,
+.rightcolumn .v-table .v-selected  .v-button-removeButton:focus .v-button-wrap {
     background: url("../images/close-row-select.png") no-repeat scroll 0 50% transparent;
     border: medium none;
     height: 20px;
     padding: 0;
     width: 19px;
+    cursor: pointer;
+}
+
+.rightcolumn .v-table .buttonsContainer > div > div {
+    width: 30px !important;
+    text-indent: 0;
 }
 
 .singInPanel {
@@ -349,6 +436,13 @@
 }
 
 /*----------------------Form Design--------------------------*/
+.formRegion .v-button:active .v-button-wrap{
+    box-shadow: none !important;
+    margin-top: 1px;
+    padding-bottom: 1px;
+}
+
+
 .formRegion .headerForm {
     border-bottom: 1px solid #000000;
     display: block;
@@ -357,29 +451,36 @@
     width: 380px;
 }
 
-.formRegion, .formRegion * {
-    color: #5f5f5f !important;
-
+.popupContent .formRegion,
+.popupContent .formRegion * {
+    color: #5f5f5f;
 }
 
 .formRegion .v-textfield, .formRegion .v-filterselect-input, .formRegion .v-textarea {
-     font-size: 13px;
+    font-size: 13px;
 }
 
 .formRegion fieldset * {
     vertical-align: top;
 }
 
-.formRegion fieldset table{
+.formRegion fieldset table {
     width: 100%;
 }
 
+.formRegion .v-button .v-button-wrap {
+    border-radius: 6px;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    -khtml-border-radius: 6px;
+    padding: 0;
+}
 
-.formRegion{
+.formRegion {
     font-size: 13px;
 }
 
-.formRegion .v-formlayout-errorcell{
+.formRegion .v-formlayout-errorcell {
     padding-left: 6px;
 }
 
@@ -397,21 +498,43 @@
 .formRegion .v-button:active .v-button-wrap,
 .formRegion .v-button.v-pressed .v-button-wrap,
 .formRegion .v-button:focus .v-button-wrap {
-    background: url("../images/buttonbg2.png") no-repeat scroll 100% 0 transparent;
+    background: none repeat scroll 0 0 #EBEDEE;
+    border: 1px solid #929293;
+    box-shadow: 0 1px 1px #5F5F5F;
+    height: 35px;
+    border-radius: 6px;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    -khtml-border-radius: 6px;
+}
+
+.formRegion .uploadButton .v-button-wrap,
+.formRegion .uploadButton:active .v-button-wrap,
+.formRegion .uploadButton.v-pressed .v-button-wrap,
+.formRegion .uploadButton:focus .v-button-wrap {
+    height: 21px !important;
+}
+
+.formRegion .uploadButton .v-button-caption {
+    line-height: 21px;
 }
 
 .formRegion .v-button,
 .formRegion .v-button:active,
 .formRegion .v-button.v-pressed,
 .formRegion .v-button:focus {
-    background: url("../images/buttonbg1.png") no-repeat scroll 0 0 transparent;
-    padding: 0 0 0 5px;
+    background: none repeat scroll 0 0 transparent;
+    margin: 0 10px 0 0;
+    padding: 0;
+    cursor: pointer;
 }
 
 .formRegion .v-button-caption {
+    color: #000000;
     font-size: 12px;
-    font-weight: bold;
-    text-shadow: 0 1px 1px #ccc;
+    font-weight: normal;
+    line-height: 35px;
+    padding: 0 15px;
 }
 
 .formRegion .buttonsPanel  .v-button {
@@ -419,7 +542,7 @@
 }
 
 .formRegion .v-textfield {
-    width: 90%;
+    width: 273px;
 }
 
 .formRegion .v-formlayout-spacing .v-formlayout-row .v-formlayout-captioncell,
@@ -434,32 +557,34 @@
 .formRegion .saveButton.v-pressed .v-button-wrap,
 .formRegion .saveButton:focus .v-button-wrap {
     /*background: url("../images/AddButton.png") no-repeat scroll 0 0 transparent;*/
-    background: url("../images/blueSave.png") no-repeat scroll 0 0 transparent;
+    background: #6093e0 none;
     line-height: 24px;
     padding: 0;
-    height: 26px;
-    width: 58px;
+    height: 35px;
+    border: 1px solid #5374a4;
+    cursor: pointer;
 }
 
-.formRegion .saveButton, .formRegion .saveButton:active, .formRegion .saveButton.v-pressed, .formRegion .saveButton:focus{
+.formRegion .saveButton, .formRegion .saveButton:active, .formRegion .saveButton.v-pressed, .formRegion .saveButton:focus {
     background: none transparent;
     margin: 0 !important;
+    cursor: pointer;
 }
 
-.formRegion .saveButton .v-button-caption{
-    color: #FFFFFF !important;
+.formRegion .saveButton .v-button-caption {
+    color: #FFFFFF;
     font-size: 12px;
-    font-weight: bold;
-    line-height: 16px;
-    text-shadow: 0 0 1px #FFFFFF;
+    font-weight: normal;
+    line-height: 35px;
+    padding: 0 15px;
+    text-shadow: 1px 0 0 #FFFFFF;
 }
 
-
-.popupContent .v-filterselect-suggestmenu .gwt-MenuItem-selected{
+.popupContent .v-filterselect-suggestmenu .gwt-MenuItem-selected {
     background: none #6093E0;
 }
 
-.recordingUploader{
+.recordingUploader {
     margin: 15px 0;
 }
 
@@ -478,11 +603,12 @@
 .recordingUploader .succeededMessage {
     margin: 0 0 0 5px;
 }
-.recordingUploader form{
+
+.recordingUploader form {
     margin: 0 0 0 17px;
 }
 
-.recordingUploader form .gwt-FileUpload{
+.recordingUploader form .gwt-FileUpload {
     width: 210px
 }
 
@@ -494,28 +620,30 @@
     color: red;
 }
 
-.v-window-outerheader {
-    background: none repeat scroll 0 0 #878787 !important;
+.popupContent .v-window-outerheader {
+    background: none repeat scroll 0 0 #afb0b1;
 }
 
-.v-window-wrap {
-    border: 1px solid #707171 !important;
+.popupContent .v-window-wrap {
+    border: 1px solid #5c5d5d;
 }
 
-.v-window-header {
-    color: #FFFFFF !important;
-    font-family: Verdana !important;
-    font-size: 12px !important;
-    text-shadow: 0 0 0 #000000 !important;
+.popupContent .v-window-header {
+    color: #585858;
+    font-family: Verdana;
+    font-size: 12px;
+    text-shadow: 0 0 0 #000000;
+    font-weight: normal;
 }
 
-.v-window-closebox {
-    background: #878787 url(../images/close.png) no-repeat 0 0 !important;
+.popupContent .v-window-closebox,
+.popupContent .v-window-closebox:hover {
+    background: #afb0b1 url(../images/close.png) no-repeat 0 0;
+    top: 17px;
 }
 
-
-.queuesCustom .v-table-body{
-    border: none medium ;
+.queuesCustom .v-table-body {
+    border: none medium;
     border-bottom: 1px solid #c2c3c4;
 }
 
@@ -528,7 +656,6 @@
     border: none medium;
     border-left: 1px solid #c2c3c4;
 }
-
 
 .middleDragNDrop .v-button .v-button-wrap,
 .middleDragNDrop .v-button:active .v-button-wrap,
@@ -553,11 +680,46 @@
     text-shadow: 0 1px 1px #ccc;
 }
 
-.middleDragNDrop .v-label{
+.middleDragNDrop .v-label {
     width: 84px !important;
     text-align: center;
     color: #5f5f5f;
     font-style: italic;
     font-size: 14px;
     text-shadow: 0 1px 1px #cdcdcd;
+}
+
+.formRegion .v-filterselect-button,
+.formRegion .v-filterselect-button:hover,
+.formRegion .v-filterselect-button:active,
+.formRegion .v-filterselect-focus .v-filterselect-button:hover,
+.formRegion .v-filterselect-focus .v-filterselect-button {
+    background: url("../images/selected-tail.png") no-repeat scroll 0 0 transparent;
+    height: 23px;
+    width: 27px;
+}
+
+.v-filterselect input[type="text"] {
+    background-position: left -498px !important;
+    border-radius: 0 !important;
+    -webkit-border-radius: 0 !important;
+    -moz-border-radius: 0 !important;
+    -khtml-border-radius: 0 !important;
+}
+
+.formRegion input[type="text"], .formRegion input[type="password"], .formRegion input[type="file"],
+.formRegion select, .formRegion textarea, .formRegion .textarea {
+    background-color: #FFFFFF !important;
+}
+
+.v-formlayout-contentcell textarea {
+    padding: 0;
+}
+
+.recordCalls * {
+    vertical-align: middle;
+}
+
+.recordCalls label {
+    margin: 0 0 0 5px;
 }

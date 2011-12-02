@@ -7,11 +7,9 @@ import com.aimprosoft.wavilon.model.PhoneNumber;
 import java.io.IOException;
 import java.util.List;
 
-public interface PhoneNumberDatabaseService {
+public interface PhoneNumberDatabaseService extends GeneralService {
 
     PhoneNumber getPhoneNumber(CouchModel model) throws IOException;
-
-    CouchModel getModel(String id) throws IOException;
 
     List<PhoneNumber> getAllPhoneNumber() throws IOException;
 

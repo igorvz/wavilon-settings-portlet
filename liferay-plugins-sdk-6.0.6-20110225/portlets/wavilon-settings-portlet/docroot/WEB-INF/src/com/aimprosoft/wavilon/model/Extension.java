@@ -1,7 +1,9 @@
 package com.aimprosoft.wavilon.model;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 
+@JsonIgnoreProperties(value = {"jumpIfBusy", "jumpIfNoAnswer"}, ignoreUnknown = true)
 public class Extension extends BaseModel{
 
     @JsonProperty("channel")
@@ -12,6 +14,12 @@ public class Extension extends BaseModel{
 
     @JsonProperty("code")
     private Integer code;
+
+    @JsonProperty("jump_if_busy")
+    private String  jumpIfBusy;
+
+    @JsonProperty("jump_if_no_answer")
+    private String  jumpIfNoAnswer;
 
     public Extension(){
     }
@@ -38,5 +46,21 @@ public class Extension extends BaseModel{
 
     public void setCode(Integer code) {
         this.code = code;
+    }
+
+    public String getJumpIfBusy() {
+        return jumpIfBusy;
+    }
+
+    public void setJumpIfBusy(String jumpIfBusy) {
+        this.jumpIfBusy = jumpIfBusy;
+    }
+
+    public String getJumpIfNoAnswer() {
+        return jumpIfNoAnswer;
+    }
+
+    public void setJumpIfNoAnswer(String jumpIfNoAnswer) {
+        this.jumpIfNoAnswer = jumpIfNoAnswer;
     }
 }

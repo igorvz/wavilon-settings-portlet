@@ -18,9 +18,8 @@ public class CouchLiteModelDatabaseServiceImpl extends AbstractViewEntityService
         View view = database.getDocument(functions.getDesignDocumentNodes()).getView(functions.getCouchModelLiteName());
         view.setKey(urlEncoder.encode("\"" + id + "\""));
         ViewResults viewResults = database.view(view);
-        String modelLiteName = (String) viewResults.getResults().get(0).get("value");
 
-        return createCouchModelLite(id, modelLiteName);
+        return createCouchModelLite(id, viewResults.getResults().get(0).get("value"));
     }
 
     public List<CouchModelLite> getAllCouchModelsLite(Long organizationId, Object type) throws IOException {
@@ -31,7 +30,7 @@ public class CouchLiteModelDatabaseServiceImpl extends AbstractViewEntityService
         List<CouchModelLite> modelList = new LinkedList<CouchModelLite>();
 
         for (Document doc : viewResults.getResults()) {
-            CouchModelLite modelLite = createCouchModelLite(doc.getId(), (String) doc.get("value"));
+            CouchModelLite modelLite = createCouchModelLite(doc.getId(), doc.get("value"));
 
             modelList.add(modelLite);
         }
@@ -39,10 +38,13 @@ public class CouchLiteModelDatabaseServiceImpl extends AbstractViewEntityService
         return modelList;
     }
 
-    private CouchModelLite createCouchModelLite(String id, String name) {
+    private CouchModelLite createCouchModelLite(String id, Object value) {
+        List<String> values = objectMapper.convertValue(value, LinkedList.class);
+
         CouchModelLite modelLite = new CouchModelLite();
         modelLite.setId(id);
-        modelLite.setName(name);
+        modelLite.setName(values.get(0));
+        modelLite.setType(values.get(1));
         return modelLite;
     }
 }

@@ -1,5 +1,7 @@
 package com.aimprosoft.wavilon.util;
 
+import com.aimprosoft.wavilon.couch.CouchTypes;
+
 public class FormatUtil {
 
     /**
@@ -20,4 +22,8 @@ public class FormatUtil {
         return function;
     }
 
+    public static boolean isSameType(Object type, CouchTypes couchType){
+        String typeToString = type.toString();
+        return typeToString.equals(couchType.toString());
+    }
 }

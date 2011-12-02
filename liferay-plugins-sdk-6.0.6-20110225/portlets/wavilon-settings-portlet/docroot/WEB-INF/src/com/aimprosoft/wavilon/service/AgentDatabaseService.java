@@ -6,13 +6,11 @@ import com.aimprosoft.wavilon.model.Agent;
 import java.io.IOException;
 import java.util.List;
 
-public interface AgentDatabaseService {
+public interface AgentDatabaseService extends GeneralService {
 
     Agent getAgent(CouchModel model) throws IOException;
 
     Agent getAgent(String id) throws IOException;
-
-    CouchModel getModel(String id) throws IOException;
 
     List<Agent> getAllAgent() throws IOException;
 
