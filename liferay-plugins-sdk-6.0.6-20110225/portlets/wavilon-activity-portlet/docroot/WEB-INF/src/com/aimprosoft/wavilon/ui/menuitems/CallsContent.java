@@ -132,7 +132,6 @@ public class CallsContent extends Panel {
 
         //todo iteration adding cells from DB
         DialogCell dialogCell = new DialogCell(bundle);
-//        DialogCell dialogCell = new DialogCell(bundle, request);
         itemContent.addComponent(dialogCell);
         itemContent.addStyleName("itemStyle");
         dialogCell.init(createRandomPerson(id));
@@ -284,7 +283,7 @@ public class CallsContent extends Panel {
                 }
 
                 try {
-                    Thread.sleep(5000);
+                    Thread.sleep(7000);
                 } catch (InterruptedException e) {
                 }
             }

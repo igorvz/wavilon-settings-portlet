@@ -33,7 +33,8 @@ public class DialogCell extends HorizontalLayout {
     private Person person;
     private VerticalLayout chat;
     private ICEPush icePush;
-
+    private static Boolean pushMonitor = true;
+    private static boolean condition = true;
 
     public DialogCell(ResourceBundle bundle) {
         this.bundle = bundle;
@@ -44,8 +45,11 @@ public class DialogCell extends HorizontalLayout {
 
         request = ((GenericPortletApplication) getApplication()).getPortletRequest();
 
+        icePush = new ICEPush();
+        getApplication().getMainWindow().addComponent(icePush);
+
         initLayout();
-//        new BackgroundThread().start();
+        new BackgroundThread().start();
     }
 
     private void initLayout() {
@@ -86,10 +90,6 @@ public class DialogCell extends HorizontalLayout {
         Label timerTop = new Label(time);
         mainContent.addComponent(timerTop, 1, 0);
         timerTop.setStyleName("itemTimerTop");
-
-//        TODO remove
-        Button refreshButton = new Button("Refresh");
-        mainContent.addComponent(refreshButton, 5, 0, 6, 0);
 
         HorizontalLayout displayNotes = new HorizontalLayout();
         mainContent.addComponent(displayNotes, 7, 0, 8, 0);
@@ -173,10 +173,9 @@ public class DialogCell extends HorizontalLayout {
                 } catch (IOException ignored) {
                 }
 
-                createNoteLayout(chat, couchModel);
                 textArea.setValue("");
 
-                count.setValue(String.valueOf(notes.size()));
+                changeCondition();
             }
         });
         newNote.addComponent(addNoteButton, 4, 2);
@@ -192,20 +191,14 @@ public class DialogCell extends HorizontalLayout {
         hideChatButton.addListener(hideChatListener);
 
         hideChat(chat.isVisible(), hideChatButton, chatLayout);
+    }
 
-        //todo remove
-        Button.ClickListener refreshListener = new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent event) {
-                Button button = event.getButton();
-                hideChat(false, button, chatLayout);
+    private void changeCondition() {
+        synchronized (pushMonitor) {
 
-                chat.removeAllComponents();
-                fillChatLayout(chat);
-            }
-        };
-        refreshButton.addListener(refreshListener);
-
+            condition = false;
+            pushMonitor.notifyAll();
+        }
     }
 
     private void hideChat(boolean flag, Button button, VerticalLayout chat) {
@@ -346,32 +339,28 @@ public class DialogCell extends HorizontalLayout {
         @Override
         public void run() {
             while (true) {
-                try {
-                    Thread.sleep(3000);
-                } catch (InterruptedException e) {
-                }
 
-
-                if (null != getApplication()) {
-                    synchronized (getApplication()) {
-                            repaint();
-                    }
-                }
-
-                if (null == icePush) {
-                    icePush = new ICEPush();
-                    getApplication().getMainWindow().addComponent(icePush);
-                }
+                repaint();
 
                 icePush.push();
-
             }
         }
     }
 
     public void repaint() {
+        synchronized (pushMonitor) {
+
+            while (condition) {
+                try {
+                    pushMonitor.wait();
+                } catch (InterruptedException e) {
+                }
+            }
+        }
 
         chat.removeAllComponents();
         fillChatLayout(chat);
+
+        condition = true;
     }
 }
