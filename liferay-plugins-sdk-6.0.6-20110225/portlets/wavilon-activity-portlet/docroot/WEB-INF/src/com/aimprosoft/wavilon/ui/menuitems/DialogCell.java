@@ -42,11 +42,10 @@ public class DialogCell extends HorizontalLayout {
 
     public void init(Person person) {
         this.person = person;
-
-        request = ((GenericPortletApplication) getApplication()).getPortletRequest();
+        request = ((GenericPortletApplication) PushThread.threadLocal.get()).getPortletRequest();
 
         icePush = new ICEPush();
-        getApplication().getMainWindow().addComponent(icePush);
+        ((GenericPortletApplication) PushThread.threadLocal.get()).getMainWindow().addComponent(icePush);
 
         initLayout();
         new BackgroundThread().start();

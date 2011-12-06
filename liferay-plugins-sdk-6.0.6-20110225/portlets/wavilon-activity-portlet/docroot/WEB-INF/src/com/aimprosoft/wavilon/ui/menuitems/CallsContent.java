@@ -2,7 +2,6 @@ package com.aimprosoft.wavilon.ui.menuitems;
 
 import com.aimprosoft.wavilon.application.GenericPortletApplication;
 import com.aimprosoft.wavilon.model.CdrModel;
-import com.aimprosoft.wavilon.model.Person;
 import com.aimprosoft.wavilon.service.AvatarService;
 import com.aimprosoft.wavilon.service.CdrEktorpDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
@@ -29,57 +28,6 @@ public class CallsContent extends Panel {
     private String headCaption;
     private ICEPush icePush;
     private CdrModel model = null;
-    private List<String> globalStoreId = new ArrayList<String>();
-
-    //todo remove
-    private String[] fnames = {"Peter", "Alice", "Joshua", "Mike", "Olivia",
-            "Nina", "Alex", "Rita", "Dan", "Umberto", "Henrik", "Rene",
-            "Lisa", "Marge"};
-    private String[] lnames = {"Smith", "Gordon", "Simpson", "Brown", "Clavel",
-            "Simons", "Verne", "Scott", "Allison", "Gates", "Rowling",
-            "Barks", "Ross", "Schneider", "Tate"};
-
-    private String[] categories = {"Support", "Problematic customer", "Human Resources", "Design Agency",
-            "Designers", "Delivery", "Fashion", "Software", "Web Apps", "Magazines", "Music", "Portfolio"};
-
-    private String[] times = {"9:24", "8:52", "6:35", "4:65",
-            "9:56", "18:22", "23:01", "14:40", "15;45"};
-
-    private String[] avatarNames = {"face1.png", "face2.png", "face3.png", "face4.png"};
-
-
-    private Person createRandomPerson(String id) {
-        Person person = new Person();
-        person.setName(fnames[(int) (fnames.length * Math.random())]);
-        person.setSurname(lnames[(int) (lnames.length * Math.random())]);
-        person.setTime(times[(int) (times.length * Math.random())]);
-        person.setAvatarName(avatarNames[(int) (avatarNames.length * Math.random())]);
-        person.setId(id);
-
-        List<String> personsCategories = new LinkedList<String>();
-        for (int i = 0; i < 4; i++) {
-            personsCategories.add(categories[(int) (categories.length * Math.random())]);
-        }
-        person.setCategories(personsCategories);
-
-        return person;
-    }
-
-    private Person createPerson() {
-        Person person = new Person();
-        person.setName(fnames[1]);
-        person.setSurname(lnames[1]);
-        person.setTime(times[1]);
-        person.setAvatarName(avatarNames[1]);
-
-        List<String> personsCategories = new LinkedList<String>();
-        for (int i = 0; i < 4; i++) {
-            personsCategories.add(categories[i + 1]);
-        }
-        person.setCategories(personsCategories);
-
-        return person;
-    }
 
     public CallsContent(ResourceBundle bundle) {
         this.bundle = bundle;
@@ -123,18 +71,10 @@ public class CallsContent extends Panel {
         listViewLayout.addComponent(listViewButtons);
         listViewLayout.setComponentAlignment(listViewButtons, Alignment.TOP_RIGHT);
 
-        new PushThread().start();
-    }
+        PushThread thread = new PushThread(bundle);
+        mainLayout.addComponent(thread);
 
-    private void createMainContent(String id) {
-        itemContent = new VerticalLayout();
-        mainLayout.addComponent(itemContent);
-
-        //todo iteration adding cells from DB
-        DialogCell dialogCell = new DialogCell(bundle);
-        itemContent.addComponent(dialogCell);
-        itemContent.addStyleName("itemStyle");
-        dialogCell.init(createRandomPerson(id));
+        thread.init();
 
     }
 
@@ -250,44 +190,6 @@ public class CallsContent extends Panel {
         model.setUniqueid("arcas-1320346181.8545");
 
         return model;
-    }
-
-    public class PushThread extends Thread {
-        @Override
-        public void run() {
-
-            while (true) {
-
-                List<String> idAllModels = cdrService.getModelsId();
-
-                if (!globalStoreId.containsAll(idAllModels)) {
-
-                    List<String> localStore = new ArrayList<String>();
-
-                    localStore.addAll(globalStoreId);
-
-                    idAllModels.removeAll(globalStoreId);
-
-                    globalStoreId.clear();
-                    globalStoreId.addAll(localStore);
-                    globalStoreId.addAll(idAllModels);
-
-                    for (String id : idAllModels) {
-                        createMainContent(id);
-                    }
-
-                    localStore.clear();
-                    idAllModels.clear();
-
-                    icePush.push();
-                }
-
-                try {
-                    Thread.sleep(7000);
-                } catch (InterruptedException e) {
-                }
-            }
-        }
     }
 
     public static Long getOrganizationId(PortletRequest request) {
