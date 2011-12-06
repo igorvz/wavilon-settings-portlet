@@ -45,14 +45,20 @@ public class DialogCell extends HorizontalLayout {
         request = ((GenericPortletApplication) PushThread.threadLocal.get()).getPortletRequest();
 
         icePush = new ICEPush();
-        ((GenericPortletApplication) PushThread.threadLocal.get()).getMainWindow().addComponent(icePush);
+
+        if (getApplication() != null) {
+
+            getApplication().getMainWindow().addComponent(icePush);
+        }
 
         initLayout();
-        new BackgroundThread().start();
+
+        BackgroundThread thread = new BackgroundThread(this);
+        addComponent(thread);
+        thread.init();
     }
 
     private void initLayout() {
-
         setStyleName("item");
         setWidth(100, Sizeable.UNITS_PERCENTAGE);
 
@@ -67,7 +73,7 @@ public class DialogCell extends HorizontalLayout {
         createInfoPanel();
 
         setExpandRatio(avatar, 1);
-        setExpandRatio(mainContent, 40);
+        setExpandRatio(mainContent, 20);
 
     }
 
@@ -330,19 +336,6 @@ public class DialogCell extends HorizontalLayout {
             return noteService.getNote(noteCouchModel);
         } catch (IOException e) {
             return null;
-        }
-    }
-
-    public class BackgroundThread extends Thread {
-
-        @Override
-        public void run() {
-            while (true) {
-
-                repaint();
-
-                icePush.push();
-            }
         }
     }
 

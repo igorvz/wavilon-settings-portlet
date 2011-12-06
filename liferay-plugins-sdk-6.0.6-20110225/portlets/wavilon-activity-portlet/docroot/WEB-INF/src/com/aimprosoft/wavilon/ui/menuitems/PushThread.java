@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 public class PushThread extends VerticalLayout implements Runnable {
-    static ThreadLocal threadLocal = new ThreadLocal();
+    public static ThreadLocal threadLocal = new ThreadLocal();
     private List<String> globalStoreId = new ArrayList<String>();
     private CdrEktorpDatabaseService cdrService = ObjectFactory.getBean(CdrEktorpDatabaseService.class);
     private ICEPush icePush;
