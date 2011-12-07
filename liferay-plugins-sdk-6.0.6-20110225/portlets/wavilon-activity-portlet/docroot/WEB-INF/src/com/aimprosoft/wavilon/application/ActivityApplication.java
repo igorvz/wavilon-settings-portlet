@@ -16,7 +16,6 @@ import java.util.ResourceBundle;
 public class ActivityApplication extends GenericPortletApplication {
 
     private Logger _logger = Logger.getLogger(getClass());
-
     @Override
     public void init() {
         //initialize listeners
@@ -27,9 +26,7 @@ public class ActivityApplication extends GenericPortletApplication {
     @Override
     public void handleRenderRequest(RenderRequest renderRequest, RenderResponse renderResponse, final Window window) {
         super.handleRenderRequest(renderRequest, renderResponse, window);
-
         try {
-
             ThemeDisplay themeDisplay = (ThemeDisplay) renderRequest.getAttribute(WebKeys.THEME_DISPLAY);
 
             //get liferay locale

@@ -302,3 +302,7 @@
 .v-loading-indicator-delay, .v-loading-indicator-wait{
     display: none !important;
 }
+
+.hover{
+    width: 30px !important;
+}

@@ -37,16 +37,27 @@
         </property>
     </bean>
 
-    <bean id="allPhoneNumbersDBService" class="com.aimprosoft.wavilon.service.impl.AllPhoneNumbersDatabaseServiceImpl">
-        <property name="database" ref="databasePhoneNumbers"/>
-        <property name="objectReader">
-            <bean class="org.codehaus.jackson.map.ObjectReader" factory-bean="objectMapper" factory-method="reader">
-                <constructor-arg index="0" value="com.aimprosoft.wavilon.couch.PhoneModel"/>
+
+
+    <bean id="couchDbInstance" class="org.ektorp.impl.StdCouchDbInstance">
+        <constructor-arg>
+            <bean class="org.ektorp.spring.HttpClientFactoryBean">
+                <property name="url" value="http://${db.host}:${db.port}"/>
+                <property name="connectionTimeout" value="15000"/>
+                <property name="maxConnections" value="100"/>
             </bean>
-        </property>
-        <property name="objectWriter">
-            <bean factory-bean="objectMapper" factory-method="writer"/>
-        </property>
+        </constructor-arg>
+    </bean>
+
+
+    <bean id="phonenumbersDBConnector" class="org.ektorp.impl.StdCouchDbConnector">
+        <constructor-arg value="${db.name.phonenumbers}"/>
+        <constructor-arg ref="couchDbInstance"/>
+    </bean>
+
+
+    <bean id="allPhoneNumbersDBService" class="com.aimprosoft.wavilon.service.impl.AllPhoneNumbersDatabaseServiceImpl">
+        <property name="connector" ref="phonenumbersDBConnector"/>
     </bean>
 
 

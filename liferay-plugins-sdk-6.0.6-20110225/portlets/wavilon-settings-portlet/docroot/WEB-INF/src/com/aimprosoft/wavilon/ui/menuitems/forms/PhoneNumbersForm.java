@@ -65,7 +65,8 @@ public class PhoneNumbersForm extends GeneralForm {
                     service.addPhoneNumber(phoneNumber, model, forwardId);
 
 
-                    String phoneModelDocId = allPhonesService.getPhoneNumbersDocumentId(number);
+//                    String phoneModelDocId = allPhonesService.getPhoneNumbersDocumentId(number);
+                    String phoneModelDocId = allPhonesService.getNumbersId(number, model.getType());
                     allPhonesService.updateModelsAllocationDate(model.getLiferayOrganizationId(), phoneModelDocId);
 
 
@@ -182,7 +183,7 @@ public class PhoneNumbersForm extends GeneralForm {
 
     private List<String> createGeoNumbers() {
         try {
-            return allPhonesService.getOnlyPhoneNumbers(CouchModelUtil.getOrganizationId(request));
+            return allPhonesService.getNumbers(CouchModelUtil.getOrganizationId(request), model.getType());
         } catch (Exception e) {
             return Collections.emptyList();
         }

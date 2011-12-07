@@ -67,7 +67,8 @@ public class VirtualNumbersForm extends GeneralForm {
                     service.addVirtualNumber(virtualNumber, model);
 
                     try {
-                        String phoneModelDocId = allPhonesService.getVirtualNumbersDocumentId(number);
+//                        String phoneModelDocId = allPhonesService.getVirtualNumbersDocumentId(number);
+                        String phoneModelDocId = allPhonesService.getNumbersId(number, model.getType());
                         allPhonesService.updateModelsAllocationDate(model.getLiferayOrganizationId(), phoneModelDocId);
                     } catch (Exception ignored) {
                     }
@@ -182,7 +183,7 @@ public class VirtualNumbersForm extends GeneralForm {
 
     private List<String> createVirtualNumbers() {
         try {
-            return allPhonesService.getOnlyVirtualNumbers(CouchModelUtil.getOrganizationId(request));
+            return allPhonesService.getNumbers(CouchModelUtil.getOrganizationId(request), model.getType());
         } catch (Exception e) {
             return Collections.emptyList();
         }

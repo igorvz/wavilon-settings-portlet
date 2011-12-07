@@ -19,23 +19,26 @@ public class Functions {
     @Value("${couch.model.lite.name}")
     private String couchModelLiteName;
 
-    @Value("${fetch.all.phones.virtual.number}")
-    private String allPhonesVirtualNumber;
+    @Value("${db.design.document.phonenumbers.settings}")
+    private String designDocumentPhoneNumbersSettings;
 
-    @Value("${fetch.all.phones.virtual.number.by.org}")
-    private String allPhonesVirtualNumberNumsByOrg;
+    @Value("${fetch.phones.view.all.virtual}")
+    private String phonesViewAllVirtual;
 
-    @Value("${fetch.all.phones.virtual.number.out.of.org}")
-    private String allPhonesVirtualNumberOutOfOrg;
+    @Value("${fetch.phones.view.all.geo}")
+    private String phonesViewAllGeo;
 
-    @Value("${fetch.all.phones.phone.number}")
-    private String allPhonesPhoneNumber;
+    @Value("${fetch.phones.view.by.org.virtual}")
+    private String phonesViewOrgVirtual;
 
-    @Value("${fetch.all.phones.phone.number.by.org}")
-    private String allPhonesPhoneNumberNumsByOrg;
+    @Value("${fetch.phones.view.by.org.geo}")
+    private String phonesViewOrgGeo;
 
-    @Value("${fetch.all.phones.phone.number.out.of.org}")
-    private String allPhonesPhoneNumberOutOfOrg;
+    @Value("${fetch.phones.available.date.var.name}")
+    private String phonesAvailableDateVarName;
+
+    @Value("${fetch.phones.list.available.phones}")
+    private String phonesList;
 
     @Value("${fetch.extension.code.exist}")
     private String extensionCodeExist;
@@ -67,28 +70,32 @@ public class Functions {
         return couchModelLiteName;
     }
 
-    public String getAllPhonesVirtualNumber() {
-        return allPhonesVirtualNumber;
+    public String getDesignDocumentPhoneNumbersSettings() {
+        return designDocumentPhoneNumbersSettings;
     }
 
-    public String getAllPhonesVirtualNumberNumsByOrg() {
-        return allPhonesVirtualNumberNumsByOrg;
+    public String getPhonesViewAllVirtual() {
+        return phonesViewAllVirtual;
     }
 
-    public String getAllPhonesVirtualNumberOutOfOrg() {
-        return allPhonesVirtualNumberOutOfOrg;
+    public String getPhonesViewAllGeo() {
+        return phonesViewAllGeo;
     }
 
-    public String getAllPhonesPhoneNumber() {
-        return allPhonesPhoneNumber;
+    public String getPhonesViewOrgVirtual() {
+        return phonesViewOrgVirtual;
     }
 
-    public String getAllPhonesPhoneNumberNumsByOrg() {
-        return allPhonesPhoneNumberNumsByOrg;
+    public String getPhonesViewOrgGeo() {
+        return phonesViewOrgGeo;
     }
 
-    public String getAllPhonesPhoneNumberOutOfOrg() {
-        return allPhonesPhoneNumberOutOfOrg;
+    public String getPhonesAvailableDateVarName() {
+        return phonesAvailableDateVarName;
+    }
+
+    public String getPhonesList() {
+        return phonesList;
     }
 
     public String getExtensionCodeExist() {

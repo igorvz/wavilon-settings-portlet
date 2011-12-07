@@ -68,9 +68,11 @@ public class ConfirmingRemove extends Window {
                         String docId;
 
                         if (null == phoneNumbersLocator) {
-                            docId = allPhonesService.getVirtualNumbersDocumentId(virtualNumbersLocator);
+//                            docId = allPhonesService.getVirtualNumbersDocumentId(virtualNumbersLocator);
+                            docId = allPhonesService.getNumbersId(virtualNumbersLocator, CouchTypes.startnode);
                         } else {
-                            docId = allPhonesService.getPhoneNumbersDocumentId(phoneNumbersLocator);
+//                            docId = allPhonesService.getPhoneNumbersDocumentId(phoneNumbersLocator);
+                            docId = allPhonesService.getNumbersId(phoneNumbersLocator, CouchTypes.service);
                         }
 
                         allPhonesService.updateModelsLiberationDate(docId);
