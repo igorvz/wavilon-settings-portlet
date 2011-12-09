@@ -49,6 +49,8 @@ public class Functions {
     @Value("${fetch.phones.virtual.number.id}")
     private String phonesVirtualNumberId;
 
+    @Value("fetch.avatars")
+    private String attachments;
 
     public String getDesignDocumentPhoneNumbers() {
         return designDocumentPhoneNumbers;
@@ -108,5 +110,9 @@ public class Functions {
 
     public String getPhonesVirtualNumberId() {
         return phonesVirtualNumberId;
+    }
+
+    public String getAttachments() {
+        return attachments;
     }
 }

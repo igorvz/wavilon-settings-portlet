@@ -10,15 +10,7 @@ public interface QueueDatabaseService extends GeneralService {
 
     Queue getQueue(CouchModel model) throws IOException;
 
-    List<Queue> getAllQueue() throws IOException;
-
     void updateQueue(Queue queue, CouchModel model, List<String> agents) throws IOException;
 
-    List<CouchModel> getAllUsersCouchModelQueue(Long organizationId) throws IOException;
-
     void addQueue(Queue queue, CouchModel model, List<String> agents) throws IOException;
-
-    void removeQueue(CouchModel model) throws IOException;
-
-    void removeQueue(String id) throws IOException;
 }

@@ -13,16 +13,16 @@ import java.util.*;
 
 public class AllPhoneNumbersDatabaseServiceImpl extends AbstractViewEntityService implements AllPhoneNumbersDatabaseService {
 
-    private CouchDbConnector connector;
+    private CouchDbConnector phoneNumbersDBConnector;
 
     @Required
-    public void setConnector(CouchDbConnector connector) {
-        this.connector = connector;
+    public void setPhoneNumbersDBConnector(CouchDbConnector phoneNumbersDBConnector) {
+        this.phoneNumbersDBConnector = phoneNumbersDBConnector;
     }
 
     @SuppressWarnings("unchecked")
     private void updateModel(PhoneModel phoneModel) throws IOException {
-        connector.update(phoneModel);
+        phoneNumbersDBConnector.update(phoneModel);
     }
 
     public void updateModelsLiberationDate(String phoneModelId) throws IOException {
@@ -42,7 +42,7 @@ public class AllPhoneNumbersDatabaseServiceImpl extends AbstractViewEntityServic
     }
 
     private PhoneModel getPhoneModel(String documentId) throws IOException {
-        return connector.get(PhoneModel.class, documentId);
+        return phoneNumbersDBConnector.get(PhoneModel.class, documentId);
     }
 
     public String getNumbersId(String locator, Object type) throws IOException {
@@ -59,7 +59,7 @@ public class AllPhoneNumbersDatabaseServiceImpl extends AbstractViewEntityServic
                 .viewName(viewName)
                 .key(locator);
 
-        return (String) connector.queryView(query, HashMap.class).get(0).get("id");
+        return (String) phoneNumbersDBConnector.queryView(query, HashMap.class).get(0).get("id");
     }
 
     public List<String> getNumbers(Long organizationId, Object type) throws IOException {
@@ -78,12 +78,12 @@ public class AllPhoneNumbersDatabaseServiceImpl extends AbstractViewEntityServic
                 .designDocId(functions.getDesignDocumentPhoneNumbersSettings())
                 .queryParam(functions.getPhonesAvailableDateVarName(), String.valueOf(System.currentTimeMillis()))
                 .listName(functions.getPhonesList()).viewName(allNullView);
-        List<PhoneModel> availablePhoneModel = connector.queryView(query, PhoneModel.class);
+        List<PhoneModel> availablePhoneModel = phoneNumbersDBConnector.queryView(query, PhoneModel.class);
 
         query = new ViewQuery().designDocId(functions.getDesignDocumentPhoneNumbersSettings())
                 .viewName(currentOrgView)
                 .key(organizationId);
-        List<PhoneModel> availableByOrganisationPhoneModel = connector.queryView(query, PhoneModel.class);
+        List<PhoneModel> availableByOrganisationPhoneModel = phoneNumbersDBConnector.queryView(query, PhoneModel.class);
 
         Set<PhoneModel> totalSet = new HashSet<PhoneModel>(availablePhoneModel);
         totalSet.addAll(availableByOrganisationPhoneModel);

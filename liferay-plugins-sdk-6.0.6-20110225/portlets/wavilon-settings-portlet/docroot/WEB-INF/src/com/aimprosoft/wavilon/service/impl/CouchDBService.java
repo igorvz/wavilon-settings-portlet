@@ -122,15 +122,15 @@ public class CouchDBService {
 
     protected void mergeAttachments(CouchModel model, Map<String, byte[]> attachmentsContent) {
         //check if empty
-        if (attachmentsContent.isEmpty()) {
-            return;
-        }
-
-        Map<String, Attachment> attachments = model.getAttachments();
-        for (Map.Entry<String, Attachment> attachment : attachments.entrySet()) {
-            byte[] data = attachmentsContent.get(attachment.getKey());
-            attachment.getValue().setData(data);
-        }
+//        if (attachmentsContent.isEmpty()) {
+//            return;
+//        }
+//
+//        Map<String, Attachment> attachments = model.getAttachments();
+//        for (Map.Entry<String, Attachment> attachment : attachments.entrySet()) {
+//            byte[] data = attachmentsContent.get(attachment.getKey());
+//            attachment.getValue().setData(data);
+//        }
     }
 
 }

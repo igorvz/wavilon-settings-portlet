@@ -60,7 +60,7 @@ public class ConfirmingRemove extends Window {
         ok.addListener(new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
                 try {
-                    service.removeExtension(id);
+                    service.removeModel(id);
 
                     if (null != phoneNumbersLocator || null != virtualNumbersLocator) {
                         AllPhoneNumbersDatabaseService allPhonesService = ObjectFactory.getBean(AllPhoneNumbersDatabaseService.class);

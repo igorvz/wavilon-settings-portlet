@@ -34,6 +34,7 @@ public class CouchModel {
     @JsonProperty("outputs")
     private Map<String, Object> outputs;
 
+
     @JsonProperty("_attachments")
     private Map<String, Attachment> attachments;
 

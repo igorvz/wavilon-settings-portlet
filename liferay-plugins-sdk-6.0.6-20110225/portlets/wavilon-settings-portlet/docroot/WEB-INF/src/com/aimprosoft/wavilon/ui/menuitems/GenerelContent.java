@@ -45,14 +45,18 @@ public class GenerelContent extends VerticalLayout {
         hiddenFields.add("id");
     }
 
-    private void getCouchModels(GeneralService service, CouchTypes type) {
+    private void fillCouchModels(GeneralService service, CouchTypes type) {
         couchModels = new LinkedList<CouchModel>();
 
         try {
-            couchModels.addAll(service.getAvailableCouchModels(CouchModelUtil.getOrganizationId(request), type));
+            couchModels.addAll(getAvailableCouchModels(service, type));
         } catch (Exception ignored) {
         }
 
+    }
+
+    protected List<CouchModel> getAvailableCouchModels(GeneralService service, CouchTypes type) throws IOException {
+        return service.getAvailableCouchModels(CouchModelUtil.getOrganizationId(request), type);
     }
 
     protected <T> T getModel(CouchModel model, GeneralService service, Class<T> modelClass) {
@@ -106,7 +110,7 @@ public class GenerelContent extends VerticalLayout {
 
     protected void createTableData(GeneralService service, CouchTypes type) {
         tableData = new IndexedContainer();
-        getCouchModels(service, type);
+        fillCouchModels(service, type);
         LayoutUtil.addContainerProperties(hiddenFields, tableData);
     }
 

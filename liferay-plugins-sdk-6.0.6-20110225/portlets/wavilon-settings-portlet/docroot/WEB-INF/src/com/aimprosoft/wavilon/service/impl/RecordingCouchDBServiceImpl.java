@@ -24,29 +24,8 @@ public class RecordingCouchDBServiceImpl extends AbstractViewEntityService imple
     @Autowired
     private ObjectMapper objectMapper;
 
-    private Recording getRecording(String id) throws IOException {
-        return getRecording(getModel(id));
-    }
-
-    public Recording getRecording(CouchModel model) throws IOException {
-        return objectMapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false).convertValue(model.getProperties(), Recording.class);
-    }
-
     public CouchModel getModel(String id) throws IOException {
         return couchDBService.getModelById(id, true);
-    }
-
-    public List<Recording> getAllRecording() throws IOException {
-        ViewResults viewResults = database.adhoc(functions.getAllUniqueEntities());
-        List<Recording> recordingList = new LinkedList<Recording>();
-
-        for (Document doc : viewResults.getResults()) {
-
-            Recording recording = getRecording(doc.getId());
-
-            recordingList.add(recording);
-        }
-        return recordingList;
     }
 
     public void updateRecording(Recording recording, CouchModel model) throws IOException {
@@ -54,39 +33,9 @@ public class RecordingCouchDBServiceImpl extends AbstractViewEntityService imple
         updateCouchModel(model, properties);
     }
 
-    public List<CouchModel> getAllUsersCouchModelToRecording(Long organizationId, boolean attachment) throws IOException {
-        View view = database.getDocument(functions.getDesignDocumentNodes()).getView(functions.getAllUniqueEntities());
-        view.setKey(urlEncoder.encode("[\"recording\"," + organizationId + "]"));
-        ViewResults viewResults = database.view(view);
-
-        List<CouchModel> modelList = new LinkedList<CouchModel>();
-
-        for (Document doc : viewResults.getResults()) {
-            CouchModel model = null;
-
-            if (attachment) {
-                model = getModel(doc.getId());
-
-            } else model = getLiteModel(doc.getId());
-
-            modelList.add(model);
-        }
-        return modelList;
-    }
 
     public void addRecording(Recording recording, CouchModel model) throws IOException {
         updateRecording(recording, model);
     }
 
-    public void removeRecording(CouchModel model) throws IOException {
-        couchDBService.removeModel(model);
-    }
-
-    public void removeRecording(String id) throws IOException {
-        couchDBService.removeModelById(id);
-    }
-
-    private CouchModel getLiteModel(String id) throws IOException {
-        return couchDBService.getModelById(id, false);
-    }
 }
