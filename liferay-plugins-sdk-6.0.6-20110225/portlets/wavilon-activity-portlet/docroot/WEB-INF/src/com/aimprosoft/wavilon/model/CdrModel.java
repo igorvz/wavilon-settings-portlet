@@ -126,4 +126,24 @@ public class CdrModel{
     public void setCalldate(String calldate) {
         this.calldate = calldate;
     }
+
+     @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj != null && obj instanceof CdrModel) {
+            CdrModel cdrModel = (CdrModel) obj;
+            return this.id.equals(cdrModel.id);
+        } else return false;
+    }
+
+    @Override
+    public String toString() {
+        if (null != type) {
+            return (String) type;
+        } else return id;
+    }
 }

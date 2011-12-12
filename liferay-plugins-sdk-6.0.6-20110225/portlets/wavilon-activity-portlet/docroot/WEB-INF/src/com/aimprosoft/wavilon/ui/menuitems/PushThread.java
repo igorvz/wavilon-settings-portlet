@@ -1,6 +1,5 @@
 package com.aimprosoft.wavilon.ui.menuitems;
 
-import com.aimprosoft.wavilon.application.GenericPortletApplication;
 import com.aimprosoft.wavilon.model.Person;
 import com.aimprosoft.wavilon.service.CdrEktorpDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
@@ -13,7 +12,6 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 public class PushThread extends VerticalLayout implements Runnable {
-    public static ThreadLocal threadLocal = new ThreadLocal();
     private List<String> globalStoreId = new ArrayList<String>();
     private CdrEktorpDatabaseService cdrService = ObjectFactory.getBean(CdrEktorpDatabaseService.class);
     private ICEPush icePush;
@@ -50,10 +48,7 @@ public class PushThread extends VerticalLayout implements Runnable {
     @Override
     public void run() {
 
-         threadLocal.set(getApplication());
-
-        while (true) {
-
+        while (getApplication() != null) {
             List<String> idAllModels = cdrService.getModelsId();
 
             if (!globalStoreId.containsAll(idAllModels)) {
@@ -74,10 +69,6 @@ public class PushThread extends VerticalLayout implements Runnable {
 
                 localStore.clear();
                 idAllModels.clear();
-
-                if (getApplication() == null) {
-                    ((GenericPortletApplication) threadLocal.get()).getMainWindow().addComponent(icePush);
-                }
 
                 icePush.push();
             }

@@ -11,7 +11,6 @@ import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.util.CouchModelUtil;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
-import org.vaadin.artur.icepush.ICEPush;
 import org.vaadin.imagefilter.Image;
 
 import javax.portlet.PortletRequest;
@@ -32,7 +31,6 @@ public class DialogCell extends HorizontalLayout {
     private Label count;
     private Person person;
     private VerticalLayout chat;
-    private ICEPush icePush;
     private static Boolean pushMonitor = true;
     private static boolean condition = true;
 
@@ -42,15 +40,7 @@ public class DialogCell extends HorizontalLayout {
 
     public void init(Person person) {
         this.person = person;
-        request = ((GenericPortletApplication) PushThread.threadLocal.get()).getPortletRequest();
-
-        icePush = new ICEPush();
-
-        if (getApplication() != null) {
-
-            getApplication().getMainWindow().addComponent(icePush);
-        }
-
+        request = ((GenericPortletApplication) getApplication()).getPortletRequest();
         initLayout();
 
         BackgroundThread thread = new BackgroundThread(this);
@@ -162,26 +152,30 @@ public class DialogCell extends HorizontalLayout {
             public void buttonClick(Button.ClickEvent event) {
 
                 String noteContent = textArea.toString();
-                Note note = new Note();
-                note.setName("Boris");
-                note.setContent(noteContent);
 
-                Calendar cal = Calendar.getInstance();
-                note.setUpdateDate(cal.getTime());
+                if (!"".equals(noteContent.trim())) {
 
-                CouchModel couchModel = CouchModelUtil.newCouchModel(request, "note");
-                couchModel.setCdrId(person.getId());
+                    Note note = new Note();
+                    note.setName("Boris");
+                    note.setContent(noteContent);
 
-                try {
-                    noteService.addNote(note, couchModel);
-                    notes.add(noteService.getModel(couchModel.getId()));
-                } catch (IOException ignored) {
+                    Calendar cal = Calendar.getInstance();
+                    note.setUpdateDate(cal.getTime());
+
+                    CouchModel couchModel = CouchModelUtil.newCouchModel(request, "note");
+                    couchModel.setCdrId(person.getId());
+
+                    try {
+                        noteService.addNote(note, couchModel);
+                        notes.add(noteService.getModel(couchModel.getId()));
+                    } catch (IOException ignored) {
+                    }
+
+                    changeCondition();
                 }
-
                 textArea.setValue("");
-
-                changeCondition();
             }
+
         });
         newNote.addComponent(addNoteButton, 4, 2);
         newNote.setComponentAlignment(addNoteButton, Alignment.BOTTOM_RIGHT);
@@ -350,9 +344,12 @@ public class DialogCell extends HorizontalLayout {
             }
         }
 
-        chat.removeAllComponents();
-        fillChatLayout(chat);
+        if (getApplication() != null) {
 
-        condition = true;
+            chat.removeAllComponents();
+            fillChatLayout(chat);
+
+            condition = true;
+        }
     }
 }

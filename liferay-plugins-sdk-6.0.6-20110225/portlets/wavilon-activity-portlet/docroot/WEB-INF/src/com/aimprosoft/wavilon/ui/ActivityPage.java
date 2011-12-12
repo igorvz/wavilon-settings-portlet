@@ -13,8 +13,6 @@ public class ActivityPage extends VerticalLayout {
     private ResourceBundle bundle;
     private VerticalLayout leftColumn;
     private VerticalLayout detailsContent;
-    public static boolean flag = false;
-
 
     public ActivityPage(final ResourceBundle bundle) {
         this.bundle = bundle;
@@ -69,7 +67,6 @@ public class ActivityPage extends VerticalLayout {
 
         Button realTimeCallsFeed = new NativeButton(bundle.getString("wavilon.activity.menuitem.real.time.calls.feed"));
         realTimeCallsFeed.addStyleName("buttonSelect");
-//        realTimeCallsFeed.addStyleName("button");
         realTimeCallsFeed.addListener(new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
 
@@ -121,7 +118,6 @@ public class ActivityPage extends VerticalLayout {
 
         }
     }
-
 
     private void setSides(Component component) {
         component.setWidth(100, Sizeable.UNITS_PERCENTAGE);

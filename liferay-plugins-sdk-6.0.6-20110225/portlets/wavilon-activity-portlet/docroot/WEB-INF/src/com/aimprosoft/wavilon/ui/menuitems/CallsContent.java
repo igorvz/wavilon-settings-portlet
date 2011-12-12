@@ -2,7 +2,6 @@ package com.aimprosoft.wavilon.ui.menuitems;
 
 import com.aimprosoft.wavilon.application.GenericPortletApplication;
 import com.aimprosoft.wavilon.model.CdrModel;
-import com.aimprosoft.wavilon.service.AvatarService;
 import com.aimprosoft.wavilon.service.CdrEktorpDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.liferay.portal.model.User;
@@ -11,14 +10,14 @@ import com.liferay.portal.util.PortalUtil;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.Reindeer;
-import org.vaadin.artur.icepush.ICEPush;
 
 import javax.portlet.PortletRequest;
 import java.io.IOException;
-import java.util.*;
+import java.util.Iterator;
+import java.util.ResourceBundle;
+import java.util.UUID;
 
 public class CallsContent extends Panel {
-    private AvatarService avatarService = ObjectFactory.getBean(AvatarService.class);
     private CdrEktorpDatabaseService cdrService = ObjectFactory.getBean(CdrEktorpDatabaseService.class);
     private ResourceBundle bundle;
     private PortletRequest request;
@@ -26,7 +25,6 @@ public class CallsContent extends Panel {
     private VerticalLayout itemContent;
     private CategoryFilter categoryFilter;
     private String headCaption;
-    private ICEPush icePush;
     private CdrModel model = null;
 
     public CallsContent(ResourceBundle bundle) {
@@ -37,9 +35,6 @@ public class CallsContent extends Panel {
         request = ((GenericPortletApplication) getApplication()).getPortletRequest();
         this.categoryFilter = categoryFilter;
         this.headCaption = headCaption;
-
-        icePush = new ICEPush();
-        getApplication().getMainWindow().addComponent(icePush);
 
         setSizeFull();
         setStyleName(Reindeer.PANEL_LIGHT);
@@ -75,7 +70,6 @@ public class CallsContent extends Panel {
         mainLayout.addComponent(thread);
 
         thread.init();
-
     }
 
     private HorizontalLayout createListViewPart() {
@@ -208,4 +202,5 @@ public class CallsContent extends Panel {
             return -1l;
         }
     }
+
 }
