@@ -2,6 +2,8 @@ package com.aimprosoft.wavilon.couch;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.ektorp.Attachment;
+import org.ektorp.support.CouchDbDocument;
 
 import java.util.Map;
 
@@ -9,10 +11,7 @@ import java.util.Map;
 //PLEASE NOTE:
 // 1. Annotation overrides in child classes
 // 2. Do not ignore properties, where field name equals to JSON name
-public class CouchModel {
-    @JsonProperty("_id")
-    private String id;
-
+public class CouchModel extends CouchDbDocument {
     @JsonProperty("liferay_user_id")
     private Long liferayUserId;
 
@@ -21,9 +20,6 @@ public class CouchModel {
 
     @JsonProperty("liferay_portal_id")
     private String liferayPortalId;
-
-    @JsonProperty("_rev")
-    private String revision;
 
     @JsonProperty("type")
     private Object type;
@@ -34,16 +30,16 @@ public class CouchModel {
     @JsonProperty("outputs")
     private Map<String, Object> outputs;
 
-
-    @JsonProperty("_attachments")
-    private Map<String, Attachment> attachments;
+    public void setAttachment(Attachment attachment) {
+        addInlineAttachment(attachment);
+    }
 
     public String getId() {
-        return id;
+        return super.getId();
     }
 
     public void setId(String id) {
-        this.id = id;
+        super.setId(id);
     }
 
     public Long getLiferayUserId() {
@@ -71,11 +67,11 @@ public class CouchModel {
     }
 
     public String getRevision() {
-        return revision;
+        return super.getRevision();
     }
 
     public void setRevision(String revision) {
-        this.revision = revision;
+        super.setRevision(revision);
     }
 
     public Object getType() {
@@ -102,24 +98,20 @@ public class CouchModel {
         this.outputs = outputs;
     }
 
-    public Map<String, Attachment> getAttachments() {
-        return attachments;
-    }
-
-    public void setAttachments(Map<String, Attachment> attachments) {
-        this.attachments = attachments;
+    public void removeAttachment(String attachmentId) {
+        super.removeAttachment(attachmentId);
     }
 
     @Override
     public int hashCode() {
-        return id.hashCode();
+        return getId().hashCode();
     }
 
     @Override
     public boolean equals(Object obj) {
         if (obj != null && obj instanceof CouchModel) {
             CouchModel couchModel = (CouchModel) obj;
-            return this.id.equals(couchModel.id);
+            return this.getId().equals(couchModel.getId());
         } else return false;
     }
 
@@ -127,6 +119,6 @@ public class CouchModel {
     public String toString() {
         if (null != properties) {
             return (String) properties.get("name");
-        } else return id;
+        } else return getId();
     }
 }

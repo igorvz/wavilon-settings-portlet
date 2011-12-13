@@ -1,17 +1,15 @@
 package com.aimprosoft.wavilon.ui.menuitems.forms;
 
-import com.aimprosoft.wavilon.couch.Attachment;
 import com.aimprosoft.wavilon.couch.CouchModel;
 import com.aimprosoft.wavilon.model.Recording;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
 import com.vaadin.ui.Upload.Receiver;
 import org.apache.commons.io.FileUtils;
+import org.ektorp.Attachment;
+import org.ektorp.util.Base64;
 
 import java.io.*;
-import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.ResourceBundle;
 
 public class RecordingUploader extends VerticalLayout {
@@ -131,30 +129,28 @@ public class RecordingUploader extends VerticalLayout {
                     recording.setVersion(0);
                 }
 
-                recording.setVersion(recording.getVersion()+1);
+                recording.setVersion(recording.getVersion() + 1);
 
-                Attachment attachment = new Attachment();
-                attachment.setContentType(event.getMIMEType());
+                Attachment attachment = null;
 
                 if (form.getComponentError() != null) {
                     form.setComponentError(null);
                 }
 
                 file = new File(event.getFilename());
+
                 try {
-                    attachment.setData(FileUtils.readFileToByteArray(file));
+
+                    String fileId = recording.getFileName() + "." + recording.getFileType();
+                    String data = Base64.encodeBytes(FileUtils.readFileToByteArray(file));
+
+                    attachment = new Attachment(fileId, data, event.getMIMEType());
+
+
                 } catch (IOException ignored) {
                 }
 
-                try {
-                    fileName = URLEncoder.encode(event.getFilename(), "UTF-8");
-
-                } catch (UnsupportedEncodingException ignore) {
-                }
-                Map<String, Attachment> data = new HashMap<String, Attachment>();
-                data.put(fileName, attachment);
-
-                model.setAttachments(data);
+                model.setAttachment(attachment);
             }
         });
     }

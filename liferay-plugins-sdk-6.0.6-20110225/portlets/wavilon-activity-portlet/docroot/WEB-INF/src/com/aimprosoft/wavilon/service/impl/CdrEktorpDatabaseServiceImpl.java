@@ -5,6 +5,8 @@ import com.aimprosoft.wavilon.service.CdrEktorpDatabaseService;
 import org.ektorp.CouchDbConnector;
 import org.ektorp.ViewQuery;
 import org.ektorp.ViewResult;
+import org.ektorp.changes.ChangesCommand;
+import org.ektorp.changes.ChangesFeed;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -60,6 +62,7 @@ public class CdrEktorpDatabaseServiceImpl extends AbstractViewEntityService impl
         }
     }
 
+    @Override
     public List<String> getModelsId() {
         List<String> idList = new ArrayList<String>();
 
@@ -73,12 +76,13 @@ public class CdrEktorpDatabaseServiceImpl extends AbstractViewEntityService impl
             idList.add(result.getRows().get(i).getValue());
         }
 
-//        List<CdrModel> cdrModels = getCdrModelList(query);
-//
-//        for (CdrModel model : cdrModels) {
-//            idList.add(model.getId());
-//        }
-
         return idList;
+    }
+
+    @Override
+    public ChangesFeed getChangesFeed() {
+
+        ChangesCommand changesCommand = new ChangesCommand.Builder().build();
+        return connector.changesFeed(changesCommand);
     }
 }

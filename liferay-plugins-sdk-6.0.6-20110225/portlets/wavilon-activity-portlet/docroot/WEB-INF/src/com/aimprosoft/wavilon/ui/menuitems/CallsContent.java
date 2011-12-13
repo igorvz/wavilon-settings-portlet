@@ -4,6 +4,7 @@ import com.aimprosoft.wavilon.application.GenericPortletApplication;
 import com.aimprosoft.wavilon.model.CdrModel;
 import com.aimprosoft.wavilon.service.CdrEktorpDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
+import com.aimprosoft.wavilon.util.PersonUtil;
 import com.liferay.portal.model.User;
 import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portal.util.PortalUtil;
@@ -14,6 +15,7 @@ import com.vaadin.ui.themes.Reindeer;
 import javax.portlet.PortletRequest;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.UUID;
 
@@ -66,10 +68,24 @@ public class CallsContent extends Panel {
         listViewLayout.addComponent(listViewButtons);
         listViewLayout.setComponentAlignment(listViewButtons, Alignment.TOP_RIGHT);
 
+        createAllItems();
+
         PushThread thread = new PushThread(bundle);
         mainLayout.addComponent(thread);
 
         thread.init();
+    }
+
+    private void createAllItems() {
+        List<String> models = cdrService.getModelsId();
+
+        for (String id : models) {
+
+            DialogCell dialogCell = new DialogCell(bundle);
+            mainLayout.addComponent(dialogCell);
+            addStyleName("itemStyle");
+            dialogCell.init(PersonUtil.createRandomPerson(id));
+        }
     }
 
     private HorizontalLayout createListViewPart() {

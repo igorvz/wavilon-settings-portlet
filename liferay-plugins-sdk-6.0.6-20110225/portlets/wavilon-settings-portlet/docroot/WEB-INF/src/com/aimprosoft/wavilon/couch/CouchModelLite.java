@@ -1,10 +1,18 @@
 package com.aimprosoft.wavilon.couch;
 
 import org.apache.commons.lang.StringUtils;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.codehaus.jackson.annotate.JsonProperty;
 
+@JsonIgnoreProperties(value = {"id"}, ignoreUnknown = true)
 public class CouchModelLite {
+    @JsonProperty("_id")
     private String id;
+
+    @JsonProperty("name")
     private String name;
+
+    @JsonProperty("type")
     private String type;
 
     public CouchModelLite() {

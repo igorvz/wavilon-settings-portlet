@@ -1,6 +1,5 @@
 package com.aimprosoft.wavilon.ui.menuitems;
 
-import com.aimprosoft.wavilon.couch.Attachment;
 import com.aimprosoft.wavilon.couch.CouchModel;
 import com.aimprosoft.wavilon.couch.CouchModelLite;
 import com.aimprosoft.wavilon.couch.CouchTypes;
@@ -9,9 +8,6 @@ import com.aimprosoft.wavilon.service.RecordingDatabaseService;
 import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.util.CouchModelUtil;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.util.Map;
 import java.util.ResourceBundle;
 
 public class RecordingsContent extends GenerelContent {
@@ -37,17 +33,7 @@ public class RecordingsContent extends GenerelContent {
             for (final CouchModel couchModel : couchModels) {
                 Object object = tableData.addItem();
                 Recording recording = getModel(couchModel, service, Recording.class);
-                String fileName = "";
-
-                Map<String, Attachment> attachmentMap = couchModel.getAttachments();
-                for (Map.Entry<String, Attachment> entry : attachmentMap.entrySet()) {
-
-                    try {
-                        fileName = URLDecoder.decode(entry.getKey(), "UTF-8");
-                    } catch (UnsupportedEncodingException ignore) {
-                    }
-                }
-
+                String fileName = recording.getFileName() + "." + recording.getFileType();
 
                 CouchModelLite forwardModel = CouchModelUtil.getCouchModelLite(recording.getForwardTo(), bundle);
 

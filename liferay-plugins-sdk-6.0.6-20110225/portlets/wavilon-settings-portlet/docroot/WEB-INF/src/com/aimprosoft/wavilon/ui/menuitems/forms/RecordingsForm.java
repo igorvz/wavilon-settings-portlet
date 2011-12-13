@@ -1,6 +1,5 @@
 package com.aimprosoft.wavilon.ui.menuitems.forms;
 
-import com.aimprosoft.wavilon.couch.Attachment;
 import com.aimprosoft.wavilon.couch.CouchModel;
 import com.aimprosoft.wavilon.couch.CouchModelLite;
 import com.aimprosoft.wavilon.couch.CouchTypes;
@@ -12,9 +11,7 @@ import com.aimprosoft.wavilon.util.LayoutUtil;
 import com.vaadin.terminal.UserError;
 import com.vaadin.ui.*;
 
-import java.net.URLDecoder;
 import java.util.List;
-import java.util.Map;
 import java.util.ResourceBundle;
 
 public class RecordingsForm extends GeneralForm {
@@ -86,10 +83,7 @@ public class RecordingsForm extends GeneralForm {
                             table.select(null);
                         }
 
-                        Map<String, Attachment> attachmentMap = model.getAttachments();
-                        for (Map.Entry<String, Attachment> entry : attachmentMap.entrySet()) {
-
-                            String fileName = URLDecoder.decode(entry.getKey(), "UTF-8");
+                        String fileName = recording.getFileName() + "." + recording.getFileType();
 
                             table.getContainerProperty(object, bundle.getString("wavilon.table.recordings.column.name")).setValue(recording.getName());
                             table.getContainerProperty(object, bundle.getString("wavilon.table.recordings.column.forward.to.on.end")).setValue(CouchModelUtil.getCouchModelLite(forwardId, bundle).getName());
@@ -99,13 +93,11 @@ public class RecordingsForm extends GeneralForm {
 
                             LayoutUtil.setTableBackground(table, CouchTypes.recording);
 
-                        }
-
 
                         getParent().getWindow().showNotification(bundle.getString("wavilon.well.done"));
                         close();
                     }
-                } catch (Exception ignored) {
+                } catch (Exception ignored) { ignored.printStackTrace();
                 }
             }
         });

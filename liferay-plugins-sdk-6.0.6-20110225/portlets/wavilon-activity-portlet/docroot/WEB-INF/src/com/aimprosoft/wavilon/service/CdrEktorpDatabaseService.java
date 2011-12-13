@@ -1,6 +1,7 @@
 package com.aimprosoft.wavilon.service;
 
 import com.aimprosoft.wavilon.model.CdrModel;
+import org.ektorp.changes.ChangesFeed;
 
 import java.io.IOException;
 import java.util.List;
@@ -17,5 +18,7 @@ public interface CdrEktorpDatabaseService {
 
     void removeCdrModel(String id) throws IOException;
 
-    public List<String> getModelsId();
+    List<String> getModelsId();
+
+    ChangesFeed getChangesFeed();
 }

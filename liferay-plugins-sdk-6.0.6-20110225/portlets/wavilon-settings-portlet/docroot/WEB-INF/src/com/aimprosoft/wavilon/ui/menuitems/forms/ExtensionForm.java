@@ -115,8 +115,7 @@ public class ExtensionForm extends GeneralForm {
                         close();
                     }
 
-                } catch (Exception ignored) {
-                }
+                } catch (Exception ignored) {}
             }
         });
     }
