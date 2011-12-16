@@ -11,6 +11,8 @@ import com.aimprosoft.wavilon.spring.ObjectFactory;
 import com.aimprosoft.wavilon.util.CouchModelUtil;
 import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.*;
+import org.ektorp.changes.DocumentChange;
+import org.vaadin.artur.icepush.ICEPush;
 import org.vaadin.imagefilter.Image;
 
 import javax.portlet.PortletRequest;
@@ -31,8 +33,14 @@ public class DialogCell extends HorizontalLayout {
     private Label count;
     private Person person;
     private VerticalLayout chat;
-    private static Boolean pushMonitor = true;
-    private static boolean condition = true;
+    private int lastAddedSeq;
+    private int lastRemovedSeq;
+
+    private ICEPush icePush;
+    public static Boolean pushMonitor = true;
+    public static boolean condition = true;
+    public static boolean removeCondition = false;
+
 
     public DialogCell(ResourceBundle bundle) {
         this.bundle = bundle;
@@ -40,8 +48,14 @@ public class DialogCell extends HorizontalLayout {
 
     public void init(Person person) {
         this.person = person;
+        icePush = new ICEPush();
+
+        getApplication().getMainWindow().addComponent(icePush);
+
         request = ((GenericPortletApplication) getApplication()).getPortletRequest();
         initLayout();
+
+        lastAddedSeq = noteService.getLastSeq();
 
         BackgroundThread thread = new BackgroundThread(this);
         addComponent(thread);
@@ -234,7 +248,6 @@ public class DialogCell extends HorizontalLayout {
         notes = getAllNotes();
         count.setValue(String.valueOf(notes.size()));
 
-
 //      todo iteration adding cells from DB
         for (CouchModel noteCouchModel : notes) {
             createNoteLayout(chat, noteCouchModel);
@@ -244,6 +257,13 @@ public class DialogCell extends HorizontalLayout {
 
     private void createNoteLayout(VerticalLayout chat, CouchModel noteCouchModel) {
         VerticalLayout note = createNote(noteCouchModel);
+
+        Label id = new Label();
+        id.setVisible(false);
+        id.setValue(noteCouchModel.getId());
+
+        note.addComponent(id);
+
         chat.addComponent(note);
         note.setStyleName("note");
     }
@@ -295,14 +315,13 @@ public class DialogCell extends HorizontalLayout {
             public void buttonClick(Button.ClickEvent event) {
                 try {
                     noteService.removeNote(noteCouchModel.getId());
-                    event.getButton().getParent().getParent().setVisible(false);
-                    notes.remove(notes.indexOf(noteCouchModel));
-                    count.setValue(String.valueOf(notes.size()));
+
+                    removeCondition = true;
+
+                    changeCondition();
 
                 } catch (IOException ignored) {
                 }
-
-
             }
         });
         removeNoteButton.setStyleName("removeNoteButton");
@@ -334,6 +353,7 @@ public class DialogCell extends HorizontalLayout {
     }
 
     public void repaint() {
+
         synchronized (pushMonitor) {
 
             while (condition) {
@@ -344,12 +364,80 @@ public class DialogCell extends HorizontalLayout {
             }
         }
 
+        if (removeCondition) {
+
+            removeNote();
+
+        } else {
+
+            addNote();
+        }
+
+        condition = true;
+    }
+
+    private void addNote() {
         if (getApplication() != null) {
 
-            chat.removeAllComponents();
-            fillChatLayout(chat);
+            List<DocumentChange> documentChanges = noteService.filterNodesChange(lastAddedSeq);
 
-            condition = true;
+            for (DocumentChange change : documentChanges) {
+
+                if (change.getRevision().startsWith("1")) {
+
+                    String id = change.getId();
+                    CouchModel model = null;
+
+                    try {
+                        model = noteService.getModel(id);
+                    } catch (IOException e) {
+                    }
+
+                    createNoteLayout(chat, model);
+                    notes = getAllNotes();
+
+                    count.setValue(String.valueOf(notes.size()));
+
+                    lastAddedSeq = change.getSequence();
+                }
+            }
+        }
+    }
+
+    private void removeNote() {
+
+        lastRemovedSeq = noteService.getLastSeq();
+
+        List<DocumentChange> documentChanges = noteService.getRemovedNodes(lastRemovedSeq);
+
+        String id = documentChanges.get(0).getId();
+
+        findRemoveItem(id);
+
+        removeCondition = false;
+    }
+
+    private void findRemoveItem(String id) {
+
+        Iterator<Component> componentIterator = chat.getComponentIterator();
+
+        while (componentIterator.hasNext()) {
+
+            VerticalLayout component = (VerticalLayout) componentIterator.next();
+
+            Label label = (Label) component.getComponent(2);
+
+            String removeId = (String) label.getValue();
+
+            if (removeId.equals(id)) {
+
+                chat.removeComponent(component);
+
+                notes = getAllNotes();
+                count.setValue(String.valueOf(notes.size()));
+
+                break;
+            }
         }
     }
 }

@@ -5,6 +5,8 @@ import com.aimprosoft.wavilon.model.Note;
 import com.aimprosoft.wavilon.service.NoteDatabaseService;
 import org.ektorp.CouchDbConnector;
 import org.ektorp.ViewQuery;
+import org.ektorp.changes.ChangesCommand;
+import org.ektorp.changes.DocumentChange;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -21,7 +23,7 @@ public class NoteEktorpDatabaseImpl extends AbstractViewEntityService implements
     @Qualifier("notesDatabaseConnector")
     private CouchDbConnector connector;
 
-    private Note getNote(String id) throws IOException {
+    public Note getNote(String id) throws IOException {
         CouchModel model = getModel(id);
         return objectMapper.convertValue(model.getProperties(), Note.class);
     }
@@ -89,5 +91,46 @@ public class NoteEktorpDatabaseImpl extends AbstractViewEntityService implements
         } else {
             return couchModelList;
         }
+    }
+
+    @Override
+    public List<DocumentChange> filterNodesChange(long seq) {
+
+        String st = "filters/filterbytype";
+
+        ChangesCommand changesCommand = new ChangesCommand.Builder()
+                .continuous(false)
+                .filter(st)
+                .since(seq)
+                .param("type", "note")
+                .build();
+
+        return connector.changes(changesCommand);
+    }
+
+    @Override
+    public int getLastSeq() {
+
+        ChangesCommand changesCommand = new ChangesCommand.Builder()
+                .continuous(false)
+                .build();
+
+        List<DocumentChange> documentChanges = connector.changes(changesCommand);
+
+        DocumentChange change = documentChanges.get(documentChanges.size() - 1);
+
+        return change.getSequence();
+    }
+
+    @Override
+    public List<DocumentChange> getRemovedNodes(long seq) {
+
+        ChangesCommand changesCommand = new ChangesCommand.Builder()
+                .continuous(false)
+                .since(seq-1)
+                .build();
+
+
+        return connector.changes(changesCommand);
     }
 }
